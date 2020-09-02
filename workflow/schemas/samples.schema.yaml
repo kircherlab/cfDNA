@@ -1,0 +1,17 @@
+$schema: "http://json-schema.org/draft-04/schema#"
+
+description: an entry in the sample sheet
+
+# columns that the config/samples.tsv file can have and which type they should be
+properties:
+  sample:
+    type: string
+    description: sample name/identifier
+  path:
+    type: string
+    description: path to sample input file (e.g. sample.bam)
+
+# columns that the config/samples.tsv file must have to pass schema validation
+required:
+  - sample
+  - path
