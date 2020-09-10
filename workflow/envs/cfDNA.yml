@@ -1,0 +1,13 @@
+name: cfDNA_scripts
+channels:
+  - conda-forge
+  - bioconda                                                      
+dependencies:
+  - r-base
+  - r-gplots
+  - python=2.7
+  - numpy=1.7
+  - bx-python
+  - pip
+  - pip:
+    - pysam==0.7.6
