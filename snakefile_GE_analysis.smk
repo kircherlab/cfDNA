@@ -17,12 +17,12 @@ rule all:
                 SAMPLE=samples["sample"]),
         expand("results/plots/{ID}/{tissue}_allFreq_correlation_plot.pdf",
                 tissue=config["tissue"],
-                ID=config["ID"]),
+                ID=samples["ID"]),
         expand("results/tables/{ID}/Ave193-199bp_correlation.pdf",
-                ID=config["ID"]),
+                ID=samples["ID"]),
         expand("results/tables/{ID}/{refSample}_Ave193-199bp_correlation_rank.pdf",
                 refSample = config["refSample"],
-                ID=config["ID"])
+                ID=samples["ID"])
 
 
 rule prep:
