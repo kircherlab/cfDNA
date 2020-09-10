@@ -68,7 +68,7 @@ If you use this workflow in a paper, don't forget to give credits to the authors
 
 ### Step 2: Configure workflow
 
-Configure the workflow according to your needs via editing the files in the `config/` folder. Adjust `config.yaml` to configure the workflow execution, and `samples.tsv` to specify your sample setup.
+Configure the workflow according to your needs via editing the files in the `config/` folder. Adjust `config.yaml` to configure the workflow execution, `samples.tsv` to specify your sample setup and `regions.tsv` to specify target regions.
 
 ### Step 3: Install Snakemake
 
@@ -135,8 +135,9 @@ Windowed protection scores are calculated for all provided regions with addition
 
 #### Input
 
-- sample bam file
-- bed file containing regions of interest (e.g. TFBS), all having the same length
+- configured by user:
+    - sample bam file (samples.tsv)
+    - bed file containing regions of interest (e.g. TFBS), all having the same length (regions.tsv)
 
 #### Output
 
