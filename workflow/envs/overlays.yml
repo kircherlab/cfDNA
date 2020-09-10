@@ -1,0 +1,11 @@
+name: cfDNA_plots
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.8
+  - pandas
+  - matplotlib
+  - scipy
+prefix: /fast/users/roeners_c/work/miniconda/envs/cfDNA_plots

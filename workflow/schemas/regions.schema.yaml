@@ -1,0 +1,17 @@
+$schema: "http://json-schema.org/draft-04/schema#"
+
+description: an entry in the sample sheet
+
+# columns that the config/regions.tsv file can have and which type they should be
+properties:
+  target:
+    type: string
+    description: target name/identifier (e.g. gene or TF name)
+  path:
+    type: string
+    description: path to target .bed file (e.g. target.bed)
+
+# columns that the config/samples.tsv file must have to pass schema validation
+required:
+  - target
+  - path
