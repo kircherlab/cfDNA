@@ -11,5 +11,3 @@ dependencies:
   - pip
   - pip:
     - pysam==0.7.6
-#  - pysam=0.7.5
-#  - bx-python=0.6.0

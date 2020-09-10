@@ -8,4 +8,3 @@ dependencies:
   - pandas
   - matplotlib
   - scipy
-prefix: /fast/users/roeners_c/work/miniconda/envs/cfDNA_plots
