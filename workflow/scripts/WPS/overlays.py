@@ -31,10 +31,10 @@ outfile = snakemake.output[0]
 
 av_WPS = pd.DataFrame()
 av_WPS[sample_ID] = pd.read_csv(WPS, header=None).mean()
-av_WPS[sample_ID] = av_WPS[sample_ID]-stats.trim_mean(av_WPS[sample_ID], 0.25)
+av_WPS[sample_ID] = av_WPS[sample_ID]/stats.trim_mean(av_WPS[sample_ID], 0.25)
 for (ref_ID, WPS_ref) in zip(ref_IDs, WPS_refs):
     av_WPS[ref_ID] = pd.read_csv(WPS_ref, header=None).mean()
-    av_WPS[ref_ID] = av_WPS[ref_ID]-stats.trim_mean(av_WPS[ref_ID], 0.25)
+    av_WPS[ref_ID] = av_WPS[ref_ID]/stats.trim_mean(av_WPS[ref_ID], 0.25)
 
 av_WPS["position"] = range(-1001,1001)
 av_WPS = av_WPS.set_index("position")
@@ -42,11 +42,11 @@ av_WPS = av_WPS.set_index("position")
 
 av_COV = pd.DataFrame()
 av_COV[sample_ID] = pd.read_csv(COV, header=None).mean()
-av_COV[sample_ID] = av_COV[sample_ID]-stats.trim_mean(av_COV[sample_ID], 0.25)
+av_COV[sample_ID] = av_COV[sample_ID]/stats.trim_mean(av_COV[sample_ID], 0.25)
 for (ref_ID, COV_ref) in zip(ref_IDs, COV_refs):
     print(ref_ID, COV_ref)
     av_COV[ref_ID] = pd.read_csv(COV_ref, header=None).mean()
-    av_COV[ref_ID] = av_COV[ref_ID]-stats.trim_mean(av_COV[ref_ID], 0.25)
+    av_COV[ref_ID] = av_COV[ref_ID]/stats.trim_mean(av_COV[ref_ID], 0.25)
 
 av_COV["position"] = range(-1001,1001)
 av_COV = av_COV.set_index("position")
