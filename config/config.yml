@@ -1,4 +1,4 @@
-samples: "config/samples1.tsv" # .tsv file containing sample names and locations
+samples: "config/samples.tsv" # .tsv file containing sample names and locations
 regions: "config/regions.tsv" # .tsv file containing bed files with regions of interest
 
 tissue: ["CACO.2", "MCF7", "PC.3"] # tissues for generating plots
