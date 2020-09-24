@@ -8,6 +8,7 @@ dependencies:
   - python=2.7
   - numpy=1.7
   - bx-python
+  - sortedcontainers
   - pip
   - pip:
     - pysam==0.7.6
