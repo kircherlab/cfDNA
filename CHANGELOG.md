@@ -12,3 +12,8 @@
 
 ### documentation
 
+- added README.md in config dir
+
+- updated README.md in root dir
+    - updated input sections for workflows documentation
+    - added links to .tsv files and README.md in config dir
