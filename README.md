@@ -135,9 +135,14 @@ Windowed protection scores are calculated for all provided regions with addition
 
 #### Input
 
-- configured by user:
-    - sample bam file (samples.tsv)
-    - bed file containing regions of interest (e.g. TFBS), all having the same length (regions.tsv)
+
+- configured by the user ([samples.tsv](config/samples.tsv)):
+    - samples
+    - path to sample bam files
+- configured by the user ([regions.tsv](config/regions.tsv)):
+    - bed file containing regions of interest (e.g. TFBS), all having the same length
+
+**Note:** More information about config files [here](config/README.md)
 
 #### Output
 
@@ -168,9 +173,11 @@ WPS was used to calculate periodograms of genomic regions using Fast Fourier Tra
     - annotations
     - labels
     - RNAtable from Protein Atlas
-- configured by the user (samples.tsv):
+- configured by the user ([samples.tsv](config/samples.tsv)):
     - samples
     - path to sample bam files
+
+**Note:** More information about config files [here](config/README.md)
 
 #### Output
 

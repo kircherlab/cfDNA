@@ -15,4 +15,5 @@ analysis/*
 !.test
 !LICENSE
 !README.md
+!CHANGELOG.md
 !*.smk

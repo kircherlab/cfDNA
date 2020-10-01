@@ -6,14 +6,13 @@
 :Date: 08.09.2020
 """
 
-# imports
-
-import pandas as pd
-
-from scipy import stats
 import matplotlib
-matplotlib.use('pdf')
+import pandas as pd
 from matplotlib.backends.backend_pdf import PdfPages
+from scipy import stats
+
+matplotlib.use("pdf")
+
 
 # get variables from snakefile
 
@@ -26,35 +25,81 @@ ref_IDs = snakemake.params["ref_IDs"]
 target = snakemake.params["target"]
 outfile = snakemake.output[0]
 
-# load tables containing position specific scores for all defined target regions +-1000 bp
+# def functions
+
+
+def calculate_flanking_regions(val: int):
+    """Calculates flanking regions for point of interest.
+
+    Args:
+        val (int): should be length of value vector
+
+    Raises:
+        TypeError: Only integers are allowed
+
+    Returns:
+        [iterator]: range of values around center point (e.g. range(-1000,1000))
+    """
+
+    if not isinstance(val, int):
+        raise TypeError("Only integers are allowed")
+
+    if val % 2 == 0:
+        flank = int(val / 2)
+        region = range(-flank, flank)
+    elif val % 2 == 1:
+        flank_l = int(val / 2 - 0.5)
+        flank_r = int(val / 2 + 0.5)
+        region = range(-flank_l, flank_r)
+    return region
+
+
+def add_sample(path: str):
+    """Reads .csv file, calculates mean over all rows and divides by trimmed mean.
+
+    Args:
+        path (str): Path to a .csv file
+
+    Returns:
+        [type]: [description]
+    """
+    sample = pd.read_csv(path, header=None).mean()
+    sample = sample / stats.trim_mean(sample, 0.25)
+    return sample
+
+
+# load tables containing position specific scores for all defined target regions
 # average over all regions per sample and substract the trimmed mean to normalise
 
-av_WPS = pd.DataFrame()
-av_WPS[sample_ID] = pd.read_csv(WPS, header=None).mean()
-av_WPS[sample_ID] = av_WPS[sample_ID]/stats.trim_mean(av_WPS[sample_ID], 0.25)
-for (ref_ID, WPS_ref) in zip(ref_IDs, WPS_refs):
-    av_WPS[ref_ID] = pd.read_csv(WPS_ref, header=None).mean()
-    av_WPS[ref_ID] = av_WPS[ref_ID]/stats.trim_mean(av_WPS[ref_ID], 0.25)
 
-av_WPS["position"] = range(-1001,1001)
+av_WPS = pd.DataFrame()
+av_WPS[sample_ID] = add_sample(WPS)
+for (ref_ID, WPS_ref) in zip(ref_IDs, WPS_refs):
+    av_WPS[ref_ID] = add_sample(WPS_ref)
+
+av_WPS["position"] = calculate_flanking_regions(len(av_WPS))
 av_WPS = av_WPS.set_index("position")
 
-
 av_COV = pd.DataFrame()
-av_COV[sample_ID] = pd.read_csv(COV, header=None).mean()
-av_COV[sample_ID] = av_COV[sample_ID]/stats.trim_mean(av_COV[sample_ID], 0.25)
+av_COV[sample_ID] = add_sample(COV)
 for (ref_ID, COV_ref) in zip(ref_IDs, COV_refs):
-    print(ref_ID, COV_ref)
-    av_COV[ref_ID] = pd.read_csv(COV_ref, header=None).mean()
-    av_COV[ref_ID] = av_COV[ref_ID]/stats.trim_mean(av_COV[ref_ID], 0.25)
+    av_COV[ref_ID] = add_sample(COV_ref)
 
-av_COV["position"] = range(-1001,1001)
+av_COV["position"] = calculate_flanking_regions(len(av_WPS))
 av_COV = av_COV.set_index("position")
 
 # create line plots and save to a single pdf
 
 with PdfPages(outfile) as pdf:
-    Fig_WPS = av_WPS.plot(title=f"adjusted WPS: {target} target regions", xlabel="Position relative to target site", ylabel="adjusted WPS")
-    Fig_Cov = av_COV.plot(title=f"adjusted read coverage: {target} target regions", xlabel="Position relative to target site", ylabel="adjusted read coverage")
+    Fig_WPS = av_WPS.plot(
+        title=f"adjusted WPS: {target} target regions",
+        xlabel="Position relative to target site",
+        ylabel="normalized WPS",
+    )
+    Fig_Cov = av_COV.plot(
+        title=f"adjusted read coverage: {target} target regions",
+        xlabel="Position relative to target site",
+        ylabel="normalized read coverage",
+    )
     pdf.savefig(Fig_WPS.get_figure())
     pdf.savefig(Fig_Cov.get_figure())
