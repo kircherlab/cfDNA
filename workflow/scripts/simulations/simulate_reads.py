@@ -196,7 +196,7 @@ if len(options.region) > 0:
 # READ LENGTH DISTRIBUTION
 #############################
 
-lengthDist = SortedDict(23) # load -> math.sqrt(500)
+lengthDist = SortedDict()
 if os.path.exists(options.lengthDist):
   infile = open(options.lengthDist)
   line = infile.readline() # Skip header
@@ -222,13 +222,8 @@ else:
   sys.stderr.write("Error: Could not open length distribution!\n")
   sys.exit()
 
-#print lengthDist
-#sel = random.random()
-#key = lengthDist.bisect_left(sel)
-#print sel,key,lengthDist.iloc[key]
-
-minLength = lengthDist[lengthDist.iloc[0]]
-maxLength = lengthDist[lengthDist.iloc[-1]]
+minLength = min(lengthDist.keys())
+maxLength = max(lengthDist.keys())
 
 #############################
 # READ KMER DISTRIBUTIONS
@@ -532,8 +527,7 @@ for chrom,start,end in chromosomes:
         if rval <= forward[strand][kmer]*correctForward:
           # Pick a length
           lval = random.random()
-          key = lengthDist.bisect_left(lval)
-          selLength = lengthDist[lengthDist.iloc[key]]
+          selLength = lengthDist[lengthDist.bisect_left(lval)]
         
           # Check the kmer at the other end
           rkmer = ""
