@@ -67,6 +67,7 @@ protection = options.protection//2
 #validChroms = set(map(str,range(1,23)+["X","Y"]))
 WPS_scores = list()
 COV_scores = list()
+STARTS_scores = list()
 
 if os.path.exists(options.input):
   infile = open(options.input)
@@ -155,7 +156,7 @@ if os.path.exists(options.input):
     outLines = []
     wps_list = []
     cov_list = []
-
+    starts_list = []
 
     for pos in range(regionStart,regionEnd+1):
       rstart,rend = pos-protection,pos+protection
@@ -168,12 +169,15 @@ if os.path.exists(options.input):
       outLines.append("%s\t%d\t%d\t%d\t%d\n"%(chrom,pos,covCount,startCount,gcount-bcount))
       wps_list.append(gcount-bcount)
       cov_list.append(covCount)
+      starts_list.append(startCount)
     if strand == "-": outLines = outLines[::-1]
     WPS_scores.append(wps_list)
     COV_scores.append(cov_list)
+    STARTS_scores.append(starts_list)
 
 filen_WPS = options.outfile%"WPS"
 filen_COV = options.outfile%"COV"
+filen_STARTS = options.outfile%"STARTS"
 
 #with open(options.outfile,"w") as file:
 with open(filen_WPS,"w") as file:
@@ -185,3 +189,8 @@ with open(filen_COV,"w") as file:
     csvwriter = csv.writer(file)
     for cov_list in COV_scores:
         csvwriter.writerow(cov_list)
+
+with open(filen_STARTS,"w") as file:
+    csvwriter = csv.writer(file)
+    for start_list in STARTS_scores:
+        csvwriter.writerow(start_list)
