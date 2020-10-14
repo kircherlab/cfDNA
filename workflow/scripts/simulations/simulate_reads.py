@@ -196,7 +196,7 @@ if len(options.region) > 0:
 # READ LENGTH DISTRIBUTION
 #############################
 
-lengthDist = SortedDict(23) # load -> math.sqrt(500)
+lengthDist = SortedDict() # load -> math.sqrt(500)
 if os.path.exists(options.lengthDist):
   infile = open(options.lengthDist)
   line = infile.readline() # Skip header
