@@ -1,3 +1,6 @@
+GRCh37_genome: "resources/genome/hs37d5.fa.autosomes.genome"
+UCSC_gap: "resources/UCSC_gap.hg19.bed"
+
 samples: "config/samples.tsv" # .tsv file containing sample names and locations
 regions: "config/regions.tsv" # .tsv file containing bed files with regions of interest
 
