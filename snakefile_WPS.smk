@@ -84,8 +84,7 @@ rule all:
             target_region=regions["target"],
         ),
         expand(
-            "results/intermediate/{ID}/background_region/{target_region}.{SAMPLE}_background_regions.bed",
-            SAMPLE=samples["sample"],
+            "results/intermediate/{ID}/background_region/{target_region}_background_regions.bed",
             ID=samples["ID"],
             target_region=regions["target"],
         ),
@@ -104,7 +103,7 @@ rule generate_random_background:
         genome=config["GRCh37_genome"],
         gap=config["UCSC_gap"],
     output:
-        "results/intermediate/{ID}/background_region/{target_region}.{SAMPLE}_background_regions.bed",
+        "results/intermediate/{ID}/background_region/{target_region}_background_regions.bed",
     params:
         length = lambda wildcards, input: get_length(input.region)
     conda:"workflow/envs/background.yml"
@@ -141,7 +140,7 @@ rule extract_counts:
 
 rule extract_counts_background:
     input:
-        background="results/intermediate/{ID}/background_region/{target_region}.{SAMPLE}_background_regions.bed",
+        background="results/intermediate/{ID}/background_region/{target_region}_background_regions.bed",
         BAMFILE=lambda wildcards: samples["path"][wildcards.SAMPLE],
     output:
         WPS="results/intermediate/{ID}/background_region/table/{target_region}.{SAMPLE}_WPS.background.csv",
