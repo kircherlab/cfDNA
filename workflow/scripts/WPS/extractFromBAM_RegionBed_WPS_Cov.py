@@ -76,6 +76,8 @@ if os.path.exists(options.input):
     # implement proper bedfile reading
     ########
     chrom,start,end,cid,score,strand = line.split() # positions should be 0-based and end non-inclusive
+    if chrom.startswith("chr"):
+      chrom = chrom.strip("chr")
 #    if chrom not in validChroms: continue
     
     regionStart,regionEnd = int(start)-1000,int(end)+1000
