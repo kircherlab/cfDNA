@@ -69,9 +69,8 @@ def add_sample(path_a: str, path_b: str):
         [type]: [description]
     """
     sample_a = pd.read_csv(path_a, header=None).mean()
-    sample_b = pd.read_csv(path_b, header=None)
-    sample_b = stats.trim_mean(sample_b, 0.1)
-    sample = sample_a / sample_b.mean()
+    sample_b = pd.read_csv(path_b, header=None).mean(axis=1)
+    sample = sample_a / stats.trim_mean(sample_b, 0.1)
     return sample
 
 
