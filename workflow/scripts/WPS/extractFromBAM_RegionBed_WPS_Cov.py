@@ -76,8 +76,8 @@ if os.path.exists(options.input):
     # implement proper bedfile reading
     ########
     chrom,start,end,cid,score,strand = line.split() # positions should be 0-based and end non-inclusive
-    if chrom.startswith("chr"):
-      chrom = chrom.strip("chr")
+#    if chrom.startswith("chr"):
+#      chrom = chrom.strip("chr")
 #    if chrom not in validChroms: continue
     
     regionStart,regionEnd = int(start)-1000,int(end)+1000
@@ -151,6 +151,8 @@ if os.path.exists(options.input):
             else:
               if (rstart >= regionStart and rstart <= regionEnd):
                 posRange[rstart][1]+=1
+      else:
+        sys.stderr.write("Using min/max length cutoffs: %d/%d\n"%(minInsSize,maxInsSize))
 
     #filename = options.outfile%cid
     #outfile = gzip.open(filename,'w')
