@@ -175,6 +175,9 @@ if os.path.exists(options.input):
       cov_list.append(covCount)
       starts_list.append(startCount)
     if strand == "-": outLines = outLines[::-1]
+    if strand == "-": wps_list = wps_list[::-1]
+    if strand == "-": cov_list = cov_list[::-1]
+    if strand == "-": starts_list = starts_list[::-1]
     WPS_scores.append(wps_list)
     COV_scores.append(cov_list)
     STARTS_scores.append(starts_list)
