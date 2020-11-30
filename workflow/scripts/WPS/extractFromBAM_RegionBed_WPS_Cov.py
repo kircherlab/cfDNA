@@ -80,7 +80,7 @@ if os.path.exists(options.input):
 #      chrom = chrom.strip("chr")
 #    if chrom not in validChroms: continue
     
-    regionStart,regionEnd = int(start)-1000,int(end)+1000
+    regionStart,regionEnd = int(start)-1300,int(end)+1300
     
     if regionStart < 1: continue
     
