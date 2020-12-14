@@ -65,6 +65,8 @@ protection = options.protection//2
 
 #validChroms = set(map(str,range(1,23)+["X","Y"]))
 #validChroms = set(map(str,range(1,23)+["X","Y"]))
+validChroms = [str(i) for i in range(1, 23)] + ["X","Y"]
+
 WPS_scores = list()
 COV_scores = list()
 STARTS_scores = list()
@@ -76,9 +78,9 @@ if os.path.exists(options.input):
     # implement proper bedfile reading
     ########
     chrom,start,end,cid,score,strand = line.split() # positions should be 0-based and end non-inclusive
-#    if chrom.startswith("chr"):
-#      chrom = chrom.strip("chr")
-#    if chrom not in validChroms: continue
+    if chrom.startswith("chr"):
+      chrom = chrom.replace("chr","")
+    if chrom not in validChroms: continue
     
     regionStart,regionEnd = int(start)-1300,int(end)+1300
     
@@ -100,11 +102,11 @@ if os.path.exists(options.input):
         input_file = pysam.Samfile( bamfile, "rb" )
         prefix = ""
         for tchrom in input_file.references:
-          if tchrom.startswith("chr"): 
+          if tchrom.startswith("chr"):
             prefix = "chr"
             break
 
-        for read in input_file.fetch(chrom,regionStart-protection-1,regionEnd+protection+1):
+        for read in input_file.fetch(prefix+chrom,regionStart-protection-1,regionEnd+protection+1):
           if read.is_duplicate or read.is_qcfail or read.is_unmapped: continue
           if isSoftClipped(read.cigar): continue
           
