@@ -13,54 +13,6 @@ regions = pd.read_csv(config["regions"], sep="\t").set_index("target", drop=Fals
 regions.index.names = ["region_id"]
 validate(regions, schema="workflow/schemas/regions.schema.yaml")
 
-#def get_chroms(ID, target_region):
-#    BEDCOLS = ["chrom", "chromStart", "chromEnd",
-#           "name", "score", "strand",
-#           "thickStart", "thickEnd", "itemRGB",
-#           "blockCount", "blockSizes", "blockStarts"]
-#    #print(target_region)
-#    bedfile=f"results/intermediate/{ID}/regions/target_region/{target_region}_blacklist-excluded.bed"
-#    #print(bedfile)
-#    #bedfile=regions["path"][target_region]
-#    bed_df = pd.read_csv(bedfile, sep="\t", header=None)
-#    colnames = []
-#    for i in range(len(bed_df.columns)):
-#        colnames.append(BEDCOLS[i])
-#    bed_df.columns = colnames
-#    chroms_raw = bed_df["chrom"].unique().tolist()
-#    chroms_ref = [f"chr{i}" for i in config["simulations"]["chroms"]]
-#    chroms = [chrom for chrom in chroms_raw if chrom in chroms_ref]
-#    #f_list = expand("results/intermediate/{{ID}}/simulations/tmp/{{SAMPLE}}.{{target_region}}_sim_{chrom}.bam",#"results/intermediate/{{ID}}/simulations/regions/{{target_region}}/{{target_region}}_{chrom}.bed",
-#    #                chrom=chroms)
-#    #print(bedfile)
-#    #print(chroms)
-#    return expand("results/intermediate/{{ID}}/simulations/sample/tmp/{{SAMPLE}}-{{target_region}}_sim_{chrom}.bam",chrom=chroms)#"results/intermediate/{{ID}}/simulations/regions/{{target_region}}/{{target_region}}_{chrom}.bed",
-#
-#def get_chroms_back(ID, target_region):
-#    BEDCOLS = ["chrom", "chromStart", "chromEnd",
-#           "name", "score", "strand",
-#           "thickStart", "thickEnd", "itemRGB",
-#           "blockCount", "blockSizes", "blockStarts"]
-#    #print(target_region)
-#    
-#    bedfile=f"results/intermediate/{ID}/regions/background_region/{target_region}_background_regions.bed"
-#    #print(bedfile)
-#    #bedfile=regions["path"][target_region]
-#    bed_df = pd.read_csv(bedfile, sep="\t", header=None)
-#    colnames = []
-#    for i in range(len(bed_df.columns)):
-#        colnames.append(BEDCOLS[i])
-#    bed_df.columns = colnames
-#    chroms_raw = bed_df["chrom"].unique().tolist()
-#    chroms_ref = [f"chr{i}" for i in config["simulations"]["chroms"]]
-#    chroms = [chrom for chrom in chroms_raw if chrom in chroms_ref]
-#    #f_list = expand("results/intermediate/{{ID}}/simulations/tmp/{{SAMPLE}}.{{target_region}}_sim_{chrom}.bam",#"results/intermediate/{{ID}}/simulations/regions/{{target_region}}/{{target_region}}_{chrom}.bed",
-#    #                chrom=chroms)
-#    #print(bedfile)
-#    #print(chroms)
-#    return expand("results/intermediate/{{ID}}/simulations/background/tmp/{{SAMPLE}}-{{target_region}}_sim_{chrom}.bam",chrom=chroms)#"results/intermediate/{{ID}}/simulations/regions/{{target_region}}/{{target_region}}_{chrom}.bed",
-#
-
 
 def get_WPS_ref(sample):
     return expand(
@@ -260,9 +212,7 @@ rule target_regions_by_chrom:
         Region_file ="results/intermediate/{ID}/regions/target_region/{target_region}_blacklist-excluded.bed",
         #blregion = "results/intermediate/{ID}/regions/{target_region}_blacklist-excluded.bed"
     output:
-        temp("results/intermediate/{ID}/regions/target_region/simulations/tmp/{target_region}_{chrom}.bed")
-    params:
-        chrom= lambda wc: wc.chrom
+        temp(dynamic("results/intermediate/{ID}/regions/target_region/simulations/tmp/{target_region}.{chrom}.bed"))
     conda: "workflow/envs/overlays.yml"
     script:
         "workflow/scripts/simulations/split_region_by_chrom.py"
@@ -272,9 +222,7 @@ rule background_regions_by_chrom:
         Region_file ="results/intermediate/{ID}/regions/background_region/{target_region}_background_regions.bed",
         #blregion = "results/intermediate/{ID}/regions/{target_region}_blacklist-excluded.bed"
     output:
-        temp("results/intermediate/{ID}/regions/background_region/simulations/tmp/{target_region}_background_{chrom}.bed")
-    params:
-        chrom= lambda wc: wc.chrom
+        temp(dynamic("results/intermediate/{ID}/regions/background_region/simulations/tmp/{target_region}_background.{chrom}.bed"))
     conda: "workflow/envs/overlays.yml"
     script:
         "workflow/scripts/simulations/split_region_by_chrom.py"
@@ -287,9 +235,9 @@ rule simulate_reads:
         fwdMKMers=config["simulation_values"]["fwdMKMers"],
         revPKMers=config["simulation_values"]["revPKMers"],
         revMKMers=config["simulation_values"]["revMKMers"],
-        regionfile_chrom = "results/intermediate/{ID}/regions/target_region/simulations/tmp/{target_region}_{chrom}.bed",
+        regionfile_chrom = "results/intermediate/{ID}/regions/target_region/simulations/tmp/{target_region}.{chrom}.bed",
     output: 
-        temp("results/intermediate/{ID}/simulations/sample/tmp/{SAMPLE}-{target_region}_sim_{chrom}.bam")
+        temp("results/intermediate/{ID}/simulations/sample/tmp/{SAMPLE}-{target_region}_sim.{chrom}.bam")
     params:
         sampling_repeats = config["simulations"]["sampling_repeats"],
         fasta = config["GRCh37"]
@@ -316,9 +264,9 @@ rule simulate_background_reads:
         fwdMKMers=config["simulation_values"]["fwdMKMers"],
         revPKMers=config["simulation_values"]["revPKMers"],
         revMKMers=config["simulation_values"]["revMKMers"],
-        regionfile_chrom = "results/intermediate/{ID}/regions/background_region/simulations/tmp/{target_region}_background_{chrom}.bed",
+        regionfile_chrom = "results/intermediate/{ID}/regions/background_region/simulations/tmp/{target_region}_background.{chrom}.bed",
     output: 
-        temp("results/intermediate/{ID}/simulations/background/tmp/{SAMPLE}-{target_region}_sim_{chrom}.bam")
+        temp("results/intermediate/{ID}/simulations/background/tmp/{SAMPLE}-{target_region}_sim.{chrom}.bam")
     params:
         sampling_repeats = config["simulations"]["sampling_repeats"],
         fasta = config["GRCh37"]
@@ -337,50 +285,10 @@ rule simulate_background_reads:
         -o {output};
         """
 
-
-def get_chroms(wildcards):
-    BEDCOLS = ["chrom", "chromStart", "chromEnd",
-           "name", "score", "strand",
-           "thickStart", "thickEnd", "itemRGB",
-           "blockCount", "blockSizes", "blockStarts"]
-    bedfile = checkpoints.exclude_blacklist.get(ID=wildcards.ID, SAMPLE=wildcards.SAMPLE, target_region=wildcards.target_region).output[0]
-#    print(bedfile)
-    bed_df = pd.read_csv(bedfile, sep="\t", header=None)
-    colnames = []
-    for i in range(len(bed_df.columns)):
-        colnames.append(BEDCOLS[i])
-    bed_df.columns = colnames
-    chroms_raw = bed_df["chrom"].unique().tolist()
-    chroms_ref = [f"chr{i}" for i in config["simulations"]["chroms"]]
-    chroms = [chrom for chrom in chroms_raw if chrom in chroms_ref]
-#    print(chroms)
-    output = expand("results/intermediate/{ID}/simulations/sample/tmp/{SAMPLE}-{target_region}_sim_{chrom}.bam",chrom=chroms, ID=wildcards.ID, SAMPLE=wildcards.SAMPLE, target_region=wildcards.target_region)
-    #print(output)
-    return output
-
-def get_chroms_back(wildcards):
-    BEDCOLS = ["chrom", "chromStart", "chromEnd",
-           "name", "score", "strand",
-           "thickStart", "thickEnd", "itemRGB",
-           "blockCount", "blockSizes", "blockStarts"]
-    bedfile = checkpoints.generate_random_background.get(ID=wildcards.ID, SAMPLE=wildcards.SAMPLE, target_region=wildcards.target_region).output[0]
-#    print(bedfile)
-    bed_df = pd.read_csv(bedfile, sep="\t", header=None)
-    colnames = []
-    for i in range(len(bed_df.columns)):
-        colnames.append(BEDCOLS[i])
-    bed_df.columns = colnames
-    chroms_raw = bed_df["chrom"].unique().tolist()
-    chroms_ref = [f"chr{i}" for i in config["simulations"]["chroms"]]
-    chroms = [chrom for chrom in chroms_raw if chrom in chroms_ref]
-#    print(chroms)
-    output = expand("results/intermediate/{{ID}}/simulations/background/tmp/{{SAMPLE}}-{{target_region}}_sim_{chrom}.bam",chrom=chroms)
-    #print(output)
-    return output
-
 rule combine_chromosome_files:
     input:
-        files = get_chroms
+        files = dynamic("results/intermediate/{ID}/simulations/sample/tmp/{SAMPLE}-{target_region}_sim.{chrom}.bam")
+        #files = get_chroms
         #files = glob_wildcards("results/intermediate/{ID}/simulations/sample/tmp/{SAMPLE}-{target_region}_sim_{chrom}.bam")
         #files = lambda wildcards: get_chroms(wildcards.ID ,wildcards.target_region),
         #files = lambda wc: get_chroms("results/intermediate/{wc.ID}/regions/target_region/{wc.target_region}_blacklist-excluded.bed")
@@ -406,7 +314,8 @@ rule combine_chromosome_files:
 
 rule combine_chromosome_files_background:
     input:
-        files = get_chroms_back
+        files = dynamic("results/intermediate/{ID}/simulations/background/tmp/{SAMPLE}-{target_region}_sim.{chrom}.bam")
+        #files = get_chroms_back
         #files = glob_wildcards("results/intermediate/{ID}/simulations/sample/tmp/{SAMPLE}-{target_region}_sim_{chrom}.bam")
         #files = lambda wildcards: get_chroms_back(wildcards.ID ,wildcards.target_region),
         #files = lambda wc: get_chroms("results/intermediate/{wc.ID}/regions/background_region/{wc.target_region}_background_regions.bed")
