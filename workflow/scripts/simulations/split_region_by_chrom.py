@@ -9,15 +9,11 @@
 import pandas as pd
 
 bedfile = snakemake.input["Region_file"]
-chrom = snakemake.params["chrom"]
 outfile = snakemake.output[0]
 
-print(bedfile)
-print(outfile)
-print(chrom)
 
 
-def split_by_chrom(bedfile, chrom, outfile):
+def split_by_chrom(bedfile, outfile):
     BEDCOLS = [
         "chrom",
         "chromStart",
@@ -37,10 +33,14 @@ def split_by_chrom(bedfile, chrom, outfile):
     for i in range(len(bed_df.columns)):
         colnames.append(BEDCOLS[i])
     bed_df.columns = colnames
-    bed_df.loc[bed_df["chrom"] == chrom].to_csv(
-        outfile, sep="\t", header=None, index=None
-    )
+    chroms = bed_df["chrom"].unique().tolist()
+    for chrom in chroms:
+        c_outfile = outfile.replace("__snakemake_dynamic__", str(chrom))
+        bed_df.loc[bed_df["chrom"] == chrom].to_csv(
+        c_outfile, sep="\t", header=None, index=None
+        )
 
 
 if __name__ == "__main__":
-    split_by_chrom(bedfile, chrom, outfile)
+    split_by_chrom(bedfile, outfile)
+
