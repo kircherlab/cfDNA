@@ -16,41 +16,69 @@ validate(regions, schema="workflow/schemas/regions.schema.yaml")
 
 def get_WPS_ref(sample):
     return expand(
-        "results/intermediate/{{ID}}/table/{{target_region}}.{ref_SAMPLE}_WPS.csv",
+        "results/intermediate/{{ID}}/table/sample/target/{ref_SAMPLE}-{{target_region}}_target_WPS.csv",
         ref_SAMPLE=samples["ref_samples"][sample].split(","),
     )
 
 
 def get_COV_ref(sample):
     return expand(
-        "results/intermediate/{{ID}}/table/{{target_region}}.{ref_SAMPLE}_COV.csv",
+        "results/intermediate/{{ID}}/table/sample/target/{ref_SAMPLE}-{{target_region}}_target_COV.csv",
+        ref_SAMPLE=samples["ref_samples"][sample].split(","),
+    )
+
+def get_WPS_sim_ref(sample):
+    return expand(
+        "results/intermediate/{{ID}}/table/simulations/target/{ref_SAMPLE}-{{target_region}}_target_sim_WPS.csv",
+        ref_SAMPLE=samples["ref_samples"][sample].split(","),
+    )
+
+
+def get_COV_sim_ref(sample):
+    return expand(
+        "results/intermediate/{{ID}}/table/simulations/target/{ref_SAMPLE}-{{target_region}}_target_sim_COV.csv",
         ref_SAMPLE=samples["ref_samples"][sample].split(","),
     )
 
 
 def get_STARTS_ref(sample):
     return expand(
-        "results/intermediate/{{ID}}/table/{{target_region}}.{ref_SAMPLE}_STARTS.csv",
+        "results/intermediate/{{ID}}/table/sample/target/{ref_SAMPLE}-{{target_region}}_target_STARTS.csv",
         ref_SAMPLE=samples["ref_samples"][sample].split(","),
     )
 
+
 def get_WPS_background_ref(sample):
     return expand(
-        "results/intermediate/{{ID}}/background_region/table/sim_{{target_region}}.{ref_SAMPLE}_WPS.csv",
+        "results/intermediate/{{ID}}/table/sample/background/{ref_SAMPLE}-{{target_region}}_background_WPS.csv",
         ref_SAMPLE=samples["ref_samples"][sample].split(","),
     )
 
 
 def get_COV_background_ref(sample):
     return expand(
-        "results/intermediate/{{ID}}/background_region/table/sim_{{target_region}}.{ref_SAMPLE}_COV.csv",
+        "results/intermediate/{{ID}}/table/sample/background/{ref_SAMPLE}-{{target_region}}_background_COV.csv",
+        ref_SAMPLE=samples["ref_samples"][sample].split(","),
+    )
+
+##
+def get_WPS_sim_background_ref(sample):
+    return expand(
+        "results/intermediate/{{ID}}/table/simulations/background/{ref_SAMPLE}-{{target_region}}_background_sim_WPS.csv",
+        ref_SAMPLE=samples["ref_samples"][sample].split(","),
+    )
+
+
+def get_COV_sim_background_ref(sample):
+    return expand(
+        "results/intermediate/{{ID}}/table/simulations/background/{ref_SAMPLE}-{{target_region}}_background_sim_COV.csv",
         ref_SAMPLE=samples["ref_samples"][sample].split(","),
     )
 
 
 def get_STARTS_background_ref(sample):
     return expand(
-        "results/intermediate/{{ID}}/background_region/table/sim_{{target_region}}.{ref_SAMPLE}_STARTS.csv",
+        "results/intermediate/{{ID}}/table/sample/background/{ref_SAMPLE}-{{target_region}}_background_STARTS.csv",
         ref_SAMPLE=samples["ref_samples"][sample].split(","),
     )
 
@@ -167,13 +195,13 @@ rule all:
             ID=samples["ID"],
             target_region=regions["target"],
         ),
-        ###expand(
-        ##    "results/plots/overlays/{ID}/{target_region}.{SAMPLE}_overlays_sim.pdf",
-        ##    SAMPLE=samples["sample"],
-        ##    ID=samples["ID"],
-        #    target_region=regions["target"],
-        #    kmer=config["simulations"]["kmer"],
-        #),
+        expand(
+            "results/plots/overlays/{ID}/{target_region}.{SAMPLE}_overlays_sim.pdf",
+            SAMPLE=samples["sample"],
+            ID=samples["ID"],
+            target_region=regions["target"],
+            kmer=config["simulations"]["kmer"],
+        ),
 
 checkpoint exclude_blacklist:
     input:
@@ -213,6 +241,8 @@ rule target_regions_by_chrom:
         #blregion = "results/intermediate/{ID}/regions/{target_region}_blacklist-excluded.bed"
     output:
         temp(dynamic("results/intermediate/{ID}/regions/target_region/simulations/tmp/{target_region}.{chrom}.bed"))
+    params:
+        ref_chrom = [f"chr{i}" for i in config["reference_chromosomes"]]
     conda: "workflow/envs/overlays.yml"
     script:
         "workflow/scripts/simulations/split_region_by_chrom.py"
@@ -223,6 +253,8 @@ rule background_regions_by_chrom:
         #blregion = "results/intermediate/{ID}/regions/{target_region}_blacklist-excluded.bed"
     output:
         temp(dynamic("results/intermediate/{ID}/regions/background_region/simulations/tmp/{target_region}_background.{chrom}.bed"))
+    params:
+        ref_chrom = [f"chr{i}" for i in config["reference_chromosomes"]]
     conda: "workflow/envs/overlays.yml"
     script:
         "workflow/scripts/simulations/split_region_by_chrom.py"
@@ -421,6 +453,7 @@ rule extract_counts_sim:
         #target=lambda wildcards: regions["path"][wildcards.target_region],
         target = "results/intermediate/{ID}/regions/target_region/{target_region}_blacklist-excluded.bed",
         BAMFILE="results/intermediate/{ID}/simulations/sample/{SAMPLE}.{target_region}_simulation.bam",
+        BAM_index="results/intermediate/{ID}/simulations/sample/{SAMPLE}.{target_region}_simulation.bam.bai",
     output:
         WPS="results/intermediate/{ID}/table/simulations/target/{SAMPLE}-{target_region}_target_sim_WPS.csv",
         COV="results/intermediate/{ID}/table/simulations/target/{SAMPLE}-{target_region}_target_sim_COV.csv",
@@ -446,6 +479,7 @@ rule extract_counts_background_sim:
         #target=lambda wildcards: regions["path"][wildcards.target_region],
         target = "results/intermediate/{ID}/regions/background_region/{target_region}_background_regions.bed",
         BAMFILE="results/intermediate/{ID}/simulations/background/{SAMPLE}.{target_region}_background_simulation.bam",
+        BAM_index="results/intermediate/{ID}/simulations/background/{SAMPLE}.{target_region}_background_simulation.bam.bai",
     output:
         WPS="results/intermediate/{ID}/table/simulations/background/{SAMPLE}-{target_region}_background_sim_WPS.csv",
         COV="results/intermediate/{ID}/table/simulations/background/{SAMPLE}-{target_region}_background_sim_COV.csv",
@@ -465,18 +499,26 @@ rule extract_counts_background_sim:
         -o {params.out_pre} {input.BAMFILE}
         """
 
-
+# add options for ALL and NONE -> plot all samples, only target sample -> get_WPS
 
 rule plot_overlays:
     input:
-        WPS="results/intermediate/{ID}/table/{target_region}.{SAMPLE}_WPS.csv",
+        WPS="results/intermediate/{ID}/table/sample/target/{SAMPLE}-{target_region}_target_WPS.csv",
         WPS_ref=lambda wildcards: get_WPS_ref(wildcards.SAMPLE),
-        COV="results/intermediate/{ID}/table/{target_region}.{SAMPLE}_COV.csv",
-        COV_ref=lambda wildcards: get_COV_ref(wildcards.SAMPLE),
-        WPS_back="results/intermediate/{ID}/background_region/table/sim_{target_region}.{SAMPLE}_WPS.csv",
+        WPS_back="results/intermediate/{ID}/table/sample/background/{SAMPLE}-{target_region}_background_WPS.csv",
         WPS_back_ref=lambda wildcards: get_WPS_background_ref(wildcards.SAMPLE),
-        COV_back="results/intermediate/{ID}/background_region/table/sim_{target_region}.{SAMPLE}_COV.csv",
+        WPS_sim="results/intermediate/{ID}/table/simulations/target/{SAMPLE}-{target_region}_target_sim_WPS.csv",
+        WPS_sim_ref=lambda wildcards: get_WPS_sim_ref(wildcards.SAMPLE),
+        WPS_sim_back="results/intermediate/{ID}/table/simulations/background/{SAMPLE}-{target_region}_background_sim_WPS.csv",
+        WPS_sim_back_ref=lambda wildcards: get_WPS_sim_background_ref(wildcards.SAMPLE),
+        COV="results/intermediate/{ID}/table/sample/target/{SAMPLE}-{target_region}_target_COV.csv",
+        COV_ref=lambda wildcards: get_COV_ref(wildcards.SAMPLE),
+        COV_back="results/intermediate/{ID}/table/sample/background/{SAMPLE}-{target_region}_background_COV.csv",
         COV_back_ref=lambda wildcards: get_COV_background_ref(wildcards.SAMPLE),
+        COV_sim="results/intermediate/{ID}/table/simulations/target/{SAMPLE}-{target_region}_target_sim_COV.csv",
+        COV_sim_ref=lambda wildcards: get_COV_sim_ref(wildcards.SAMPLE),
+        COV_sim_back="results/intermediate/{ID}/table/simulations/background/{SAMPLE}-{target_region}_background_sim_COV.csv",
+        COV_sim_back_ref=lambda wildcards: get_COV_sim_background_ref(wildcards.SAMPLE),
     output:
         "results/plots/overlays/{ID}/{target_region}.{SAMPLE}_overlays_sim.pdf",
     params:
@@ -486,4 +528,4 @@ rule plot_overlays:
     conda:
         "workflow/envs/overlays.yml"
     script:
-        "workflow/scripts/WPS/overlays.py"
+        "workflow/scripts/simulations/overlays_sim.py"
