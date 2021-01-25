@@ -9,6 +9,10 @@
 
 """
 
+###########
+# transposes input file and splits in 3 values (COV,START,WPS)
+###########
+
 import sys, os
 import pysam
 import gzip
