@@ -2,10 +2,12 @@
 analysis
 analysis/*
 !analysis/README.md
-!config
-!config/*
+!example.config.yml
+#!config
+#!config/*
 !resources
-!resources/**
+!resources/blacklist**
+#!resources/**
 !workflow
 !workflow/**
 !.gitignore
