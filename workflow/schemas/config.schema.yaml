@@ -10,10 +10,6 @@ properties:
     type: string
   regions:
     type: string
-  refSample:
-    type: string
-  tissue:
-    type: array
   minRL: 
     type: integer
   maxRL: 
@@ -25,8 +21,6 @@ properties:
 required:
   - samples
   - regions
-  - refSample
-  - tissue
   - minRL
   - maxRL
   - bpProtection
