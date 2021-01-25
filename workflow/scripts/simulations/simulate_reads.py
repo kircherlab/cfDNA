@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 
 """
-
-:Author: Martin Kircher
-:Contact: mkircher@uw.edu
-:Date: *12.04.2015
+:Author: Martin Kircher, Sebastian Roener
+:Contact: martin.kircher@bihealth.de
+:Date: *20.10.2020
 """
 
 import sys, os
@@ -36,18 +35,18 @@ def read_genome_fastaindex(faifile):
   return fastaindex
 
 def get_DNA_file(chrom,start,end,fastafile,fastaindex):
-  try:
+  #try:
     length,bstart,bline,cline = fastaindex[chrom]
     bases = ""
-    for pos in xrange(start,end+1):
+    for pos in range(start,end+1):
       if pos <= length and pos >= 1:
         hpos = pos -1
         npos = (hpos // bline)*cline+(hpos % bline)
         fastafile.seek(bstart+npos)
         bases+=fastafile.read(1)
     return bases
-  except:
-    return None
+  #except:
+    #return None
 
 def DNAiterator(chrom,start,fastamap,fastaindex):
   try:
@@ -222,8 +221,8 @@ else:
   sys.stderr.write("Error: Could not open length distribution!\n")
   sys.exit()
 
-minLength = min(lengthDist.keys())
-maxLength = max(lengthDist.keys())
+minLength = min(lengthDist.values())
+maxLength = max(lengthDist.values())
 
 #############################
 # READ KMER DISTRIBUTIONS
@@ -253,7 +252,7 @@ if os.path.exists(options.fwdKMerGenome):
         forwardLength = len(seq)
       total += count
   infile.close()
-  if options.verbose: print "total/min/max:",total,minCount,maxCount
+  if options.verbose: sys.stderr.write("total: %d/min: %d/max: %d\n"%(total,minCount,maxCount))
   total = float(maxCount)
   infile = open(options.fwdKMerGenome)
   for line in infile:
@@ -285,7 +284,7 @@ if os.path.exists(options.revKMerGenome):
         reverseLength = len(seq)
       total += count
   infile.close()
-  if options.verbose: print "total/min/max:",total,minCount,maxCount
+  if options.verbose: sys.stderr.write("total: %d/min: %d/max: %d\n"%(total,minCount,maxCount))
   total = float(maxCount)
   infile = open(options.revKMerGenome)
   for line in infile:
@@ -317,7 +316,7 @@ if os.path.exists(options.fwdPKMers):
       if minCount > count: minCount = count
       if maxCount < count: maxCount = count
   infile.close()
-  if options.verbose: print "total/min/max:",total,minCount,maxCount
+  if options.verbose: sys.stderr.write("total: %d/min: %d/max: %d\n"%(total,minCount,maxCount))
   total = float(maxCount)
   infile = open(options.fwdPKMers)
   maxCount = None
@@ -331,9 +330,9 @@ if os.path.exists(options.fwdPKMers):
       if maxCount < freq: maxCount = freq
       forward[True][seq] = freq
   infile.close()
-  if options.verbose: print maxCount 
+  if options.verbose: sys.stderr.write("maxCount: %d\n"%(maxCount))
   maxCount = float(maxCount)
-  for key,value in forward[True].iteritems():
+  for key,value in forward[True].items():
     forward[True][key]=value/maxCount
 else:
   sys.stderr.write("Error: Could not open left read end kmer [plus strand] distribution!\n")
@@ -355,7 +354,7 @@ if os.path.exists(options.fwdMKMers):
       if minCount > count: minCount = count
       if maxCount < count: maxCount = count
   infile.close()
-  if options.verbose: print "total/min/max:",total,minCount,maxCount
+  if options.verbose: sys.stderr.write("total: %d/min: %d/max: %d\n"%(total,minCount,maxCount))
   total = float(maxCount)
   infile = open(options.fwdMKMers)
   maxCount = None
@@ -369,9 +368,9 @@ if os.path.exists(options.fwdMKMers):
       if maxCount < freq: maxCount = freq
       forward[False][seq] = freq
   infile.close()
-  if options.verbose: print maxCount 
+  if options.verbose: sys.stderr.write("maxCount: %d\n"%(maxCount))
   maxCount = float(maxCount)
-  for key,value in forward[False].iteritems():
+  for key,value in forward[False].items():
     forward[False][key]=value/maxCount
 else:
   sys.stderr.write("Error: Could not open left read end kmer [minus strand] distribution!\n")
@@ -393,7 +392,7 @@ if os.path.exists(options.revPKMers):
       if minCount > count: minCount = count
       if maxCount < count: maxCount = count
   infile.close()
-  if options.verbose: print "total/min/max:",total,minCount,maxCount
+  if options.verbose: sys.stderr.write("total: %d/min: %d/max: %d\n"%(total,minCount,maxCount))
   total = float(maxCount)
   infile = open(options.revPKMers)
   maxCount = None
@@ -407,9 +406,9 @@ if os.path.exists(options.revPKMers):
       if maxCount < freq: maxCount = freq
       reverse[True][seq] = freq
   infile.close()
-  if options.verbose: print maxCount 
+  if options.verbose: sys.stderr.write("maxCount: %d\n"%(maxCount))
   maxCount = float(maxCount)
-  for key,value in reverse[True].iteritems():
+  for key,value in reverse[True].items():
     reverse[True][key]=value/maxCount
 else:
   sys.stderr.write("Error: Could not open right read end kmer [plus strand] distribution!\n")
@@ -430,7 +429,7 @@ if os.path.exists(options.revMKMers):
       if minCount > count: minCount = count
       if maxCount < count: maxCount = count
   infile.close()
-  if options.verbose: print "total/min/max:",total,minCount,maxCount
+  if options.verbose: sys.stderr.write("total: %d/min: %d/max: %d\n"%(total,minCount,maxCount))
   total = float(maxCount)
   infile = open(options.revMKMers)
   maxCount = None
@@ -444,36 +443,42 @@ if os.path.exists(options.revMKMers):
       if maxCount < freq: maxCount = freq
       reverse[False][seq] = freq
   infile.close()
-  if options.verbose: print maxCount 
+  if options.verbose: sys.stderr.write("maxCount: %d\n"%(maxCount))
   maxCount = float(maxCount)
-  for key,value in reverse[False].iteritems():
+  for key,value in reverse[False].items():
     reverse[False][key]=value/maxCount
 else:
   sys.stderr.write("Error: Could not open right read end kmer [minus strand] distribution!\n")
   sys.exit()
 
 if options.verbose:
-  print 
-  print "Forward kmer length:",forwardLength
-  print "Reverse kmer length:",reverseLength
-  print
-  print "Initialized kmer sampling rates:"
-  print "FOW+",str(forward[True])[:100],sum(forward[True].values())
-  print "FOW-",str(forward[False])[:100],sum(forward[False].values())
-  print "REV+",str(reverse[True])[:100],sum(reverse[True].values())
-  print "REV-",str(reverse[False])[:100],sum(reverse[False].values())
+  sys.stderr.write("""
+  Forward kmer length: %d
+  Reverse kmer length: %d
+  
+  Initialized kmer sampling rates:"
+  FOW+ %s %d
+  FOW- %s %d
+  REV+ %s %d
+  REV- %s %d"""%(forwardLength,
+                 reverseLength,
+                 str(forward[True])[:100],sum(forward[True].values()),
+                 str(forward[False])[:100],sum(forward[False].values()),
+                 str(reverse[True])[:100],sum(reverse[True].values()),
+                 str(reverse[False])[:100],sum(reverse[False].values())))
 
 genome_index = read_genome_fastaindex(options.reference+".fai")
 genome_map = open(options.reference,'r')
 #genome_map = get_fasta_mmap(options.reference)
 #genome = pysam.Fastafile(options.reference)
+#print(genome_index)
 
 rcounter = 1
 BAMoutfile = None
 BAMoutfile = pysam.Samfile(options.outfile, "wb", header={'SQ': [{'LN': 249250621, 'SN': '1'}, {'LN': 243199373, 'SN': '2'}, {'LN': 198022430, 'SN': '3'}, {'LN': 191154276, 'SN': '4'}, {'LN': 180915260, 'SN': '5'}, {'LN': 171115067, 'SN': '6'}, {'LN': 159138663, 'SN': '7'}, {'LN': 146364022, 'SN': '8'}, {'LN': 141213431, 'SN': '9'}, {'LN': 135534747, 'SN': '10'}, {'LN': 135006516, 'SN': '11'}, {'LN': 133851895, 'SN': '12'}, {'LN': 115169878, 'SN': '13'}, {'LN': 107349540, 'SN': '14'}, {'LN': 102531392, 'SN': '15'}, {'LN': 90354753, 'SN': '16'}, {'LN': 81195210, 'SN': '17'}, {'LN': 78077248, 'SN': '18'}, {'LN': 59128983, 'SN': '19'}, {'LN': 63025520, 'SN': '20'}, {'LN': 48129895, 'SN': '21'}, {'LN': 51304566, 'SN': '22'}, {'LN': 155270560, 'SN': 'X'}, {'LN': 59373566, 'SN': 'Y'}, {'LN': 16569, 'SN': 'MT'}, {'LN': 4262, 'SN': 'GL000207.1'}, {'LN': 15008, 'SN': 'GL000226.1'}, {'LN': 19913, 'SN': 'GL000229.1'}, {'LN': 27386, 'SN': 'GL000231.1'}, {'LN': 27682, 'SN': 'GL000210.1'}, {'LN': 33824, 'SN': 'GL000239.1'}, {'LN': 34474, 'SN': 'GL000235.1'}, {'LN': 36148, 'SN': 'GL000201.1'}, {'LN': 36422, 'SN': 'GL000247.1'}, {'LN': 36651, 'SN': 'GL000245.1'}, {'LN': 37175, 'SN': 'GL000197.1'}, {'LN': 37498, 'SN': 'GL000203.1'}, {'LN': 38154, 'SN': 'GL000246.1'}, {'LN': 38502, 'SN': 'GL000249.1'}, {'LN': 38914, 'SN': 'GL000196.1'}, {'LN': 39786, 'SN': 'GL000248.1'}, {'LN': 39929, 'SN': 'GL000244.1'}, {'LN': 39939, 'SN': 'GL000238.1'}, {'LN': 40103, 'SN': 'GL000202.1'}, {'LN': 40531, 'SN': 'GL000234.1'}, {'LN': 40652, 'SN': 'GL000232.1'}, {'LN': 41001, 'SN': 'GL000206.1'}, {'LN': 41933, 'SN': 'GL000240.1'}, {'LN': 41934, 'SN': 'GL000236.1'}, {'LN': 42152, 'SN': 'GL000241.1'}, {'LN': 43341, 'SN': 'GL000243.1'}, {'LN': 43523, 'SN': 'GL000242.1'}, {'LN': 43691, 'SN': 'GL000230.1'}, {'LN': 45867, 'SN': 'GL000237.1'}, {'LN': 45941, 'SN': 'GL000233.1'}, {'LN': 81310, 'SN': 'GL000204.1'}, {'LN': 90085, 'SN': 'GL000198.1'}, {'LN': 92689, 'SN': 'GL000208.1'}, {'LN': 106433, 'SN': 'GL000191.1'}, {'LN': 128374, 'SN': 'GL000227.1'}, {'LN': 129120, 'SN': 'GL000228.1'}, {'LN': 137718, 'SN': 'GL000214.1'}, {'LN': 155397, 'SN': 'GL000221.1'}, {'LN': 159169, 'SN': 'GL000209.1'}, {'LN': 161147, 'SN': 'GL000218.1'}, {'LN': 161802, 'SN': 'GL000220.1'}, {'LN': 164239, 'SN': 'GL000213.1'}, {'LN': 166566, 'SN': 'GL000211.1'}, {'LN': 169874, 'SN': 'GL000199.1'}, {'LN': 172149, 'SN': 'GL000217.1'}, {'LN': 172294, 'SN': 'GL000216.1'}, {'LN': 172545, 'SN': 'GL000215.1'}, {'LN': 174588, 'SN': 'GL000205.1'}, {'LN': 179198, 'SN': 'GL000219.1'}, {'LN': 179693, 'SN': 'GL000224.1'}, {'LN': 180455, 'SN': 'GL000223.1'}, {'LN': 182896, 'SN': 'GL000195.1'}, {'LN': 186858, 'SN': 'GL000212.1'}, {'LN': 186861, 'SN': 'GL000222.1'}, {'LN': 187035, 'SN': 'GL000200.1'}, {'LN': 189789, 'SN': 'GL000193.1'}, {'LN': 191469, 'SN': 'GL000194.1'}, {'LN': 211173, 'SN': 'GL000225.1'}, {'LN': 547496, 'SN': 'GL000192.1'}, {'LN': 171823, 'SN': 'NC_007605'}, {'LN': 35477943, 'SN': 'hs37d5'}], 'HD': {'SO': 'unknown', 'VN': '1.4'}})
 
 if len(chromosomes) == 0:
-  for chrom,(length,pos,lenLine1,lenLine2) in genome_index.iteritems():
+  for chrom,(length,pos,lenLine1,lenLine2) in genome_index.items():
     if chrom.startswith("GL") or chrom.startswith("NC_") or chrom in ["MT","hs37d5"]: continue
     chromosomes.append((chrom,1,length))
 chromosomes.sort()
@@ -492,18 +497,19 @@ else:
   correctReverse = options.correction/((4**forwardLength)/float(4**reverseLength))
 
 if options.verbose:
-  print "Sampling, FwdCorrect, RevCorrect:",targetCov,correctForward,correctReverse
+  sys.stderr.write("Sampling, FwdCorrect, RevCorrect: %d / %d / %d\n"%(targetCov,correctForward,correctReverse))
 
 count = 0
 for chrom,start,end in chromosomes:
   if options.verbose:
     sys.stderr.write("Reading %s:%d-%d...\n"%(chrom,start,end))
   context = get_DNA_file(chrom,max(1,start-maxLength),min(genome_index[chrom][0],start+maxLength),genome_map,genome_index)
+  print(context)
   posInWindow = maxLength
   if (start-maxLength) < 1:
     posInWindow = maxLength-(maxLength-start)-1
   #print posInWindow,len(context),context[posInWindow-25:posInWindow+25]
-  for pos in xrange(start,end+1):
+  for pos in range(start,end+1):
     #print chrom,pos,context[posInWindow],posInWindow,get_DNA_file(chrom,pos,pos,genome_map,genome_index)
 
     posStrand = []
@@ -521,13 +527,13 @@ for chrom,start,end in chromosomes:
       if strand: kmer = context[posInWindow:posInWindow+forwardLength]
       else: kmer = context[posInWindow-forwardLength+1:posInWindow+1]
       
-      for i in xrange(targetCov//len(posStrand)):
+      for i in range(targetCov//len(posStrand)):
         # Pick a threshold
         rval = random.random()
         if rval <= forward[strand][kmer]*correctForward:
           # Pick a length
           lval = random.random()
-          selLength = lengthDist[lengthDist.bisect_left(lval)]
+          selLength = lengthDist.bisect_left(lval)
         
           # Check the kmer at the other end
           rkmer = ""
@@ -558,7 +564,7 @@ for chrom,start,end in chromosomes:
     count += 1
     #if count > 5: sys.exit()
     if options.verbose and (count % 100000 == 0): 
-      print "CurPos:", chrom,pos,context[posInWindow],posInWindow,get_DNA_file(chrom,pos+1,pos+1,genome_map,genome_index),"Sim:",rcounter
+      sys.stderr.write(" ".join(map(str,["CurPos:",chrom,pos,context[posInWindow],posInWindow,get_DNA_file(chrom,pos+1,pos+1,genome_map,genome_index),"Sim:",rcounter]))+"\n")
 
 if BAMoutfile != None:
   BAMoutfile.close()
