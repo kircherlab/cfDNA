@@ -75,12 +75,12 @@ rule extract_counts:
         -i {input.body} \
         -o {params.out_pre} {input.BAMFILE}
 
-        mkdir -p results/tmp/body/{wildcards.region}/{wildcards.SAMPLE}/fft
+        mkdir -p results/tmp/{wildcards.ID}/DHS_analysis/body/{wildcards.region}/{wildcards.SAMPLE}/fft
 
         ( cd results/tmp/body/{wildcards.region}/{wildcards.SAMPLE}; ls block_*.tsv.gz ) | \
         xargs -n 500 Rscript workflow/scripts/expression_analysis/fft_path.R \
-        results/tmp/body/{wildcards.region}/{wildcards.SAMPLE}/ \
-        results/tmp/body/{wildcards.region}/{wildcards.SAMPLE}/fft
+        results/tmp/body/{wildcards.region}/{wildcards.SAMPLE} \
+        results/tmp/{wildcards.ID}/DHS_analysis/body/{wildcards.region}/{wildcards.SAMPLE}/fft
 
         mkdir -p results/tmp/body/fft_summaries/
 
@@ -93,7 +93,7 @@ rule extract_counts:
         
         rm -fR results/tmp/body/{wildcards.SAMPLE}/fft
         """
-
+# change rm -fR to:         results/tmp/{wildcards.ID}/DHS_analysis/body/{wildcards.region}/{wildcards.SAMPLE}/fft
 
 rule correlation_plots:
     input:
