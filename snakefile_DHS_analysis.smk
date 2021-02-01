@@ -106,7 +106,7 @@ rule correlation_plots:
     conda: "workflow/envs/cfDNA.yml"
     params: 
         IDs = expand("{SAMPLE}",SAMPLE=samples["sample"]),
-        WPSprefix = "results/intermediate/body/fft_summaries/fft_%s_WPS.tsv.gz",
+        WPSprefix = "results/intermediate/{ID}/DHS_analysis/body/{region}/fft_summaries//fft_%s_WPS.tsv.gz", # wo/wie wird der prefix hier genutzt
         tissue = "{tissue}"
     script:
         "workflow/scripts/expression_analysis/snakemake_correlation_plots.R"
@@ -123,7 +123,7 @@ rule correlation_table:
     conda: "workflow/envs/cfDNA.yml"
     params: 
         IDs = expand("{SAMPLE}",SAMPLE=samples["sample"]),
-        WPSprefix = "results/intermediate/body/fft_summaries/fft_%s_WPS.tsv.gz",
+        WPSprefix = "results/intermediate/{ID}/DHS_analysis/body/{region}/fft_summaries//fft_%s_WPS.tsv.gz",
     script:
         "workflow/scripts/expression_analysis/snakemake_correlation_table.R"
 
@@ -139,7 +139,7 @@ rule rank_correlation_table:
     conda: "workflow/envs/cfDNA.yml"
     params: 
         IDs = expand("{SAMPLE}",SAMPLE=samples["sample"]),
-        WPSprefix = "results/intermediate/body/fft_summaries/fft_%s_WPS.tsv.gz",
+        WPSprefix = "results/intermediate/{ID}/DHS_analysis/body/{region}/fft_summaries//fft_%s_WPS.tsv.gz",
         refSample = config["refSample"]
     script:
         "workflow/scripts/expression_analysis/snakemake_correlation_rank_table.R"
