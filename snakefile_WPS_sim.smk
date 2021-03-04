@@ -1,7 +1,7 @@
 from snakemake.utils import validate
 import pandas as pd
 
-configfile: "config/config_components.yml"
+configfile: "config/config_components_bugfix2.yml"
 
 
 validate(config, schema="workflow/schemas/config.schema.yaml")
@@ -206,7 +206,7 @@ rule all:
 checkpoint exclude_blacklist:
     input:
         Region_file = lambda wildcards: regions["path"][wildcards.target_region],
-        blacklist = config["blacklist_GRCH38"]
+        blacklist = config["blacklist_GRCH37"]
     output:
         "results/intermediate/{ID}/regions/target_region/{target_region}_blacklist-excluded.bed"
     conda: "workflow/envs/read_preprocessing.yml"
@@ -220,8 +220,8 @@ checkpoint generate_random_background:
     input:
         #Region_file = lambda wildcards: regions["path"][wildcards.target_region],
         region="results/intermediate/{ID}/regions/target_region/{target_region}_blacklist-excluded.bed",
-        genome=config["GRCh38_genome"],
-        universal_blacklist=config["universal_blacklist_GRCH38"],
+        genome=config["GRCh37_genome"],
+        universal_blacklist=config["universal_blacklist_GRCH37"],
     output:
         "results/intermediate/{ID}/regions/background_region/{target_region}_background_regions.bed",
     params:
@@ -230,7 +230,7 @@ checkpoint generate_random_background:
     conda:"workflow/envs/background.yml"
     shell:
         """
-        bedtools random -n 1000 -l {params.length} -g {input.genome} | \
+        bedtools random -n {params.num} -l {params.length} -g {input.genome} | \
         bedtools shuffle -i stdin -g {input.genome} -excl {input.universal_blacklist} -noOverlapping \
         > {output}
         """
