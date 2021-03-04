@@ -16,13 +16,13 @@ rule all:
         #"resources/annotations/transcriptAnno-GRCh37.75.upstream.tsv",
         #"resources/annotations/transcriptAnno-GRCh37.75.downstream.tsv",
         #"resources/annotations/transcriptAnno-GRCh37.75.body.tsv",
-        expand("results/intermediate/{ID}/DHS_analysis/{region}-transcriptAnno-GRCh38.upstream.tsv",
+        expand("results/intermediate/{ID}/DHS_analysis/{region}-transcriptAnno-GRCh37.upstream.tsv",
                 ID=samples["ID"],
                 region=regions["target"]),
-        expand("results/intermediate/{ID}/DHS_analysis/{region}-transcriptAnno-GRCh38.downstream.tsv",
+        expand("results/intermediate/{ID}/DHS_analysis/{region}-transcriptAnno-GRCh37.downstream.tsv",
                 ID=samples["ID"],
                 region=regions["target"]),
-        expand("results/intermediate/{ID}/DHS_analysis/{region}-transcriptAnno-GRCh38.body.tsv",
+        expand("results/intermediate/{ID}/DHS_analysis/{region}-transcriptAnno-GRCh37.body.tsv",
                 ID=samples["ID"],
                 region=regions["target"]),
         expand("results/plots/{ID}/{region}/{tissue}_allFreq_correlation_plot.pdf",
@@ -43,9 +43,9 @@ rule prep:
         transcriptAnno=lambda wildcards: regions["path"][wildcards.region],
         #transcriptAnno="resources/transcriptAnno-GRCh37.75.tsv.gz"
     output:
-        upstream="results/intermediate/{ID}/DHS_analysis/{region}-transcriptAnno-GRCh38.upstream.tsv",
-        downstream="results/intermediate/{ID}/DHS_analysis/{region}-transcriptAnno-GRCh38.downstream.tsv",
-        body="results/intermediate/{ID}/DHS_analysis/{region}-transcriptAnno-GRCh38.body.tsv"
+        upstream="results/intermediate/{ID}/DHS_analysis/{region}-transcriptAnno-GRCh37.upstream.tsv",
+        downstream="results/intermediate/{ID}/DHS_analysis/{region}-transcriptAnno-GRCh37.downstream.tsv",
+        body="results/intermediate/{ID}/DHS_analysis/{region}-transcriptAnno-GRCh37.body.tsv"
     conda: "workflow/envs/cfDNA.yml"
     shell:
         """
@@ -56,7 +56,7 @@ rule prep:
 
 rule extract_counts:
     input:
-        body="results/intermediate/{ID}/DHS_analysis/{region}-transcriptAnno-GRCh38.body.tsv",
+        body="results/intermediate/{ID}/DHS_analysis/{region}-transcriptAnno-GRCh37.body.tsv",
         BAMFILE= lambda wildcards: samples["path"][wildcards.SAMPLE]
     output:
         "results/intermediate/{ID}/DHS_analysis/body/{region}/fft_summaries/fft_{SAMPLE}_WPS.tsv.gz"
