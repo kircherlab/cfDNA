@@ -167,6 +167,8 @@ def get_coords(bedfile):
     for i in range(len(bed_df.columns)):
         colnames.append(BEDCOLS[i])
     bed_df.columns = colnames
+    ref_chroms = ["chr" + str(i) for i in range(1, 23)] + ["chrX", "chrY"]
+    bed_df = bed_df.loc[bed_df["chrom"].isin(ref_chroms)]
     bed_df["chrom"] = bed_df["chrom"].str.replace("chr", "")
     bed_df["chromStart"] = bed_df["chromStart"]-3000
     bed_df["chromEnd"] = bed_df["chromEnd"]+3000
