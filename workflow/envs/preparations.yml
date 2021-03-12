@@ -1,0 +1,15 @@
+name: preparations
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - bedtools
+  - python=3.8
+  - bwa
+  - samtools
+  - pandas
+  - openpyxl
+  - xlrd >= 1.0.0
+  - numpy
+  - ucsc-liftover
