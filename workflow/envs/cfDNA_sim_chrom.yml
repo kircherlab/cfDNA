@@ -1,0 +1,14 @@
+name: cfDNA_sim_chrom
+channels:
+  - conda-forge
+  - bioconda                                                      
+dependencies:
+  - r-base
+  - r-gplots
+  - python=3.8
+  - numpy
+  - pandas
+  - bx-python
+  - pysam
+  - sortedcontainers
+  - pip
