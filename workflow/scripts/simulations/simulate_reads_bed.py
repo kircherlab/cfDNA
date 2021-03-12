@@ -168,8 +168,8 @@ def get_coords(bedfile):
         colnames.append(BEDCOLS[i])
     bed_df.columns = colnames
     bed_df["chrom"] = bed_df["chrom"].str.replace("chr", "")
-    bed_df["chromStart"] = bed_df["chromStart"]-3000
-    bed_df["chromEnd"] = bed_df["chromEnd"]+3000
+    bed_df["chromStart"] = bed_df["chromStart"]
+    bed_df["chromEnd"] = bed_df["chromEnd"]
     return list(map(tuple, bed_df[["chrom", "chromStart", "chromEnd"]].values))
 
 
