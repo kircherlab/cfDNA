@@ -63,7 +63,7 @@ rule extract_DHS_summit:
     script:
         "../../workflow/scripts/Meuleman_prep/extract_dhs_summit.py"
 
-
+# do liftover to keep all columns of the GRCH38 data, as they are not included in their hg19 version
 rule liftover_DHS_summit_to_GRCh37:
     input:
         regions="resources/candidate_regions2/Meuleman/GRCh38/DHS/DHS_regions_all_summit_GRCh38.tsv.gz",
