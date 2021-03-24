@@ -1,0 +1,10 @@
+name: read_preprocessing
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - bedtools
+  - python=3.8
+  - bwa
+  - samtools
