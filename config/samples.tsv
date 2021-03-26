@@ -1,4 +1,8 @@
-ID	sample	path	ref_samples
-experimentID	testsample1	"/path/to/testsample1.bam"	testsample2,testsample3
-experimentID	testsample2	"/path/to/testsample2.bam"	testsample1,testsample3
-experimentID	testsample3	"/path/to/testsample3.bam"	testsample1,testsample2
+ID	sample	path	ref_samples	genome_build
+h	BH01	/data/groups/ag_kircher/cfDNA-Nucleosomes/resources/BAMs/BH01.bam	BH01	GRCh37
+h	IH01	/data/groups/ag_kircher/cfDNA-Nucleosomes/resources/BAMs/IH01.bam	BH01	GRCh37
+h	IH02	/data/groups/ag_kircher/cfDNA-Nucleosomes/resources/BAMs/IH02.bam	BH01	GRCh37
+h	NPH001	/data/groups/ag_kircher/cfDNA-reanalysis_Graz/data/EGAF00002728964/NPH001.bam	BH01	GRCh37
+h	NPH002	/data/groups/ag_kircher/cfDNA-reanalysis_Graz/data/EGAF00002728965/NPH002.bam	BH01	GRCh37
+h	NPH003	/data/groups/ag_kircher/cfDNA-reanalysis_Graz/data/EGAF00002728966/NPH003.bam	BH01	GRCh37
+h	NPH004	/data/groups/ag_kircher/cfDNA-reanalysis_Graz/data/EGAF00002728967/NPH004.bam	BH01	GRCh37
