@@ -4,8 +4,9 @@ UCSC_gap: "resources/UCSC_gap.hg19.bed"
 samples: "config/samples.tsv" # .tsv file containing sample names and locations
 regions: "config/regions.tsv" # .tsv file containing bed files with regions of interest
 
-tissue: ["CACO.2", "MCF7", "PC.3"] # tissues for generating plots
-refSample: "NPH001" # reference sample for rank correlation comparison
+proteinAtlas: "Blood" #RNAtable name 
+tissue: ["NK_cell", "memory_B_cell", "classical_monocyte", "basophil", "memory_CD4_T_cell", "memory_CD8_T_cell"] # tissues for generating plots
+refSample: "BH01" # reference sample for rank correlation comparison
 minRL: 120 # minimum read length for calculating WPS
 maxRL: 180 # maximum read length for calculating WPS
 bpProtection: 120 
