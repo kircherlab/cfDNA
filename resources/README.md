@@ -1,7 +1,6 @@
 ## Files 
 
 - resources 
-    - annotations 
     - protein_atlas 
         - RNAtableBlood.tsv.gz (from https://www.proteinatlas.org/download/rna_blood_cell.tsv.zip)
         - labels_Blood.tsv
