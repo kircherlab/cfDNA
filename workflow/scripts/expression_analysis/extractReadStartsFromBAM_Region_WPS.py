@@ -65,7 +65,10 @@ protection = options.protection//2
 validChroms = set(map(str,range(1,23)+["X","Y"]))
 
 if os.path.exists(options.input):
-  infile = open(options.input)
+  if ".gz" in options.input:
+    infile = gzip.open(options.input,"r")
+  else:
+    infile = open(options.input)
   for line in infile:
     cid,chrom,start,end,strand = line.split() # positions should be 0-based and end non-inclusive
     if chrom not in validChroms: continue
