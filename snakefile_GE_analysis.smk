@@ -2,27 +2,30 @@ from snakemake.utils import validate
 import pandas as pd
 
 configfile: "config/config.yml"
-#validate(config, schema="workflow/schemas/config.schema.yaml")
+validate(config, schema="workflow/schemas/config.schema.yaml")
 
 samples = pd.read_csv(config["samples"], sep="\t").set_index("sample", drop=False)
 samples.index.names = ["sample_id"]
-#validate(samples, schema="workflow/schemas/samples.schema.yaml")
+validate(samples, schema="workflow/schemas/samples.schema.yaml")
 
 rule all:
     input:
-        expand("resources/annotations/transcriptAnno-{GENOME}.103.body.tsv",
-                GENOME=samples["genome_build"]),
+        expand("resources/transcriptAnno-{GENOME}.103.filtered.tsv.gz",
+             GENOME=samples["genome_build"].unique()
+        ),
+        expand("resources/annotations/transcriptAnno-{GENOME}.103.body.tsv.gz",
+                GENOME=samples["genome_build"].unique()),
         expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz",
                 GENOME=samples["genome_build"],
                 SAMPLE=samples["sample"]),
-        expand("results/plots/{ID}/{tissue}_allFreq_correlation_plot.pdf",
-                tissue=config["tissue"],
-                ID=samples["ID"]),
-        expand("results/tables/{ID}/Ave193-199bp_correlation.pdf",
-                ID=samples["ID"]),
-        expand("results/tables/{ID}/{refSample}_Ave193-199bp_correlation_rank.pdf",
-                refSample = config["refSample"],
-                ID=samples["ID"])
+        #expand("results/plots/{ID}/{tissue}_allFreq_correlation_plot.pdf",
+        #        tissue=config["tissue"],
+        #        ID=samples["ID"]),
+        #expand("results/tables/{ID}/Ave193-199bp_correlation.pdf",
+        #        ID=samples["ID"]),
+        #expand("results/tables/{ID}/{refSample}_Ave193-199bp_correlation_rank.pdf",
+        #        refSample = config["refSample"],
+        #        ID=samples["ID"])
 
 rule join: 
     input:
@@ -34,23 +37,24 @@ rule join:
     conda: "workflow/envs/cfDNA.yml"
     shell:
         """
-        (head -n 1 {input.transcriptAnno}; join -t"$(echo -e "\t")" <(tail -n +2 {input.transcriptAnno}| sort -k1,1 ) <( tail -n +2 {input.proteinAtlas} | cut -f 1 | sort )) > {output.filteredTranscriptAnno}
+        set +o pipefail;
+        (zcat {input.transcriptAnno} | head -n 1; join -t"$(echo -e "\\t")" <(zcat {input.transcriptAnno}| tail -n +2 | sort -k1,1 ) <(zcat {input.proteinAtlas} | tail -n +2 |cut -f 1 | sort )) | gzip -c > {output.filteredTranscriptAnno}
         """
 
 rule prep:
     input:
         transcriptAnno="resources/transcriptAnno-{GENOME}.103.filtered.tsv.gz"
     output:
-        body="resources/annotations/transcriptAnno-{GENOME}.103.body.tsv"
+        body="resources/annotations/transcriptAnno-{GENOME}.103.body.tsv.gz"
     conda: "workflow/envs/cfDNA.yml"
     shell:
         """
-        zcat {input.transcriptAnno} | awk 'BEGIN{{ FS="\\t"; OFS="\\t" }}{{ if ($5 == "+") {{ print $1,$2,$3-1,$3-1+10000,$5 }} else {{ print $1,$2,$4-1-10000,$4-1,$5 }} }}' >{output.body}
+        zcat {input.transcriptAnno} | tail -n +2 | awk 'BEGIN{{ FS="\\t"; OFS="\\t" }}{{ if ($5 == "+") {{ print $1,$2,$3-1,$3-1+10000,$5 }} else {{ print $1,$2,$4-1-10000,$4-1,$5 }} }}'| gzip -c > {output.body}
         """
 
 rule extract_counts:
     input:
-        body="resources/annotations/transcriptAnno-{GENOME}.103.body.tsv",
+        body="resources/annotations/transcriptAnno-{GENOME}.103.body.tsv.gz",
         BAMFILE= lambda wildcards: samples["path"][wildcards.SAMPLE]
     output:
         "results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz"
