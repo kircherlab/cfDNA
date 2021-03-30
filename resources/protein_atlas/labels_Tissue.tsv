@@ -1,62 +1,33 @@
 Category	Name	Type
-Primary Tissue	adipose_tissue	adipose_tissue
-Primary Tissue	adrenal_gland	adrenal_gland
-Primary Tissue	amygdala	amygdala
-Primary Tissue	appendix	appendix
-Primary Tissue	B_cells	B_cells
-Primary Tissue	basal_ganglia	basal_ganglia
-Primary Tissue	bone_marrow	bone_marrow
-Primary Tissue	breast	breast
-Primary Tissue	cerebellum	cerebellum
-Primary Tissue	cerebral_cortex	cerebral_cortex
-Primary Tissue	cervix_uterine	cervix_uterine
-Primary Tissue	colon	colon
-Primary Tissue	corpus_callosum	corpus_callosum
-Primary Tissue	dendritic_cells	dendritic_cells
-Primary Tissue	ductus_deferens	ductus_deferens
-Primary Tissue	duodenum	duodenum
-Primary Tissue	endometrium	endometrium
-Primary Tissue	epididymis	epididymis
-Primary Tissue	esophagus	esophagus
-Primary Tissue	fallopian_tube	fallopian_tube
-Primary Tissue	gallbladder	gallbladder
-Primary Tissue	granulocytes	granulocytes
-Primary Tissue	heart_muscle	heart_muscle
-Primary Tissue	hippocampal_formation	hippocampal_formation
-Primary Tissue	hypothalamus	hypothalamus
-Primary Tissue	kidney	kidney
-Primary Tissue	liver	liver
-Primary Tissue	lung	lung
-Primary Tissue	lymph_node	lymph_node
-Primary Tissue	midbrain	midbrain
-Primary Tissue	monocytes	monocytes
-Primary Tissue	NK_cells	NK_cells
-Primary Tissue	olfactory_region	olfactory_region
-Primary Tissue	ovary	ovary
-Primary Tissue	pancreas	pancreas
-Primary Tissue	parathyroid_gland	parathyroid_gland
-Primary Tissue	pituitary_gland	pituitary_gland
-Primary Tissue	placenta	placenta
-Primary Tissue	pons_and_medulla	pons_and_medulla
-Primary Tissue	prostate	prostate
-Primary Tissue	rectum	rectum
-Primary Tissue	retina	retina
-Primary Tissue	salivary_gland	salivary_gland
-Primary Tissue	seminal_vesicle	seminal_vesicle
-Primary Tissue	skeletal_muscle	skeletal_muscle
-Primary Tissue	skin	skin
-Primary Tissue	small_intestine	small_intestine
-Primary Tissue	smooth_muscle	smooth_muscle
-Primary Tissue	spinal_cord	spinal_cord
-Primary Tissue	spleen	spleen
-Primary Tissue	stomach	stomach
-Primary Tissue	T_cells	T_cells
-Primary Tissue	testis	testis
-Primary Tissue	thalamus	thalamus
-Primary Tissue	thymus	thymus
-Primary Tissue	thyroid_gland	thyroid_gland
-Primary Tissue	tongue	tongue
-Primary Tissue	tonsil	tonsil
-Primary Tissue	total_PBMC	total_PBMC
-Primary Tissue	urinary_bladder	urinary_bladder
-Primary Tissue	vagina	vagina
+Primary Tissue	amygdala	Brain
+Primary Tissue	appendix	Bone marrow and lymphoid tissues
+Primary Tissue	breast	Female tissues
+Primary Tissue	cerebellum	Brain
+Primary Tissue	colon	Gastointestinal tract
+Primary Tissue	duodenum	Gastointestinal tract
+Primary Tissue	endometrium	Female tissues
+Primary Tissue	epididymis	Male tissues
+Primary Tissue	esophagus	Proximal digestive tract
+Primary Tissue	gallbladder	Liver and gallblader
+Primary Tissue	granulocytes	Blood cell 
+Primary Tissue	hypothalamus	Brain
+Primary Tissue	kidney	Kidney and urinary bladder
+Primary Tissue	liver	Liver and gallblader
+Primary Tissue	lung	Respiratory system
+Primary Tissue	midbrain	Brain
+Primary Tissue	monocytes	Blood cell 
+Primary Tissue	ovary	Female tissues
+Primary Tissue	pancreas	Pancreas
+Primary Tissue	placenta	Female tissues
+Primary Tissue	prostate	Male tissues
+Primary Tissue	rectum	Gastointestinal tract
+Primary Tissue	retina	Eye
+Primary Tissue	skin	Skin
+Primary Tissue	spleen	Bone marrow and lymphoid tissues
+Primary Tissue	stomach	Gastointestinal tract
+Primary Tissue	testis	Male tissues
+Primary Tissue	thalamus	Brain
+Primary Tissue	thymus	Bone marrow and lympoid tissues
+Primary Tissue	tongue	Tongue
+Primary Tissue	tonsil	Bone marrow and lympoid tissues
+Primary Tissue	vagina	Female tissues
