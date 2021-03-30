@@ -16,7 +16,10 @@ properties:
     type: integer
   bpProtection:
     type: integer
-
+  proteinAtlas:
+    type: string
+    enum: ["Blood", "Tissue", "Extended"]
+    description: Type of ProteinAtlas to use. Blood=BloodAtlas, Tissue=ProteinAtlas, Extended=Tissue+cell-lines
 # entries that have to be in the config file for successful validation
 required:
   - samples

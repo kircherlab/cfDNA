@@ -16,9 +16,13 @@ properties:
   ref_samples:
     type: string
     description: reference samples contained in samples.tsv; multiple samples comma separated
+  genome_build:
+    type: string
+    enum: ["GRCh37", "GRCh38"]
 # columns that the config/samples.tsv file must have to pass schema validation
 required:
   - ID
   - sample
   - path
   - ref_samples
+  - genome_build
