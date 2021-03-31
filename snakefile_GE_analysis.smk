@@ -18,14 +18,14 @@ rule all:
         expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz",
                 GENOME=samples["genome_build"],
                 SAMPLE=samples["sample"]),
-        #expand("results/plots/{ID}/{tissue}_allFreq_correlation_plot.pdf",
-        #        tissue=config["tissue"],
-        #        ID=samples["ID"]),
-        #expand("results/tables/{ID}/Ave193-199bp_correlation.pdf",
-        #        ID=samples["ID"]),
-        #expand("results/tables/{ID}/{refSample}_Ave193-199bp_correlation_rank.pdf",
-        #        refSample = config["refSample"],
-        #        ID=samples["ID"])
+        expand("results/plots/{ID}/{tissue}_allFreq_correlation_plot.pdf",
+                tissue=config["tissue"],
+                ID=samples["ID"]),
+        expand("results/tables/{ID}/Ave193-199bp_correlation.pdf",
+                ID=samples["ID"]),
+        expand("results/tables/{ID}/{refSample}_Ave193-199bp_correlation_rank.pdf",
+                refSample = config["refSample"],
+                ID=samples["ID"])
 
 rule join: 
     input:
@@ -87,7 +87,7 @@ rule extract_counts:
         -t results/tmp/ \
         -r results/intermediate/ \
         -p body \
-        -i {wildcards.SAMPLE}
+        -i {wildcards.SAMPLE}-{wildcards.GENOME}
         
         rm -fR results/tmp/body/{wildcards.SAMPLE}/fft
         """
