@@ -16,43 +16,67 @@ validate(regions, schema="workflow/schemas/regions.schema.yaml")
 
 
 def get_WPS_ref(sample):
+    ref_samples = samples["ref_samples"][sample].split(",")
+    genomes=samples["genome_build"][ref_samples].values.tolist()
     return expand(
-        "results/intermediate/{{ID}}/table/{{target_region}}-{ref_SAMPLE}_WPS.csv",
-        ref_SAMPLE=samples["ref_samples"][sample].split(","),
+        "results/intermediate/{{ID}}/target/{GENOME}/table/{{target_region}}_{ref_SAMPLE}_WPS.csv",
+        zip,
+        ref_SAMPLE=ref_samples,
+        GENOME=genomes,
     )
 
 
 def get_COV_ref(sample):
+    ref_samples = samples["ref_samples"][sample].split(",")
+    genomes=samples["genome_build"][ref_samples].values.tolist()
     return expand(
-        "results/intermediate/{{ID}}/table/{{target_region}}-{ref_SAMPLE}_COV.csv",
-        ref_SAMPLE=samples["ref_samples"][sample].split(","),
+        "results/intermediate/{{ID}}/target/{GENOME}/table/{{target_region}}_{ref_SAMPLE}_COV.csv",
+        zip,
+        ref_SAMPLE=ref_samples,
+        GENOME=genomes,
     )
 
 
 def get_STARTS_ref(sample):
+    ref_samples = samples["ref_samples"][sample].split(",")
+    genomes=samples["genome_build"][ref_samples].values.tolist()
     return expand(
-        "results/intermediate/{{ID}}/table/{{target_region}}-{ref_SAMPLE}_STARTS.csv",
-        ref_SAMPLE=samples["ref_samples"][sample].split(","),
+        "results/intermediate/{{ID}}/target/{GENOME}/table/{{target_region}}_{ref_SAMPLE}_STARTS.csv",
+        zip,
+        ref_SAMPLE=ref_samples,
+        GENOME=genomes,
     )
 
 def get_WPS_background_ref(sample):
+    ref_samples = samples["ref_samples"][sample].split(",")
+    genomes=samples["genome_build"][ref_samples].values.tolist()
     return expand(
-        "results/intermediate/{{ID}}/background_region/table/{{target_region}}-{ref_SAMPLE}_WPS.background.csv",
-        ref_SAMPLE=samples["ref_samples"][sample].split(","),
+        "results/intermediate/{{ID}}/background/{GENOME}/table/{{target_region}}-{ref_SAMPLE}_WPS.background.csv",
+        zip,
+        ref_SAMPLE=ref_samples,
+        GENOME=genomes,
     )
 
 
 def get_COV_background_ref(sample):
+    ref_samples = samples["ref_samples"][sample].split(",")
+    genomes=samples["genome_build"][ref_samples].values.tolist()
     return expand(
-        "results/intermediate/{{ID}}/background_region/table/{{target_region}}-{ref_SAMPLE}_COV.background.csv",
-        ref_SAMPLE=samples["ref_samples"][sample].split(","),
+        "results/intermediate/{{ID}}/background/{GENOME}/table/{{target_region}}-{ref_SAMPLE}_COV.background.csv",
+        zip,
+        ref_SAMPLE=ref_samples,
+        GENOME=genomes,
     )
 
 
 def get_STARTS_background_ref(sample):
+    ref_samples = samples["ref_samples"][sample].split(",")
+    genomes=samples["genome_build"][ref_samples].values.tolist()
     return expand(
-        "results/intermediate/{{ID}}/background_region/table/{{target_region}}-{ref_SAMPLE}_STARTS.background.csv",
-        ref_SAMPLE=samples["ref_samples"][sample].split(","),
+        "results/intermediate/{{ID}}/background/{{GENOME}}/table/{{target_region}}-{ref_SAMPLE}_STARTS.background.csv",
+        zip,
+        ref_SAMPLE=ref_samples,
+        GENOME=genomes,
     )
 
 
@@ -65,45 +89,57 @@ def get_length(input):
 
 rule all:
     input:
-        expand(
-            "results/intermediate/{ID}/table/{target_region}-{SAMPLE}_WPS.csv",
+        expand(expand(
+            "results/intermediate/{ID}/target/{GENOME}/table/{target_region}_{SAMPLE}_WPS.csv",
+            zip,
             SAMPLE=samples["sample"],
             ID=samples["ID"],
-            target_region=regions["target"],
+            GENOME=samples["genome_build"],
+            allow_missing=True,
+        ),target_region=regions["target"],
         ),
-        expand(
-            "results/intermediate/{ID}/table/{target_region}-{SAMPLE}_COV.csv",
+        expand(expand(
+            "results/intermediate/{ID}/target/{GENOME}/table/{target_region}_{SAMPLE}_COV.csv",
+            zip,
             SAMPLE=samples["sample"],
             ID=samples["ID"],
-            target_region=regions["target"],
+            GENOME=samples["genome_build"],
+            allow_missing=True,
+        ),target_region=regions["target"],
         ),
-        expand(
-            "results/intermediate/{ID}/table/{target_region}-{SAMPLE}_STARTS.csv",
+        expand(expand(
+            "results/intermediate/{ID}/target/{GENOME}/table/{target_region}_{SAMPLE}_STARTS.csv",
+            zip,
             SAMPLE=samples["sample"],
             ID=samples["ID"],
-            target_region=regions["target"],
+            GENOME=samples["genome_build"],
+            allow_missing=True,
+        ),target_region=regions["target"],
         ),
-        expand(
-            "results/intermediate/{ID}/background_region/{target_region}_background_regions.bed",
+        expand(expand(
+            "results/intermediate/{ID}/background/{GENOME}/{target_region}_background_regions.bed",
+            zip,
             ID=samples["ID"],
-            target_region=regions["target"],
+            GENOME=samples["genome_build"],
+            allow_missing=True,
+        ),target_region=regions["target"],
         ),
-        expand(
+        expand(expand(
             "results/plots/overlays/{ID}/{target_region}-{SAMPLE}_overlays.pdf",
+            zip,
             SAMPLE=samples["sample"],
             ID=samples["ID"],
-            target_region=regions["target"],
+            allow_missing=True,
+        ),target_region=regions["target"],
         ),
-        
-
 
 rule generate_random_background:
     input:
         region=lambda wildcards: regions["path"][wildcards.target_region],
-        genome=config["GRCh37_genome"],
-        gap=config["UCSC_gap"],
+        genome=lambda wildcards: config[wildcards.GENOME]["genome_autosomes"], 
+        gap=lambda wildcards: config[wildcards.GENOME]["UCSC_gap"],
     output:
-        "results/intermediate/{ID}/background_region/{target_region}_background_regions.bed",
+        "results/intermediate/{ID}/background/{GENOME}/{target_region}_background_regions.bed"
     params:
         length = lambda wildcards, input: get_length(input.region)
     conda:"workflow/envs/background.yml"
@@ -120,13 +156,13 @@ rule extract_counts:
         target=lambda wildcards: regions["path"][wildcards.target_region],
         BAMFILE=lambda wildcards: samples["path"][wildcards.SAMPLE],
     output:
-        WPS="results/intermediate/{ID}/table/{target_region}-{SAMPLE}_WPS.csv",
-        COV="results/intermediate/{ID}/table/{target_region}-{SAMPLE}_COV.csv",
-        STARTS="results/intermediate/{ID}/table/{target_region}-{SAMPLE}_STARTS.csv",
+        WPS="results/intermediate/{ID}/target/{GENOME}/table/{target_region}_{SAMPLE}_WPS.csv",
+        COV="results/intermediate/{ID}/target/{GENOME}/table/{target_region}_{SAMPLE}_COV.csv",
+        STARTS="results/intermediate/{ID}/target/{GENOME}/table/{target_region}_{SAMPLE}_STARTS.csv",
     params:
         minRL=config["minRL"],
         maxRL=config["maxRL"],
-        out_pre="results/intermediate/{ID}/table/{target_region}-{SAMPLE}_%s.csv",
+        out_pre="results/intermediate/{ID}/target_region/{GENOME}/table/{target_region}_{SAMPLE}_%s.csv",
     conda:
         "workflow/envs/cfDNA.yml"
     shell:
@@ -140,16 +176,16 @@ rule extract_counts:
 
 rule extract_counts_background:
     input:
-        background="results/intermediate/{ID}/background_region/{target_region}_background_regions.bed",
+        background="results/intermediate/{ID}/background/{GENOME}/{target_region}_background_regions.bed",
         BAMFILE=lambda wildcards: samples["path"][wildcards.SAMPLE],
     output:
-        WPS="results/intermediate/{ID}/background_region/table/{target_region}-{SAMPLE}_WPS.background.csv",
-        COV="results/intermediate/{ID}/background_region/table/{target_region}-{SAMPLE}_COV.background.csv",
-        STARTS="results/intermediate/{ID}/background_region/table/{target_region}-{SAMPLE}_STARTS.background.csv",
+        WPS="results/intermediate/{ID}/background/{GENOME}/table/{target_region}-{SAMPLE}_WPS.background.csv",
+        COV="results/intermediate/{ID}/background/{GENOME}/table/{target_region}-{SAMPLE}_COV.background.csv",
+        STARTS="results/intermediate/{ID}/background/{GENOME}/table/{target_region}-{SAMPLE}_STARTS.background.csv",
     params:
         minRL=config["minRL"],
         maxRL=config["maxRL"],
-        out_pre="results/intermediate/{ID}/background_region/table/{target_region}-{SAMPLE}_%s.background.csv",
+        out_pre="results/intermediate/{ID}/background/{GENOME}/table/{target_region}-{SAMPLE}_%s.background.csv",
     conda:
         "workflow/envs/cfDNA.yml"
     shell:
@@ -164,16 +200,16 @@ rule extract_counts_background:
 
 rule plot_overlays:
     input:
-        WPS="results/intermediate/{ID}/table/{target_region}-{SAMPLE}_WPS.csv",
+        WPS=lambda wc: "results/intermediate/{{ID}}/target/{GENOME}/table/{{target_region}}_{{SAMPLE}}_WPS.csv".format(GENOME=samples["genome_build"].loc[samples["sample"] == wc.SAMPLE].values[0]),
         WPS_ref=lambda wildcards: get_WPS_ref(wildcards.SAMPLE),
-        COV="results/intermediate/{ID}/table/{target_region}-{SAMPLE}_COV.csv",
+        COV=lambda wc: "results/intermediate/{{ID}}/target/{GENOME}/table/{{target_region}}_{{SAMPLE}}_COV.csv".format(GENOME=samples["genome_build"].loc[samples["sample"] == wc.SAMPLE].values[0]),
         COV_ref=lambda wildcards: get_COV_ref(wildcards.SAMPLE),
-        WPS_back="results/intermediate/{ID}/background_region/table/{target_region}-{SAMPLE}_WPS.background.csv",
+        WPS_back=lambda wc: "results/intermediate/{{ID}}/background/{GENOME}/table/{{target_region}}-{{SAMPLE}}_WPS.background.csv".format(GENOME=samples["genome_build"].loc[samples["sample"] == wc.SAMPLE].values[0]),
         WPS_back_ref=lambda wildcards: get_WPS_background_ref(wildcards.SAMPLE),
-        COV_back="results/intermediate/{ID}/background_region/table/{target_region}-{SAMPLE}_COV.background.csv",
+        COV_back=lambda wc: "results/intermediate/{{ID}}/background/{GENOME}/table/{{target_region}}-{{SAMPLE}}_COV.background.csv".format(GENOME=samples["genome_build"].loc[samples["sample"] == wc.SAMPLE].values[0]),
         COV_back_ref=lambda wildcards: get_COV_background_ref(wildcards.SAMPLE),
     output:
-        "results/plots/overlays/{ID}/{target_region}.{SAMPLE}_overlays.pdf",
+        "results/plots/overlays/{ID}/{target_region}-{SAMPLE}_overlays.pdf",
     params:
         target="{target_region}",
         sample="{SAMPLE}",
