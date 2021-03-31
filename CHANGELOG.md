@@ -7,6 +7,11 @@
 - changed config.yml to example.config.yml
 - updated schemas
 
+### new files
+
+- updated blacklists for both genome builds
+- updated genome files for both genome builds
+
 ### new feature
 
 - snakefile_GE_analysis:
