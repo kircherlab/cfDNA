@@ -10,6 +10,24 @@
 !resources/blacklists/
 !resources/blacklists/**
 
+!resources/protein_atlas/
+!resources/protein_atlas/**
+
+!workflow/
+!workflow/envs/
+!workflow/envs/**
+
+!workflow/schemas/
+!workflow/schemas/**
+
+!workflow/scripts/
+!workflow/scripts/**
+
+!config/example.config.yml
+!config/samples.tsv
+!config/regions.tsv
+
+
 !.gitignore
 !.gitattributes
 !.editorconfig
