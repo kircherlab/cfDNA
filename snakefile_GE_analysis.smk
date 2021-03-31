@@ -16,6 +16,7 @@ rule all:
         expand("results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.body.tsv.gz",
                 GENOME=samples["genome_build"].unique()),
         expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz",
+                zip,
                 GENOME=samples["genome_build"],
                 SAMPLE=samples["sample"]),
         expand("results/plots/{ID}/{tissue}_allFreq_correlation_plot.pdf",
