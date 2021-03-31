@@ -17,41 +17,41 @@ validate(regions, schema="workflow/schemas/regions.schema.yaml")
 
 def get_WPS_ref(sample):
     return expand(
-        "results/intermediate/{{ID}}/table/{{target_region}}.{ref_SAMPLE}_WPS.csv",
+        "results/intermediate/{{ID}}/table/{{target_region}}-{ref_SAMPLE}_WPS.csv",
         ref_SAMPLE=samples["ref_samples"][sample].split(","),
     )
 
 
 def get_COV_ref(sample):
     return expand(
-        "results/intermediate/{{ID}}/table/{{target_region}}.{ref_SAMPLE}_COV.csv",
+        "results/intermediate/{{ID}}/table/{{target_region}}-{ref_SAMPLE}_COV.csv",
         ref_SAMPLE=samples["ref_samples"][sample].split(","),
     )
 
 
 def get_STARTS_ref(sample):
     return expand(
-        "results/intermediate/{{ID}}/table/{{target_region}}.{ref_SAMPLE}_STARTS.csv",
+        "results/intermediate/{{ID}}/table/{{target_region}}-{ref_SAMPLE}_STARTS.csv",
         ref_SAMPLE=samples["ref_samples"][sample].split(","),
     )
 
 def get_WPS_background_ref(sample):
     return expand(
-        "results/intermediate/{{ID}}/background_region/table/{{target_region}}.{ref_SAMPLE}_WPS.background.csv",
+        "results/intermediate/{{ID}}/background_region/table/{{target_region}}-{ref_SAMPLE}_WPS.background.csv",
         ref_SAMPLE=samples["ref_samples"][sample].split(","),
     )
 
 
 def get_COV_background_ref(sample):
     return expand(
-        "results/intermediate/{{ID}}/background_region/table/{{target_region}}.{ref_SAMPLE}_COV.background.csv",
+        "results/intermediate/{{ID}}/background_region/table/{{target_region}}-{ref_SAMPLE}_COV.background.csv",
         ref_SAMPLE=samples["ref_samples"][sample].split(","),
     )
 
 
 def get_STARTS_background_ref(sample):
     return expand(
-        "results/intermediate/{{ID}}/background_region/table/{{target_region}}.{ref_SAMPLE}_STARTS.background.csv",
+        "results/intermediate/{{ID}}/background_region/table/{{target_region}}-{ref_SAMPLE}_STARTS.background.csv",
         ref_SAMPLE=samples["ref_samples"][sample].split(","),
     )
 
@@ -66,19 +66,19 @@ def get_length(input):
 rule all:
     input:
         expand(
-            "results/intermediate/{ID}/table/{target_region}.{SAMPLE}_WPS.csv",
+            "results/intermediate/{ID}/table/{target_region}-{SAMPLE}_WPS.csv",
             SAMPLE=samples["sample"],
             ID=samples["ID"],
             target_region=regions["target"],
         ),
         expand(
-            "results/intermediate/{ID}/table/{target_region}.{SAMPLE}_COV.csv",
+            "results/intermediate/{ID}/table/{target_region}-{SAMPLE}_COV.csv",
             SAMPLE=samples["sample"],
             ID=samples["ID"],
             target_region=regions["target"],
         ),
         expand(
-            "results/intermediate/{ID}/table/{target_region}.{SAMPLE}_STARTS.csv",
+            "results/intermediate/{ID}/table/{target_region}-{SAMPLE}_STARTS.csv",
             SAMPLE=samples["sample"],
             ID=samples["ID"],
             target_region=regions["target"],
@@ -89,7 +89,7 @@ rule all:
             target_region=regions["target"],
         ),
         expand(
-            "results/plots/overlays/{ID}/{target_region}.{SAMPLE}_overlays.pdf",
+            "results/plots/overlays/{ID}/{target_region}-{SAMPLE}_overlays.pdf",
             SAMPLE=samples["sample"],
             ID=samples["ID"],
             target_region=regions["target"],
@@ -120,13 +120,13 @@ rule extract_counts:
         target=lambda wildcards: regions["path"][wildcards.target_region],
         BAMFILE=lambda wildcards: samples["path"][wildcards.SAMPLE],
     output:
-        WPS="results/intermediate/{ID}/table/{target_region}.{SAMPLE}_WPS.csv",
-        COV="results/intermediate/{ID}/table/{target_region}.{SAMPLE}_COV.csv",
-        STARTS="results/intermediate/{ID}/table/{target_region}.{SAMPLE}_STARTS.csv",
+        WPS="results/intermediate/{ID}/table/{target_region}-{SAMPLE}_WPS.csv",
+        COV="results/intermediate/{ID}/table/{target_region}-{SAMPLE}_COV.csv",
+        STARTS="results/intermediate/{ID}/table/{target_region}-{SAMPLE}_STARTS.csv",
     params:
         minRL=config["minRL"],
         maxRL=config["maxRL"],
-        out_pre="results/intermediate/{ID}/table/{target_region}.{SAMPLE}_%s.csv",
+        out_pre="results/intermediate/{ID}/table/{target_region}-{SAMPLE}_%s.csv",
     conda:
         "workflow/envs/cfDNA.yml"
     shell:
@@ -143,13 +143,13 @@ rule extract_counts_background:
         background="results/intermediate/{ID}/background_region/{target_region}_background_regions.bed",
         BAMFILE=lambda wildcards: samples["path"][wildcards.SAMPLE],
     output:
-        WPS="results/intermediate/{ID}/background_region/table/{target_region}.{SAMPLE}_WPS.background.csv",
-        COV="results/intermediate/{ID}/background_region/table/{target_region}.{SAMPLE}_COV.background.csv",
-        STARTS="results/intermediate/{ID}/background_region/table/{target_region}.{SAMPLE}_STARTS.background.csv",
+        WPS="results/intermediate/{ID}/background_region/table/{target_region}-{SAMPLE}_WPS.background.csv",
+        COV="results/intermediate/{ID}/background_region/table/{target_region}-{SAMPLE}_COV.background.csv",
+        STARTS="results/intermediate/{ID}/background_region/table/{target_region}-{SAMPLE}_STARTS.background.csv",
     params:
         minRL=config["minRL"],
         maxRL=config["maxRL"],
-        out_pre="results/intermediate/{ID}/background_region/table/{target_region}.{SAMPLE}_%s.background.csv",
+        out_pre="results/intermediate/{ID}/background_region/table/{target_region}-{SAMPLE}_%s.background.csv",
     conda:
         "workflow/envs/cfDNA.yml"
     shell:
@@ -164,13 +164,13 @@ rule extract_counts_background:
 
 rule plot_overlays:
     input:
-        WPS="results/intermediate/{ID}/table/{target_region}.{SAMPLE}_WPS.csv",
+        WPS="results/intermediate/{ID}/table/{target_region}-{SAMPLE}_WPS.csv",
         WPS_ref=lambda wildcards: get_WPS_ref(wildcards.SAMPLE),
-        COV="results/intermediate/{ID}/table/{target_region}.{SAMPLE}_COV.csv",
+        COV="results/intermediate/{ID}/table/{target_region}-{SAMPLE}_COV.csv",
         COV_ref=lambda wildcards: get_COV_ref(wildcards.SAMPLE),
-        WPS_back="results/intermediate/{ID}/background_region/table/{target_region}.{SAMPLE}_WPS.background.csv",
+        WPS_back="results/intermediate/{ID}/background_region/table/{target_region}-{SAMPLE}_WPS.background.csv",
         WPS_back_ref=lambda wildcards: get_WPS_background_ref(wildcards.SAMPLE),
-        COV_back="results/intermediate/{ID}/background_region/table/{target_region}.{SAMPLE}_COV.background.csv",
+        COV_back="results/intermediate/{ID}/background_region/table/{target_region}-{SAMPLE}_COV.background.csv",
         COV_back_ref=lambda wildcards: get_COV_background_ref(wildcards.SAMPLE),
     output:
         "results/plots/overlays/{ID}/{target_region}.{SAMPLE}_overlays.pdf",
