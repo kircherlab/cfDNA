@@ -8,12 +8,14 @@
 
 import sys, os
 from optparse import OptionParser
-from collections import defaultdict 
+from collections import defaultdict
 from sortedcontainers import SortedDict
 import random
 import mmap
 import gzip
 import pysam
+import pandas as pd
+
 
 def read_genome_fastaindex(faifile):
   #READ FASTA INDEX TO MEMORY
@@ -145,51 +147,149 @@ def writeBAMentry(chrom,pos,seq,length,strand):
   #print chrom,pos,length,seq,len(seq)
 
 
+def get_coords(bedfile):
+    BEDCOLS = [
+        "chrom",
+        "chromStart",
+        "chromEnd",
+        "name",
+        "score",
+        "strand",
+        "thickStart",
+        "thickEnd",
+        "itemRGB",
+        "blockCount",
+        "blockSizes",
+        "blockStarts",
+    ]
+    bed_df = pd.read_csv(bedfile, sep="\t", header=None)
+    colnames = []
+    for i in range(len(bed_df.columns)):
+        colnames.append(BEDCOLS[i])
+    bed_df.columns = colnames
+    bed_df["chrom"] = bed_df["chrom"].str.replace("chr", "")
+    bed_df["chromStart"] = bed_df["chromStart"]-3000
+    bed_df["chromEnd"] = bed_df["chromEnd"]+3000
+    return list(map(tuple, bed_df[["chrom", "chromStart", "chromEnd"]].values))
+
+
 parser = OptionParser()
-parser.add_option("-o","--outfile", dest="outfile", help="Name of output file (def output.bam)",default="output.bam")
-parser.add_option("-r","--region", dest="region", help="Region to be looked up (def chr12:34439500-34470500)",default="chr12:34439500-34470500")
-parser.add_option("-f","--fasta", dest="reference", help="Fasta index reference genome (default /net/shendure/vol1/home/mkircher/sequencedb/genome/grch37_1000g_phase2/whole_genome.fa)",default="/net/shendure/vol1/home/mkircher/sequencedb/genome/grch37_1000g_phase2/whole_genome.fa")
-parser.add_option("-p","--pipe", dest="pipe", help="Do not fetch, stream data (def Off)",default=False,action="store_true")
-parser.add_option("-d","--lengthDist", dest="lengthDist", help="Length distribution (default P12.19.17_Normal_lenDist.tsv)",default="/net/shendure/vol1/home/mkircher/nucleosomes/simulation/v2/P12.19.17_Normal_lenDist.tsv")
-parser.add_option("--fwdKMerGenome", dest="fwdKMerGenome", help="Frequency distribution of KMers for left reads ends in the genome (default grch37_regChroms_8mers.tsv)",default="/net/shendure/vol1/home/mkircher/nucleosomes/simulation/v2/grch37_regChroms_8mers.tsv")
-parser.add_option("--revKMerGenome", dest="revKMerGenome", help="Frequency distribution of KMers for right reads ends in the genome (default grch37_regChroms_5mers.tsv)",default="/net/shendure/vol1/home/mkircher/nucleosomes/simulation/v2/grch37_regChroms_5mers.tsv")
-parser.add_option("--fwdPKMers", dest="fwdPKMers", help="Frequency distribution of KMers at left reads ends on plus strand (default P12.19.17_Normal_left_f.tsv)",default="/net/shendure/vol1/home/mkircher/nucleosomes/simulation/v2/P12.19.17_Normal_left_f.tsv")
-parser.add_option("--fwdMKMers", dest="fwdMKMers", help="Frequency distribution of KMers at left reads ends on minus strand (default P12.19.17_Normal_left_r.tsv)",default="/net/shendure/vol1/home/mkircher/nucleosomes/simulation/v2/P12.19.17_Normal_left_r.tsv")
-parser.add_option("--revPKMers", dest="revPKMers", help="Frequency distribution of KMers at right reads ends on plus strand (default P12.19.17_Normal_right_f.tsv)",default="/net/shendure/vol1/home/mkircher/nucleosomes/simulation/v2/P12.19.17_Normal_right_f.tsv")
-parser.add_option("--revMKMers", dest="revMKMers", help="Frequency distribution of KMers at right reads ends on minus strand (default P12.19.17_Normal_right_r.tsv)",default="/net/shendure/vol1/home/mkircher/nucleosomes/simulation/v2/P12.19.17_Normal_right_r.tsv")
-#parser.add_option("--fwdPKMers", dest="fwdPKMers", help="Frequency distribution of KMers at left reads ends on plus strand (default testLeft_f.tsv)",default="testLeft_f.tsv")
-#parser.add_option("--fwdMKMers", dest="fwdMKMers", help="Frequency distribution of KMers at left reads ends on minus strand (default testLeft_r.tsv)",default="testLeft_r.tsv")
-#parser.add_option("--revPKMers", dest="revPKMers", help="Frequency distribution of KMers at right reads ends on plus strand (default testRight_f.tsv)",default="testRight_f.tsv")
-#parser.add_option("--revMKMers", dest="revMKMers", help="Frequency distribution of KMers at right reads ends on minus strand (default testRight_r.tsv)",default="testRight_r.tsv")
-parser.add_option("-l", "--readlength", dest="readlength", help="Read length (default 45)", default=45, type="int")
-parser.add_option("-s", "--sample", dest="sample", help="Number of times to sample from a position (default 30)", default=30, type="int")
-parser.add_option("-c", "--correction", dest="correction", help="Likelihood correction factor to increase chances of piking a putative alignment (default 1.0)", default=1.0, type="float")
-parser.add_option("-v","--verbose", dest="verbose", help="Turn debug output on",default=False,action="store_true")
+parser.add_option(
+    "-o",
+    "--outfile",
+    dest="outfile",
+    help="Name of output file (def output.bam)",
+    default="output.bam",
+)
+parser.add_option(
+    "-r",
+    "--region",
+    dest="region",
+    help="Region to be looked up (def chr12:34439500-34470500)",
+    default="chr12:34439500-34470500",
+)
+parser.add_option(
+    "-f",
+    "--fasta",
+    dest="reference",
+    help="Fasta index reference genome (default /net/shendure/vol1/home/mkircher/sequencedb/genome/grch37_1000g_phase2/whole_genome.fa)",
+    default="/net/shendure/vol1/home/mkircher/sequencedb/genome/grch37_1000g_phase2/whole_genome.fa",
+)
+parser.add_option(
+    "-p",
+    "--pipe",
+    dest="pipe",
+    help="Do not fetch, stream data (def Off)",
+    default=False,
+    action="store_true",
+)
+parser.add_option(
+    "-d",
+    "--lengthDist",
+    dest="lengthDist",
+    help="Length distribution (default P12.19.17_Normal_lenDist.tsv)",
+    default="/net/shendure/vol1/home/mkircher/nucleosomes/simulation/v2/P12.19.17_Normal_lenDist.tsv",
+)
+parser.add_option(
+    "--fwdKMerGenome",
+    dest="fwdKMerGenome",
+    help="Frequency distribution of KMers for left reads ends in the genome (default grch37_regChroms_8mers.tsv)",
+    default="/net/shendure/vol1/home/mkircher/nucleosomes/simulation/v2/grch37_regChroms_8mers.tsv",
+)
+parser.add_option(
+    "--revKMerGenome",
+    dest="revKMerGenome",
+    help="Frequency distribution of KMers for right reads ends in the genome (default grch37_regChroms_5mers.tsv)",
+    default="/net/shendure/vol1/home/mkircher/nucleosomes/simulation/v2/grch37_regChroms_5mers.tsv",
+)
+parser.add_option(
+    "--fwdPKMers",
+    dest="fwdPKMers",
+    help="Frequency distribution of KMers at left reads ends on plus strand (default P12.19.17_Normal_left_f.tsv)",
+    default="/net/shendure/vol1/home/mkircher/nucleosomes/simulation/v2/P12.19.17_Normal_left_f.tsv",
+)
+parser.add_option(
+    "--fwdMKMers",
+    dest="fwdMKMers",
+    help="Frequency distribution of KMers at left reads ends on minus strand (default P12.19.17_Normal_left_r.tsv)",
+    default="/net/shendure/vol1/home/mkircher/nucleosomes/simulation/v2/P12.19.17_Normal_left_r.tsv",
+)
+parser.add_option(
+    "--revPKMers",
+    dest="revPKMers",
+    help="Frequency distribution of KMers at right reads ends on plus strand (default P12.19.17_Normal_right_f.tsv)",
+    default="/net/shendure/vol1/home/mkircher/nucleosomes/simulation/v2/P12.19.17_Normal_right_f.tsv",
+)
+parser.add_option(
+    "--revMKMers",
+    dest="revMKMers",
+    help="Frequency distribution of KMers at right reads ends on minus strand (default P12.19.17_Normal_right_r.tsv)",
+    default="/net/shendure/vol1/home/mkircher/nucleosomes/simulation/v2/P12.19.17_Normal_right_r.tsv",
+)
+# parser.add_option("--fwdPKMers", dest="fwdPKMers", help="Frequency distribution of KMers at left reads ends on plus strand (default testLeft_f.tsv)",default="testLeft_f.tsv")
+# parser.add_option("--fwdMKMers", dest="fwdMKMers", help="Frequency distribution of KMers at left reads ends on minus strand (default testLeft_r.tsv)",default="testLeft_r.tsv")
+# parser.add_option("--revPKMers", dest="revPKMers", help="Frequency distribution of KMers at right reads ends on plus strand (default testRight_f.tsv)",default="testRight_f.tsv")
+# parser.add_option("--revMKMers", dest="revMKMers", help="Frequency distribution of KMers at right reads ends on minus strand (default testRight_r.tsv)",default="testRight_r.tsv")
+parser.add_option(
+    "-l",
+    "--readlength",
+    dest="readlength",
+    help="Read length (default 45)",
+    default=45,
+    type="int",
+)
+parser.add_option(
+    "-s",
+    "--sample",
+    dest="sample",
+    help="Number of times to sample from a position (default 30)",
+    default=30,
+    type="int",
+)
+parser.add_option(
+    "-c",
+    "--correction",
+    dest="correction",
+    help="Likelihood correction factor to increase chances of piking a putative alignment (default 1.0)",
+    default=1.0,
+    type="float",
+)
+parser.add_option(
+    "-v",
+    "--verbose",
+    dest="verbose",
+    help="Turn debug output on",
+    default=False,
+    action="store_true",
+)
 (options, args) = parser.parse_args()
 
 #################
 # PARSE REGION
 #################
 
-chromosomes = []
-options.region = options.region.replace('"',"").replace("'","").strip()
-
-if len(options.region) > 0:
-  try:
-    chrom = options.region.split(':')[0]
-    start,end = map(int,options.region.split(':')[1].replace(",","").split("-"))
-    outchrom = chrom
-    outchrom = outchrom.replace("chr","")
-    if outchrom.startswith('gi|'): # e.g. gi|224589803|ref|NC_000012.11|
-      NCfield = outchrom.split("|")[-2]
-      if NCfield.startswith("NC"):
-        outchrom = "%d"%(int(NCfield.split(".")[0].split("_")[-1]))
-    if options.verbose: 
-      sys.stderr.write("Coordinates parsed: Chrom %s Start %d End %d\n"%(chrom,start,end))
-    chromosomes.append((outchrom,start,end))
-  except:
-    sys.stderr.write("Error: Region not defined in a correct format!\n")
-    sys.exit()
+options.region = options.region.replace('"', "").replace("'", "").strip()
+chromosomes = get_coords(options.region)
 
 #############################
 # READ LENGTH DISTRIBUTION
@@ -504,7 +604,6 @@ for chrom,start,end in chromosomes:
   if options.verbose:
     sys.stderr.write("Reading %s:%d-%d...\n"%(chrom,start,end))
   context = get_DNA_file(chrom,max(1,start-maxLength),min(genome_index[chrom][0],start+maxLength),genome_map,genome_index)
-  print(context)
   posInWindow = maxLength
   if (start-maxLength) < 1:
     posInWindow = maxLength-(maxLength-start)-1
@@ -563,8 +662,13 @@ for chrom,start,end in chromosomes:
       
     count += 1
     #if count > 5: sys.exit()
-    if options.verbose and (count % 100000 == 0): 
-      sys.stderr.write(" ".join(map(str,["CurPos:",chrom,pos,context[posInWindow],posInWindow,get_DNA_file(chrom,pos+1,pos+1,genome_map,genome_index),"Sim:",rcounter]))+"\n")
+    if options.verbose and (count % 100000 == 0): #! something is not working correctly: PosInWindow seems to be out of index range
+      print(count)
+      print(chrom)
+      print(posInWindow)
+      print(chrom,pos,context[posInWindow])
+      print(get_DNA_file(chrom,pos+1,pos+1,genome_map,genome_index))
+      #sys.stderr.write(" ".join(map(str,["CurPos:",chrom,pos,context[posInWindow],posInWindow,get_DNA_file(chrom,pos+1,pos+1,genome_map,genome_index),"Sim:",rcounter]))+"\n")
 
 if BAMoutfile != None:
   BAMoutfile.close()
