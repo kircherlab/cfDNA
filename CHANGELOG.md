@@ -6,6 +6,7 @@
 
 - changed config.yml to example.config.yml
 - updated schemas
+- updated Documentation
 
 ### new files
 
@@ -19,14 +20,14 @@
         - 3 types: Blood, Tissue, Tissue+cell-lines
     - added support for GRCh38
 
-- extractFromBAM_RegionBed_WPS_Cov.py
-    - added output for fragment endpoints (STARTS output)
-    - added strand specificity
-
 - snakefile_WPS:
     - added support for normalization by random background sequences
         - generate random background sequences not overlapping target regions
         - calculate WPS,COV,STARTS table for background sequences
+
+- extractFromBAM_RegionBed_WPS_Cov.py
+    - added output for fragment endpoints (STARTS output)
+    - added strand specificity
 
 - overlays.py:
     - integrated normalization by background sequences
