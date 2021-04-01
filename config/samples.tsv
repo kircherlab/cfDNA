@@ -1,4 +1,4 @@
-ID	sample	path	ref_samples
-experimentID	testsample1	"/path/to/testsample1.bam"	testsample2,testsample3
-experimentID	testsample2	"/path/to/testsample2.bam"	testsample1,testsample3
-experimentID	testsample3	"/path/to/testsample3.bam"	testsample1,testsample2
+ID	sample	path	ref_samples	genome_build
+experimentID	testsample1	"/path/to/testsample1.bam"	testsample2,testsample3	GRCh37
+experimentID	testsample2	"/path/to/testsample2.bam"	testsample1,testsample3	GRCh37
+experimentID	testsample3	"/path/to/testsample3.bam"	testsample1,testsample2	GRCh38

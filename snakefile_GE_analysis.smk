@@ -10,10 +10,14 @@ validate(samples, schema="workflow/schemas/samples.schema.yaml")
 
 rule all:
     input:
-        "resources/annotations/transcriptAnno-GRCh37.75.upstream.tsv",
-        "resources/annotations/transcriptAnno-GRCh37.75.downstream.tsv",
-        "resources/annotations/transcriptAnno-GRCh37.75.body.tsv",
-        expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}_WPS.tsv.gz",
+        expand("results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.filtered.tsv.gz",
+             GENOME=samples["genome_build"].unique()
+        ),
+        expand("results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.body.tsv.gz",
+                GENOME=samples["genome_build"].unique()),
+        expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz",
+                zip,
+                GENOME=samples["genome_build"],
                 SAMPLE=samples["sample"]),
         expand("results/plots/{ID}/{tissue}_allFreq_correlation_plot.pdf",
                 tissue=config["tissue"],
@@ -25,27 +29,45 @@ rule all:
                 ID=samples["ID"])
 
 
-rule prep:
+
+rule join: 
     input:
-        transcriptAnno="resources/transcriptAnno-GRCh37.75.tsv.gz"
+        transcriptAnno= lambda wc: config[wc.GENOME]["transcriptAnno"],
+        #"resources/annotations/transcriptAnno-{GENOME}.103.tsv.gz",
+        proteinAtlas= expand("resources/protein_atlas/RNAtable{SOURCE}.tsv.gz",
+                            SOURCE=config["proteinAtlas"]),
     output:
-        upstream="resources/annotations/transcriptAnno-GRCh37.75.upstream.tsv",
-        downstream="resources/annotations/transcriptAnno-GRCh37.75.downstream.tsv",
-        body="resources/annotations/transcriptAnno-GRCh37.75.body.tsv"
+        filteredTranscriptAnno="results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.filtered.tsv.gz"
     conda: "workflow/envs/cfDNA.yml"
     shell:
         """
-        zcat {input.transcriptAnno} | awk 'BEGIN{{ FS="\\t"; OFS="\\t" }}{{ if ($5 == "+") {{ print $1,$2,$3-10000,$3,$5 }} else {{ print $1,$2,$4,$4+10000,$5 }} }}' > {output.upstream}
-        zcat {input.transcriptAnno} | awk 'BEGIN{{ FS="\\t"; OFS="\\t" }}{{ if ($5 == "+") {{ print $1,$2,$4,$4+10000,$5 }} else {{ print $1,$2,$3-10000,$3,$5 }} }}' > {output.downstream}
-        zcat {input.transcriptAnno} | awk 'BEGIN{{ FS="\\t"; OFS="\\t" }}{{ if ($5 == "+") {{ print $1,$2,$3-1,$3-1+10000,$5 }} else {{ print $1,$2,$4-1-10000,$4-1,$5 }} }}' >{output.body}
+        set +o pipefail;
+        (zcat {input.transcriptAnno} | \
+        head -n 1; join -t"$(echo -e "\\t")" \
+        <(\zcat {input.transcriptAnno}| tail -n +2 | sort -k1,1 ) \
+        <(zcat {input.proteinAtlas} | tail -n +2 |cut -f 1 | sort )) | \
+        gzip -c > {output.filteredTranscriptAnno}
+        """
+
+rule prep:
+    input:
+        transcriptAnno="results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.filtered.tsv.gz"
+    output:
+        body="results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.body.tsv.gz"
+    conda: "workflow/envs/cfDNA.yml"
+    shell:
+        """
+        zcat {input.transcriptAnno} | tail -n +2 | \
+        awk 'BEGIN{{ FS="\\t"; OFS="\\t" }}{{ if ($5 == "+") {{ print $1,$2,$3-1,$3-1+10000,$5 }} else {{ print $1,$2,$4-1-10000,$4-1,$5 }} }}'| \
+        gzip -c > {output.body}
         """
 
 rule extract_counts:
     input:
-        body="resources/annotations/transcriptAnno-GRCh37.75.body.tsv",
+        body="results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.body.tsv.gz",
         BAMFILE= lambda wildcards: samples["path"][wildcards.SAMPLE]
     output:
-        "results/intermediate/body/fft_summaries/fft_{SAMPLE}_WPS.tsv.gz"
+        "results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz"
     params:
         minRL=config["minRL"],
         maxRL=config["maxRL"],
@@ -75,7 +97,7 @@ rule extract_counts:
         -t results/tmp/ \
         -r results/intermediate/ \
         -p body \
-        -i {wildcards.SAMPLE}
+        -i {wildcards.SAMPLE}-{wildcards.GENOME}
         
         rm -fR results/tmp/body/{wildcards.SAMPLE}/fft
         """
@@ -83,10 +105,13 @@ rule extract_counts:
 
 rule correlation_plots:
     input:
-        samples = expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}_WPS.tsv.gz",
-                          SAMPLE=samples["sample"]),
-        proteinAtlas = "resources/protein_atlas/RNAtable.tsv",
-        labels = "resources/labels.txt",
+        samples = expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz",
+                        GENOME=samples["genome_build"],
+                        SAMPLE=samples["sample"]),        
+        proteinAtlas= expand("resources/protein_atlas/RNAtable{SOURCE}.tsv.gz",
+                            SOURCE=config["proteinAtlas"]),
+        labels = expand("resources/protein_atlas/labels_{SOURCE}.tsv",
+                        SOURCE=config["proteinAtlas"]),
     output:
         allFreq = "results/plots/{ID}/{tissue}_allFreq_correlation_plot.pdf",
     conda: "workflow/envs/cfDNA.yml"
@@ -100,10 +125,13 @@ rule correlation_plots:
 
 rule correlation_table:
     input:
-        samples = expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}_WPS.tsv.gz",
-                          SAMPLE=samples["sample"]),
-        proteinAtlas = "resources/protein_atlas/RNAtable.tsv",
-        labels = "resources/labels.txt",
+        samples = expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz",
+                        GENOME=samples["genome_build"],
+                        SAMPLE=samples["sample"]),
+        proteinAtlas= expand("resources/protein_atlas/RNAtable{SOURCE}.tsv.gz",
+                            SOURCE=config["proteinAtlas"]),
+        labels = expand("resources/protein_atlas/labels_{SOURCE}.tsv",
+                        SOURCE=config["proteinAtlas"]),
     output:
         aveCor = "results/tables/{ID}/Ave193-199bp_correlation.pdf",
     conda: "workflow/envs/cfDNA.yml"
@@ -116,10 +144,13 @@ rule correlation_table:
 
 rule rank_correlation_table:
     input:
-        samples = expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}_WPS.tsv.gz",
-                          SAMPLE=samples["sample"]),
-        proteinAtlas = "resources/protein_atlas/RNAtable.tsv",
-        labels = "resources/labels.txt",
+        samples = expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz",
+                        GENOME=samples["genome_build"],
+                        SAMPLE=samples["sample"]),
+        proteinAtlas= expand("resources/protein_atlas/RNAtable{SOURCE}.tsv.gz",
+                            SOURCE=config["proteinAtlas"]),
+        labels = expand("resources/protein_atlas/labels_{SOURCE}.tsv",
+                        SOURCE=config["proteinAtlas"]),
     output:
         aveCorRank = "results/tables/{ID}/{refSample}_Ave193-199bp_correlation_rank.pdf",
     conda: "workflow/envs/cfDNA.yml"

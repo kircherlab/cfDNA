@@ -20,6 +20,11 @@ WPS = snakemake.input["WPS"]
 WPS_refs = snakemake.input["WPS_ref"]
 COV = snakemake.input["COV"]
 COV_refs = snakemake.input["COV_ref"]
+WPS_back = snakemake.input["WPS_back"]
+WPS_back_refs = snakemake.input["WPS_back_ref"]
+COV_back = snakemake.input["COV_back"]
+COV_back_refs = snakemake.input["COV_back_ref"]
+
 sample_ID = snakemake.params["sample"]
 ref_IDs = snakemake.params["ref_IDs"]
 target = snakemake.params["target"]
@@ -54,7 +59,7 @@ def calculate_flanking_regions(val: int):
     return region
 
 
-def add_sample(path: str):
+def add_sample(path_a: str, path_b: str):
     """Reads .csv file, calculates mean over all rows and divides by trimmed mean.
 
     Args:
@@ -63,8 +68,9 @@ def add_sample(path: str):
     Returns:
         [type]: [description]
     """
-    sample = pd.read_csv(path, header=None).mean()
-    sample = sample / stats.trim_mean(sample, 0.25)
+    sample_a = pd.read_csv(path_a, header=None).mean()
+    sample_b = pd.read_csv(path_b, header=None).mean(axis=1)
+    sample = sample_a / stats.trim_mean(sample_b, 0.1)
     return sample
 
 
@@ -73,30 +79,30 @@ def add_sample(path: str):
 
 
 av_WPS = pd.DataFrame()
-av_WPS[sample_ID] = add_sample(WPS)
-for (ref_ID, WPS_ref) in zip(ref_IDs, WPS_refs):
-    av_WPS[ref_ID] = add_sample(WPS_ref)
+av_WPS[sample_ID] = add_sample(WPS, WPS_back)
+for (ref_ID, WPS_ref, WPS_back_ref) in zip(ref_IDs, WPS_refs, WPS_back_refs):
+    av_WPS[ref_ID] = add_sample(WPS_ref, WPS_back_ref)
 
 av_WPS["position"] = calculate_flanking_regions(len(av_WPS))
 av_WPS = av_WPS.set_index("position")
 
 av_COV = pd.DataFrame()
-av_COV[sample_ID] = add_sample(COV)
-for (ref_ID, COV_ref) in zip(ref_IDs, COV_refs):
-    av_COV[ref_ID] = add_sample(COV_ref)
+av_COV[sample_ID] = add_sample(COV, COV_back)
+for (ref_ID, COV_ref, COV_back_ref) in zip(ref_IDs, COV_refs, COV_back_refs):
+    av_COV[ref_ID] = add_sample(COV_ref, COV_ref)
 
-av_COV["position"] = calculate_flanking_regions(len(av_WPS))
+av_COV["position"] = calculate_flanking_regions(len(av_COV))
 av_COV = av_COV.set_index("position")
 
 # create line plots and save to a single pdf
 
 with PdfPages(outfile) as pdf:
-    Fig_WPS = av_WPS.plot(
+    Fig_WPS = av_WPS.iloc[300:-300].plot(
         title=f"adjusted WPS: {target} target regions",
         xlabel="Position relative to target site",
         ylabel="normalized WPS",
     )
-    Fig_Cov = av_COV.plot(
+    Fig_Cov = av_COV.iloc[300:-300].plot(
         title=f"adjusted read coverage: {target} target regions",
         xlabel="Position relative to target site",
         ylabel="normalized read coverage",

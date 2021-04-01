@@ -9,6 +9,10 @@
 
 """
 
+###########
+# transposes input file and splits in 3 values (COV,START,WPS)
+###########
+
 import sys, os
 import pysam
 import gzip
@@ -36,7 +40,10 @@ outfileWPS = gzip.open("%s/%s/fft_summaries%s/fft_%s_WPS.tsv.gz"%(rootDir,projec
 
 geneIDs = set()
 if os.path.exists(options.annotation):
-  infile = open(options.annotation)
+  if ".gz" in options.annotation:
+    infile = gzip.open(options.annotation,"r")
+  else:
+    infile = open(options.annotation)
   for line in infile:
     cid,chrom,start,end,strand = line.split() # positions are 1-based and inclusive
     geneIDs.add(cid)

@@ -1,0 +1,23 @@
+samples: "config/samples.tsv" # .tsv file containing sample names and locations
+regions: "config/regions.tsv" # .tsv file containing bed files with regions of interest
+
+proteinAtlas: "Blood" #RNAtable name 
+tissue: ["NK_cell", "memory_B_cell", "classical_monocyte", "basophil", "memory_CD4_T_cell", "memory_CD8_T_cell"] # tissues for generating plots
+refSample: "BH01" # reference sample for rank correlation comparison
+minRL: 120 # minimum read length for calculating WPS
+maxRL: 180 # maximum read length for calculating WPS
+bpProtection: 120 
+
+## genome build specific options ##
+
+GRCh37:
+  genome: "resources/genome/hg19.fa.genome" #full .genome file
+  genome_autosomes: "resources/genome/hg19.fa.genome.regular_autosomes" # .genome file reduced to regular autosomes
+  UCSC_gap: "resources/blacklists/UCSC/UCSC_gap.hg19.bed" # UCSC_gap file in .bed format
+  transcriptAnno: "resources/annotations/transcriptAnno-GRCh37.103.tsv.gz" # file containing TSSs
+
+GRCh38:
+  genome: "resources/genome/hg38.fa.genome" #full .genome file
+  genome_autosomes: "resources/genome/hg38.fa.genome.regular_autosomes" #.genome file reduced to regular autosome
+  UCSC_gap: "resources/blacklists/UCSC/UCSC_gap.hg38.bed" # UCSC_gap file in .bed format
+  transcriptAnno: "resources/annotations/transcriptAnno-GRCh38.103.tsv.gz" # file containing TSSs
