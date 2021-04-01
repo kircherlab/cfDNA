@@ -2,6 +2,8 @@
 
 ## develop
 
+## v0.2.0
+
 ### refactor
 
 - changed config.yml to example.config.yml
