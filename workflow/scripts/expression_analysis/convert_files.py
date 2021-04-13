@@ -34,9 +34,9 @@ tempDir = options.temp
 project = options.project
 ind = options.individual
 
-outfileCov = gzip.open("%s/%s/fft_summaries%s/fft_%s_cov.tsv.gz"%(rootDir,project,options.suffix,ind),'w')
-outfileStarts = gzip.open("%s/%s/fft_summaries%s/fft_%s_starts.tsv.gz"%(rootDir,project,options.suffix,ind),'w')
-outfileWPS = gzip.open("%s/%s/fft_summaries%s/fft_%s_WPS.tsv.gz"%(rootDir,project,options.suffix,ind),'w')
+outfileCov = gzip.open("%s%s/fft_summaries%s/fft_%s_cov.tsv.gz"%(rootDir,project,options.suffix,ind),'w')
+outfileStarts = gzip.open("%s%s/fft_summaries%s/fft_%s_starts.tsv.gz"%(rootDir,project,options.suffix,ind),'w')
+outfileWPS = gzip.open("%s%s/fft_summaries%s/fft_%s_WPS.tsv.gz"%(rootDir,project,options.suffix,ind),'w')
 
 geneIDs = set()
 if os.path.exists(options.annotation):
@@ -54,7 +54,7 @@ for cid in sorted(geneIDs):
   if os.path.exists("%s/%s/%s/fft%s/block_%s.tsv.gz"%(tempDir,project,ind,options.suffix,cid)):
     if not wrote_header:
       header = ['#Region']
-      infile = gzip.open("%s/%s/%s/fft%s/block_%s.tsv.gz"%(tempDir,project,ind,options.suffix,cid))
+      infile = gzip.open("%s%s/%s/fft%s/block_%s.tsv.gz"%(tempDir,project,ind,options.suffix,cid))
       infile.readline()
       for line in infile:
         fields = line.split()
