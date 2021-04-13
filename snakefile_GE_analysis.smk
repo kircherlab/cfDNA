@@ -8,6 +8,9 @@ samples = pd.read_csv(config["samples"], sep="\t").set_index("sample", drop=Fals
 samples.index.names = ["sample_id"]
 validate(samples, schema="workflow/schemas/samples.schema.yaml")
 
+def get_refsample(refsample):
+    return "results/intermediate/body/fft_summaries/fft_{}-{}_WPS.tsv.gz".format(refsample,samples["genome_build"].loc[samples["sample"] == refsample].values[0])
+
 rule all:
     input:
         expand("results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.filtered.tsv.gz",
@@ -33,7 +36,6 @@ rule all:
 rule join: 
     input:
         transcriptAnno= lambda wc: config[wc.GENOME]["transcriptAnno"],
-        #"resources/annotations/transcriptAnno-{GENOME}.103.tsv.gz",
         proteinAtlas= expand("resources/protein_atlas/RNAtable{SOURCE}.tsv.gz",
                             SOURCE=config["proteinAtlas"]),
     output:
@@ -71,11 +73,11 @@ rule extract_counts:
     params:
         minRL=config["minRL"],
         maxRL=config["maxRL"],
-        out_pre="results/tmp/body/{SAMPLE}/block_%s.tsv.gz"
+        out_pre="results/tmp/body/{SAMPLE}-{GENOME}/block_%s.tsv.gz"
     conda: "workflow/envs/cfDNA.yml"
     shell:
         """
-        mkdir -p results/tmp/body/{wildcards.SAMPLE}
+        mkdir -p results/tmp/body/{wildcards.SAMPLE}-{wildcards.GENOME}
 
         workflow/scripts/expression_analysis/extractReadStartsFromBAM_Region_WPS.py \
         --minInsert={params.minRL} \
@@ -83,12 +85,12 @@ rule extract_counts:
         -i {input.body} \
         -o {params.out_pre} {input.BAMFILE}
 
-        mkdir -p results/tmp/body/{wildcards.SAMPLE}/fft
+        mkdir -p results/tmp/body/{wildcards.SAMPLE}-{wildcards.GENOME}/fft
 
-        ( cd results/tmp/body/{wildcards.SAMPLE}; ls block_*.tsv.gz ) | \
+        ( cd results/tmp/body/{wildcards.SAMPLE}-{wildcards.GENOME}; ls block_*.tsv.gz ) | \
         xargs -n 500 Rscript workflow/scripts/expression_analysis/fft_path.R \
-        results/tmp/body/{wildcards.SAMPLE}/ \
-        results/tmp/body/{wildcards.SAMPLE}/fft
+        results/tmp/body/{wildcards.SAMPLE}-{wildcards.GENOME}/ \
+        results/tmp/body/{wildcards.SAMPLE}-{wildcards.GENOME}/fft
 
         mkdir -p results/tmp/body/fft_summaries/
 
@@ -99,13 +101,14 @@ rule extract_counts:
         -p body \
         -i {wildcards.SAMPLE}-{wildcards.GENOME}
         
-        rm -fR results/tmp/body/{wildcards.SAMPLE}/fft
+        #rm -fR results/tmp/body/{wildcards.SAMPLE}-{wildcards.GENOME}/fft
         """
 
 
 rule correlation_plots:
     input:
         samples = expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz",
+                        zip,
                         GENOME=samples["genome_build"],
                         SAMPLE=samples["sample"]),        
         proteinAtlas= expand("resources/protein_atlas/RNAtable{SOURCE}.tsv.gz",
@@ -116,8 +119,6 @@ rule correlation_plots:
         allFreq = "results/plots/{ID}/{tissue}_allFreq_correlation_plot.pdf",
     conda: "workflow/envs/cfDNA.yml"
     params: 
-        IDs = expand("{SAMPLE}",SAMPLE=samples["sample"]),
-        WPSprefix = "results/intermediate/body/fft_summaries/fft_%s_WPS.tsv.gz",
         tissue = "{tissue}"
     script:
         "workflow/scripts/expression_analysis/snakemake_correlation_plots.R"
@@ -126,6 +127,7 @@ rule correlation_plots:
 rule correlation_table:
     input:
         samples = expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz",
+                        zip,
                         GENOME=samples["genome_build"],
                         SAMPLE=samples["sample"]),
         proteinAtlas= expand("resources/protein_atlas/RNAtable{SOURCE}.tsv.gz",
@@ -135,9 +137,6 @@ rule correlation_table:
     output:
         aveCor = "results/tables/{ID}/Ave193-199bp_correlation.pdf",
     conda: "workflow/envs/cfDNA.yml"
-    params: 
-        IDs = expand("{SAMPLE}",SAMPLE=samples["sample"]),
-        WPSprefix = "results/intermediate/body/fft_summaries/fft_%s_WPS.tsv.gz",
     script:
         "workflow/scripts/expression_analysis/snakemake_correlation_table.R"
 
@@ -145,6 +144,7 @@ rule correlation_table:
 rule rank_correlation_table:
     input:
         samples = expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz",
+                        zip,
                         GENOME=samples["genome_build"],
                         SAMPLE=samples["sample"]),
         proteinAtlas= expand("resources/protein_atlas/RNAtable{SOURCE}.tsv.gz",
@@ -155,8 +155,6 @@ rule rank_correlation_table:
         aveCorRank = "results/tables/{ID}/{refSample}_Ave193-199bp_correlation_rank.pdf",
     conda: "workflow/envs/cfDNA.yml"
     params: 
-        IDs = expand("{SAMPLE}",SAMPLE=samples["sample"]),
-        WPSprefix = "results/intermediate/body/fft_summaries/fft_%s_WPS.tsv.gz",
-        refSample = config["refSample"]
+        refSample = get_refsample(config["refSample"])
     script:
         "workflow/scripts/expression_analysis/snakemake_correlation_rank_table.R"
