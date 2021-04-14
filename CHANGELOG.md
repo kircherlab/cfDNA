@@ -2,6 +2,12 @@
 
 ## develop
 
+## v0.2.1
+
+- bugfix paths
+- simplified path handling in plotting scripts
+- improved readability of label files
+
 ## v0.2.0
 
 ### refactor

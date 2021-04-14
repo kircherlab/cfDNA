@@ -1,5 +1,5 @@
-samples <- c(snakemake@params[["IDs"]])
-
+samples <- snakemake@input[["samples"]]
+refSample <- snakemake@params[["refSample"]]
 # snakemake param für cell-line (für allFreq)-> möglicherweise für ALLE cell-lines?
 ##################################
 
@@ -25,7 +25,8 @@ library(gplots)
 
 ##################################
   # Replace BH01 with sample you are using as reference in the rank comparison
-  fdata <- read.table(sprintf(snakemake@params[["WPSprefix"]],snakemake@params[["refSample"]]),as.is=T,sep="\t",header=T,comment.char="~")
+  refSample_name <- strsplit(tail(strsplit(refSample, "/")[[1]],1),"_")[[1]][2]
+  fdata <- read.table(refSample,as.is=T,sep="\t",header=T,comment.char="~")
   colnames(fdata) <- sub("X","",colnames(fdata))
   rownames(fdata) <- fdata[,1]
   fdata <- fdata[,c(1,rev(c(2:dim(fdata)[2])))]
@@ -35,19 +36,20 @@ library(gplots)
   pdf(sprintf(snakemake@output[["aveCorRank"]]),width=10,height=15)
   for (sample in samples)
   {
-    fdata <- read.table(sprintf(snakemake@params[["WPSprefix"]],sample),as.is=T,sep="\t",header=T,comment.char="~")
+    fdata <- read.table(sample,as.is=T,sep="\t",header=T,comment.char="~")
     colnames(fdata) <- sub("X","",colnames(fdata))
     rownames(fdata) <- fdata[,1]
     fdata <- fdata[,c(1,rev(c(2:dim(fdata)[2])))]
     logndata2 <- logndata[fdata[,1],]
+    sample_name <- strsplit(tail(strsplit(sample, "/")[[1]],1),"_")[[1]][2]
 
     res <- cor(rowMeans(fdata[,selFreq]),logndata2[,order(names(logndata2))],use="pairwise.complete.obs")
     res <- data.frame(category=tLabels$Category,description=tLabels$Type,tissue=colnames(res),correlation=as.numeric(res),rankDiff=rank(refCorrelation)-rank(res))
     par(mfrow=c(2,1))
     textplot(head(res[order(res$rankDiff,decreasing=T),],15))
-    title(sprintf("By correlation rank difference: %s (vs. %s)",sample, snakemake@params[["refSample"]]))
+    title(sprintf("By correlation rank difference: %s (vs. %s)",sample_name, refSample_name))
     textplot(head(res[order(res$correlation),],15))
-    title(sprintf("By correlation: %s",sample))
+    title(sprintf("By correlation: %s",sample_name))
   }
   dev.off()
 

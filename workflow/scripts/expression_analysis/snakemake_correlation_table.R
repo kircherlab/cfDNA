@@ -1,5 +1,4 @@
-
-samples <- c(snakemake@params[["IDs"]])
+samples <- snakemake@input[["samples"]]
 
 # snakemake param für cell-line (für allFreq)-> möglicherweise für ALLE cell-lines?
 ##################################
@@ -28,16 +27,17 @@ library(gplots)
   pdf(snakemake@output[["aveCor"]],width=8,height=15)
   for (sample in samples)
   {
-    fdata <- read.table(sprintf(snakemake@params[["WPSprefix"]],sample),as.is=T,sep="\t",header=T,comment.char="~")
+    fdata <- read.table(sample,as.is=T,sep="\t",header=T,comment.char="~")
     colnames(fdata) <- sub("X","",colnames(fdata))
     rownames(fdata) <- fdata[,1]
     fdata <- fdata[,c(1,rev(c(2:dim(fdata)[2])))]
     logndata2 <- logndata[fdata[,1],]
+    sample_name <- strsplit(tail(strsplit(sample, "/")[[1]],1),"_")[[1]][2]
 
     res <- cor(rowMeans(fdata[,selFreq]),logndata2[,order(names(logndata2))],use="pairwise.complete.obs")
     res <- data.frame(category=tLabels$Category,description=tLabels$Type,tissue=colnames(res),correlation=as.numeric(res))
     textplot(res[order(res$correlation),])
-    title(sample)
+    title(sample_name)
   }
   dev.off()
 
