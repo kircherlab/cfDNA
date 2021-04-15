@@ -1,131 +1,131 @@
-Category	Name	Type	Description
-Skin	A-431	Epidermoid carcinoma cell line	Epidermoid carcinoma cell line
-Lung	A549	Lung carcinoma cell line	Lung carcinoma cell line
-Primary Tissue	adipose tissue	Connective and soft tissue	Connective and soft tissue
-Primary Tissue	adrenal gland	Endocrine tissues	Endocrine tissues
-Skin	AF22	Neuroepithelia stem (NES) cell line	iPS derived Neuroepithelia stem (NES) cell line
-Primary Tissue	amygdala	Brain	Brain
-Lymph node 	AN3-CA	Metastatic endometrial adenocarcinoma cell line	Metastatic endometrial adenocarcinoma cell line
-Primary Tissue	appendix	Bone marrow and lymphoid tissues	Bone marrow and lymphoid tissues
-Adipose tissue	ASC diff	Mesenchymal stem cell line	Differentiated imortalized adipose-derived mesenchymal stem cell line
-Adipose tissue	ASC TERT1	Mesenchymal stem cell line	Adipose tissue-derived mesenchymal stem cell line
-Primary Tissue	B-cells	Blood cell 	Blood cell 
-Primary Tissue	basal ganglia	Brain	Brain
-Brain	BEWO	Metastatic choriocarcinoma cell line	Metastatic choriocarcinoma cell line
-Foreskin	BJ	Adherent fibroblast cell line	Adherent fibroblast cell line
-Foreskin	BJ hTERT+	Adherent BJ fibroblast cell line 	Adherent BJ fibroblast cell line immortalized with ectopic expression of hTERT
-Foreskin	BJ hTERT+ SV40 Large T+	Adherent BJ fibroblast cell line 	Adherent BJ fibroblast cell line immortalized with ectopic expression of hTERT, transformed with SV40 Large-T infection
-Foreskin	BJ hTERT+ SV40 Large T+ RasG12V	Adherent BJ fibroblast cell line 	Adherent BJ fibroblast cell line immortalized with ectopic expression of hTERT, transformed with SV40 Large-T infection, made metastasizing with oncogenic H-Ras
-Primary Tissue	bone marrow	Bone marrow and lymphoid tissues	Bone marrow and lymphoid tissues
-Primary Tissue	breast	Female tissues	Female tissues
-Colon	CACO-2	Colon adenocarcinoma cell line	Colon adenocarcinoma cell line
-Pancreas	CAPAN-2	Pancreas adenocarcinoma cell line	Pancreas adenocarcinoma cell line
-Primary Tissue	cerebellum	Brain	Brain
-Primary Tissue	cerebral cortex	Brain	Brain
-Primary Tissue	cervix, uterine	Female tissues	Female tissues
-Primary Tissue	colon	Gastointestinal tract	Gastointestinal tract
-Primary Tissue	corpus callosum	Brain	Brain
-Orbital biopsy	Daudi	Human Burkitt lymphoma cell line	Human Burkitt lymphoma cell line
-Primary Tissue	dendritic cells	Blood cell 	Blood cell 
-Primary Tissue	ductus deferens	Male tissues	Male tissues
-Primary Tissue	duodenum	Gastointestinal tract	Gastointestinal tract
-Ascites	EFO-21	Metastatic ovarian serous cystadenocarcinoma cell line	Metastatic ovarian serous cystadenocarcinoma cell line
-Primary Tissue	endometrium	Female tissues	Female tissues
-Primary Tissue	epididymis	Male tissues	Male tissues
-Primary Tissue	esophagus	Proximal digestive tract	Proximal digestive tract
-Primary Tissue	fallopian tube	Female tissues	Female tissues
-Skin	fHDF/TERT166	Foreskin fibroblast cell line	hTERT immortalized human foreskin fibroblast cell line
-Primary Tissue	gallbladder	Liver and gallblader	Liver and gallblader
-Glioma	GAMG	Glioblastoma cell line	Glioblastoma cell line
-Primary Tissue	granulocytes	Blood cell 	Blood cell 
-Skin	HaCaT	Keratinocyte cell line	Keratinocyte cell line
-Leukemia	HAP1	Haploid karyotype cell line 	Haploid karyotype cell line from Chronic myelogenous leukemia
-Central lung bronchiole	HBEC3-KT	Bbronchial epithelial cell line	Immortalized human bronchial epithelial cell line
-Brain	HBF TERT88	Adherent brain fibroblast cell line	Adherent brain fibroblast cell line
-Pleural effusion	HDLM-2	Hodgkin lymphoma cell line	Hodgkin lymphoma cell line
-Primary Tissue	heart muscle	Muscle tissues	Muscle tissues
-Embryonal kidney	HEK 293	Embryonal kidney cell line	Embryonal kidney cell line, transformed by adenovirus type 5
-Peripheral blood	HEL	Erythroleukemia cell line 	Erythroleukemia cell line (AML M6 in relapse after treatment for Hodgkin's disease)
-Cervix	HeLa	Cervical epithelial adenocarcinoma cell line	Cervical epithelial adenocarcinoma cell line
-Liver	Hep G2	Hepatocellular carcinoma cell line	Hepatocellular carcinoma cell line
-Liver	HHSteC	Primary hepatic stellate cells	Primary hepatic stellate cells
-Primary Tissue	hippocampal formation	Brain	Brain
-Peripheral blood	HL-60	Acute promyelocytic leukemia (APL) cell line	Acute promyelocytic leukemia (APL) cell line
-Peripheral blood	HMC-1	Mastcell leukemia cell line	Mastcell leukemia cell line
-Trapezius and erector spinae muscles	HSkMC	Primary skeletal muscle cells	Primary skeletal muscle cells
-Corneal epithelium	hTCEpi	Corneal epithelial cell line	hTERT immortalized human corneal epithelial cell line
-Thymic epithelium 	hTEC/SVTERT24-B	Thymic epithelial cell line	hTERT and SV40 early region immortalized human thymic epithelial cell line
-Breast	hTERT-HME1	Mammary Gland	Mammary Gland, Epithelium 
-Retina 	hTERT-RPE1	Epithelial retina cells	Epithelial retina cells immortalized with hTERT 
-Umbilical vein	HUVEC TERT2	Umbilical vein endothelial cell line	Umbilical vein endothelial cell line
-Primary Tissue	hypothalamus	Brain	Brain
-Peripheral blood	JURKAT	T-cell leukemia cell line	T-cell leukemia cell line
-Pleural effusion	K-562	Chronic myeloid leukemia (CML) cell line	Chronic myeloid leukemia (CML) cell line
-Bone marrow and peripheral blood	Karpas-707	Multiple myeloma cell line	Multiple myeloma cell line
-Primary Tissue	kidney	Kidney and urinary bladder	Kidney and urinary bladder
-Satellite cells (from pectoralis major muscle)	LHCN-M2	Adherent myoblast cell line	Adherent myoblast cell line
-Primary Tissue	liver	Liver and gallblader	Liver and gallblader
-Primary Tissue	lung	Respiratory system	Respiratory system
-Primary Tissue	lymph node	Bone marrow and lympoid tissues	Bone marrow and lympoid tissues
-Pleural effusion	MCF7	Metastatic breast adenocarcinoma cell line	Metastatic breast adenocarcinoma cell line
-Primary Tissue	midbrain	Brain	Brain
-Peripheral blood	MOLT-4	Acute lymphoblastic leukemia (T-ALL) cell line	Acute lymphoblastic leukemia (T-ALL) cell line
-Primary Tissue	monocytes	Blood cell 	Blood cell 
-Bone marrow	NB-4	Acute promyelocytic leukemia (APL) cell line	Acute promyelocytic leukemia (APL) cell line
-Primary Tissue	NK-cells	Blood cell 	Blood cell 
-	NTERA-2	Metastatic embryonal carcinoma cell line	Metastatic embryonal carcinoma cell line, cloned from TERA-2
-Esophagus	OE19	Esophageal adenocarcinoma cell line	Esophageal adenocarcinoma cell line
-Primary Tissue	olfactory region	Brain	Brain
-Primary Tissue	ovary	Female tissues	Female tissues
-Primary Tissue	pancreas	Pancreas	Pancreas
-Primary Tissue	parathyroid gland	Endocrine tissues	Endocrine tissues
-Bone marrow	PC-3	Prostate adenocarcinoma cell line	Metastatic poorly differentiated prostate adenocarcinoma cell line
-Primary Tissue	pituitary gland	Brain	Brain
-Primary Tissue	placenta	Female tissues	Female tissues
-Primary Tissue	pons and medulla	Brain	Brain
-Primary Tissue	prostate	Male tissues	Male tissues
-Primary Tissue	rectum	Gastointestinal tract	Gastointestinal tract
-Peripheral blood	REH	B cell precursor leukemia 	B cell precursor leukemia 
-Primary Tissue	retina	Eye	Eye
-Bone marrow 	RH-30	Metastatic rhabdomyosarcoma cell line	Metastatic rhabdomyosarcoma cell line
-Peripheral blood	RPMI-8226	Multiple myeloma cell line	Multiple myeloma cell line
-Human kidney cortex	RPTEC TERT1	Proximal tubular epithelial cell line	Proximal tubular epithelial cell line
-Urinary bladder	RT4	Urinary bladder transitional cell carcinoma cell line	Urinary bladder transitional cell carcinoma cell line
-Primary Tissue	salivary gland	Proximal digestive tract	Proximal digestive tract
-Pleural effusion	SCLC-21H	Small cell lung carcinoma cell line	Small cell lung carcinoma cell line
-Primary Tissue	seminal vesicle	Male tissues	Male tissues
-Bone marrow	SH-SY5Y	Metastatic neuroblastoma	Metastatic neuroblastoma, clonal subline of neuroepithelioma cell line SK-N-SH
-Cervix	SiHa	Cervical squamous cell carcinoma cell line	Cervical squamous cell carcinoma cell line, integrated 1-2 copies of HPV16
-Pleural effusion	SK-BR-3	Metastatic breast adenocarcinoma cell line	Metastatic breast adenocarcinoma cell line
-Subcutis	SK-MEL-30	Metastatic malignant melanoma cell line	Metastatic malignant melanoma cell line
-Primary Tissue	skeletal muscle	Muscle tissues	Muscle tissues
-Primary Tissue	skin	Skin	Skin
-Primary Tissue	small intestine	Gastointestinal tract	Gastointestinal tract
-Primary Tissue	smooth muscle	Muscle tissues	Muscle tissues
-Primary Tissue	spinal cord	Spinal cord	Spinal cord
-Primary Tissue	spleen	Bone marrow and lymphoid tissues	Bone marrow and lymphoid tissues
-Primary Tissue	stomach	Gastointestinal tract	Gastointestinal tract
-Testis	SuSa	Testicular germ cell tumor	Testicular germ cell tumor
-"Mammary gland; derived from metastatic site: pleural effusion"	T-47d	Invasive ductal carcinoma	Invasive ductal carcinoma
-Primary Tissue	T-cells	Blood cell 	Blood cell 
-Primary Tissue	testis	Male tissues	Male tissues
-Primary Tissue	thalamus	Brain	Brain
-Peripheral blood	THP-1	Acute monocytic leukemia (AML) cell line	Acute monocytic leukemia (AML) cell line
-Primary Tissue	thymus	Bone marrow and lympoid tissues	Bone marrow and lympoid tissues
-Primary Tissue	thyroid gland	Endocrine tissues	Endocrine tissues
-Skin	TIME	Microvascular endothelial cells (pooled)	Telomerase-immortalized human microvascular endothelial cells (pooled)
-Primary Tissue	tongue	Tongue	Tongue
-Primary Tissue	tonsil	Bone marrow and lympoid tissues	Bone marrow and lympoid tissues
-Primary Tissue	total PBMC	Peripheral blood mononuclear cell 	Peripheral blood mononuclear cell 
-Brain	U-138 MG	Glioblastoma cell line	Glioblastoma cell line
-Bone	U-2 OS	Osteosarcoma cell line	Osteosarcoma cell line
-Subcutis	U-2197	Malignant fibrous histiocytoma cell line	Malignant fibrous histiocytoma cell line
-Brain	U-251 MG	Glioblastoma cell line	Glioblastoma cell line
-Peripheral blood	U-266/70	Multiple myeloma cell line 	Multiple myeloma cell line (1970, IL-6-dependent)
-Peripheral blood	U-266/84	Multiple myeloma cell line	Multiple myeloma cell line (1984, in vitro differentiated)
-Tonsil	U-698	B-cell lymphoma cell line (lymphoblastic lymphosarcoma)	B-cell lymphoma cell line (lymphoblastic lymphosarcoma)
-Brain	U-87 MG	Likely glioblastoma, epithelial 	Likely glioblastoma, epithelial 
-Pleural effusion	U-937	Myelomonocytic histiocytic lymphoma cell line	Myelomonocytic histiocytic lymphoma cell line
-Primary Tissue	urinary bladder	Kidney and urinary bladder	Kidney and urinary bladder
-Primary Tissue	vagina	Female tissues	Female tissues
-Skin	WM-115	Malignant melanoma cell line	Malignant melanoma cell line
+Category	Name	Type	Description	tissue_label
+1	Skin	A-431	Epidermoid carcinoma cell line	Epidermoid carcinoma cell line	A.431
+2	Lung	A549	Lung carcinoma cell line	Lung carcinoma cell line	A549
+3	Primary Tissue	adipose tissue	Connective and soft tissue	Connective and soft tissue	adipose.tissue
+4	Primary Tissue	adrenal gland	Endocrine tissues	Endocrine tissues	adrenal.gland
+5	Skin	AF22	Neuroepithelia stem (NES) cell line	iPS derived Neuroepithelia stem (NES) cell line	AF22
+6	Primary Tissue	amygdala	Brain	Brain	amygdala
+7	Lymph node 	AN3-CA	Metastatic endometrial adenocarcinoma cell line	Metastatic endometrial adenocarcinoma cell line	AN3.CA
+8	Primary Tissue	appendix	Bone marrow and lymphoid tissues	Bone marrow and lymphoid tissues	appendix
+9	Adipose tissue	ASC diff	Mesenchymal stem cell line	Differentiated imortalized adipose-derived mesenchymal stem cell line	ASC.diff
+10	Adipose tissue	ASC TERT1	Mesenchymal stem cell line	Adipose tissue-derived mesenchymal stem cell line	ASC.TERT1
+11	Primary Tissue	B-cells	Blood cell 	Blood cell 	B.cells
+12	Primary Tissue	basal ganglia	Brain	Brain	basal.ganglia
+13	Brain	BEWO	Metastatic choriocarcinoma cell line	Metastatic choriocarcinoma cell line	BEWO
+14	Foreskin	BJ	Adherent fibroblast cell line	Adherent fibroblast cell line	BJ
+15	Foreskin	BJ hTERT+	Adherent BJ fibroblast cell line 	Adherent BJ fibroblast cell line immortalized with ectopic expression of hTERT	BJ.hTERT.
+16	Foreskin	BJ hTERT+ SV40 Large T+	Adherent BJ fibroblast cell line 	Adherent BJ fibroblast cell line immortalized with ectopic expression of hTERT, transformed with SV40 Large-T infection	BJ.hTERT..SV40.Large.T.
+17	Foreskin	BJ hTERT+ SV40 Large T+ RasG12V	Adherent BJ fibroblast cell line 	Adherent BJ fibroblast cell line immortalized with ectopic expression of hTERT, transformed with SV40 Large-T infection, made metastasizing with oncogenic H-Ras	BJ.hTERT..SV40.Large.T..RasG12V
+18	Primary Tissue	bone marrow	Bone marrow and lymphoid tissues	Bone marrow and lymphoid tissues	bone.marrow
+19	Primary Tissue	breast	Female tissues	Female tissues	breast
+20	Colon	CACO-2	Colon adenocarcinoma cell line	Colon adenocarcinoma cell line	CACO.2
+21	Pancreas	CAPAN-2	Pancreas adenocarcinoma cell line	Pancreas adenocarcinoma cell line	CAPAN.2
+22	Primary Tissue	cerebellum	Brain	Brain	cerebellum
+23	Primary Tissue	cerebral cortex	Brain	Brain	cerebral.cortex
+24	Primary Tissue	cervix, uterine	Female tissues	Female tissues	cervix..uterine
+25	Primary Tissue	colon	Gastointestinal tract	Gastointestinal tract	colon
+26	Primary Tissue	corpus callosum	Brain	Brain	corpus.callosum
+27	Orbital biopsy	Daudi	Human Burkitt lymphoma cell line	Human Burkitt lymphoma cell line	Daudi
+28	Primary Tissue	dendritic cells	Blood cell 	Blood cell 	dendritic.cells
+29	Primary Tissue	ductus deferens	Male tissues	Male tissues	ductus.deferens
+30	Primary Tissue	duodenum	Gastointestinal tract	Gastointestinal tract	duodenum
+31	Ascites	EFO-21	Metastatic ovarian serous cystadenocarcinoma cell line	Metastatic ovarian serous cystadenocarcinoma cell line	EFO.21
+32	Primary Tissue	endometrium	Female tissues	Female tissues	endometrium
+33	Primary Tissue	epididymis	Male tissues	Male tissues	epididymis
+34	Primary Tissue	esophagus	Proximal digestive tract	Proximal digestive tract	esophagus
+35	Primary Tissue	fallopian tube	Female tissues	Female tissues	fallopian.tube
+36	Skin	fHDF/TERT166	Foreskin fibroblast cell line	hTERT immortalized human foreskin fibroblast cell line	fHDF.TERT166
+37	Primary Tissue	gallbladder	Liver and gallblader	Liver and gallblader	gallbladder
+38	Glioma	GAMG	Glioblastoma cell line	Glioblastoma cell line	GAMG
+39	Primary Tissue	granulocytes	Blood cell 	Blood cell 	granulocytes
+40	Skin	HaCaT	Keratinocyte cell line	Keratinocyte cell line	HaCaT
+41	Leukemia	HAP1	Haploid karyotype cell line 	Haploid karyotype cell line from Chronic myelogenous leukemia	HAP1
+42	Central lung bronchiole	HBEC3-KT	Bbronchial epithelial cell line	Immortalized human bronchial epithelial cell line	HBEC3.KT
+43	Brain	HBF TERT88	Adherent brain fibroblast cell line	Adherent brain fibroblast cell line	HBF.TERT88
+44	Pleural effusion	HDLM-2	Hodgkin lymphoma cell line	Hodgkin lymphoma cell line	HDLM.2
+45	Primary Tissue	heart muscle	Muscle tissues	Muscle tissues	heart.muscle
+46	Embryonal kidney	HEK 293	Embryonal kidney cell line	Embryonal kidney cell line, transformed by adenovirus type 5	HEK.293
+47	Peripheral blood	HEL	Erythroleukemia cell line 	Erythroleukemia cell line (AML M6 in relapse after treatment for Hodgkin's disease)	HEL
+48	Cervix	HeLa	Cervical epithelial adenocarcinoma cell line	Cervical epithelial adenocarcinoma cell line	HeLa
+49	Liver	Hep G2	Hepatocellular carcinoma cell line	Hepatocellular carcinoma cell line	Hep.G2
+50	Liver	HHSteC	Primary hepatic stellate cells	Primary hepatic stellate cells	HHSteC
+51	Primary Tissue	hippocampal formation	Brain	Brain	hippocampal.formation
+52	Peripheral blood	HL-60	Acute promyelocytic leukemia (APL) cell line	Acute promyelocytic leukemia (APL) cell line	HL.60
+53	Peripheral blood	HMC-1	Mastcell leukemia cell line	Mastcell leukemia cell line	HMC.1
+54	Trapezius and erector spinae muscles	HSkMC	Primary skeletal muscle cells	Primary skeletal muscle cells	HSkMC
+55	Corneal epithelium	hTCEpi	Corneal epithelial cell line	hTERT immortalized human corneal epithelial cell line	hTCEpi
+56	Thymic epithelium 	hTEC/SVTERT24-B	Thymic epithelial cell line	hTERT and SV40 early region immortalized human thymic epithelial cell line	hTEC.SVTERT24.B
+57	Breast	hTERT-HME1	Mammary Gland	Mammary Gland, Epithelium 	hTERT.HME1
+58	Retina 	hTERT-RPE1	Epithelial retina cells	Epithelial retina cells immortalized with hTERT 	hTERT.RPE1
+59	Umbilical vein	HUVEC TERT2	Umbilical vein endothelial cell line	Umbilical vein endothelial cell line	HUVEC.TERT2
+60	Primary Tissue	hypothalamus	Brain	Brain	hypothalamus
+61	Peripheral blood	JURKAT	T-cell leukemia cell line	T-cell leukemia cell line	JURKAT
+62	Pleural effusion	K-562	Chronic myeloid leukemia (CML) cell line	Chronic myeloid leukemia (CML) cell line	K.562
+63	Bone marrow and peripheral blood	Karpas-707	Multiple myeloma cell line	Multiple myeloma cell line	Karpas.707
+64	Primary Tissue	kidney	Kidney and urinary bladder	Kidney and urinary bladder	kidney
+65	Satellite cells (from pectoralis major muscle)	LHCN-M2	Adherent myoblast cell line	Adherent myoblast cell line	LHCN.M2
+66	Primary Tissue	liver	Liver and gallblader	Liver and gallblader	liver
+67	Primary Tissue	lung	Respiratory system	Respiratory system	lung
+68	Primary Tissue	lymph node	Bone marrow and lympoid tissues	Bone marrow and lympoid tissues	lymph.node
+69	Pleural effusion	MCF7	Metastatic breast adenocarcinoma cell line	Metastatic breast adenocarcinoma cell line	MCF7
+70	Primary Tissue	midbrain	Brain	Brain	midbrain
+71	Peripheral blood	MOLT-4	Acute lymphoblastic leukemia (T-ALL) cell line	Acute lymphoblastic leukemia (T-ALL) cell line	MOLT.4
+72	Primary Tissue	monocytes	Blood cell 	Blood cell 	monocytes
+73	Bone marrow	NB-4	Acute promyelocytic leukemia (APL) cell line	Acute promyelocytic leukemia (APL) cell line	NB.4
+74	Primary Tissue	NK-cells	Blood cell 	Blood cell 	NK.cells
+75	Embryonal carcinoma	NTERA-2	Metastatic embryonal carcinoma cell line	Metastatic embryonal carcinoma cell line, cloned from TERA-2	NTERA.2
+76	Esophagus	OE19	Esophageal adenocarcinoma cell line	Esophageal adenocarcinoma cell line	OE19
+77	Primary Tissue	olfactory region	Brain	Brain	olfactory.region
+78	Primary Tissue	ovary	Female tissues	Female tissues	ovary
+79	Primary Tissue	pancreas	Pancreas	Pancreas	pancreas
+80	Primary Tissue	parathyroid gland	Endocrine tissues	Endocrine tissues	parathyroid.gland
+81	Bone marrow	PC-3	Prostate adenocarcinoma cell line	Metastatic poorly differentiated prostate adenocarcinoma cell line	PC.3
+82	Primary Tissue	pituitary gland	Brain	Brain	pituitary.gland
+83	Primary Tissue	placenta	Female tissues	Female tissues	placenta
+84	Primary Tissue	pons and medulla	Brain	Brain	pons.and.medulla
+85	Primary Tissue	prostate	Male tissues	Male tissues	prostate
+86	Primary Tissue	rectum	Gastointestinal tract	Gastointestinal tract	rectum
+87	Peripheral blood	REH	B cell precursor leukemia 	B cell precursor leukemia 	REH
+88	Primary Tissue	retina	Eye	Eye	retina
+89	Bone marrow 	RH-30	Metastatic rhabdomyosarcoma cell line	Metastatic rhabdomyosarcoma cell line	RH.30
+90	Peripheral blood	RPMI-8226	Multiple myeloma cell line	Multiple myeloma cell line	RPMI.8226
+91	Human kidney cortex	RPTEC TERT1	Proximal tubular epithelial cell line	Proximal tubular epithelial cell line	RPTEC.TERT1
+92	Urinary bladder	RT4	Urinary bladder transitional cell carcinoma cell line	Urinary bladder transitional cell carcinoma cell line	RT4
+93	Primary Tissue	salivary gland	Proximal digestive tract	Proximal digestive tract	salivary.gland
+94	Pleural effusion	SCLC-21H	Small cell lung carcinoma cell line	Small cell lung carcinoma cell line	SCLC.21H
+95	Primary Tissue	seminal vesicle	Male tissues	Male tissues	seminal.vesicle
+96	Bone marrow	SH-SY5Y	Metastatic neuroblastoma	Metastatic neuroblastoma, clonal subline of neuroepithelioma cell line SK-N-SH	SH.SY5Y
+97	Cervix	SiHa	Cervical squamous cell carcinoma cell line	Cervical squamous cell carcinoma cell line, integrated 1-2 copies of HPV16	SiHa
+98	Pleural effusion	SK-BR-3	Metastatic breast adenocarcinoma cell line	Metastatic breast adenocarcinoma cell line	SK.BR.3
+99	Subcutis	SK-MEL-30	Metastatic malignant melanoma cell line	Metastatic malignant melanoma cell line	SK.MEL.30
+100	Primary Tissue	skeletal muscle	Muscle tissues	Muscle tissues	skeletal.muscle
+101	Primary Tissue	skin	Skin	Skin	skin
+102	Primary Tissue	small intestine	Gastointestinal tract	Gastointestinal tract	small.intestine
+103	Primary Tissue	smooth muscle	Muscle tissues	Muscle tissues	smooth.muscle
+104	Primary Tissue	spinal cord	Spinal cord	Spinal cord	spinal.cord
+105	Primary Tissue	spleen	Bone marrow and lymphoid tissues	Bone marrow and lymphoid tissues	spleen
+106	Primary Tissue	stomach	Gastointestinal tract	Gastointestinal tract	stomach
+107	Testis	SuSa	Testicular germ cell tumor	Testicular germ cell tumor	SuSa
+108	Mammary gland; derived from metastatic site: pleural effusion	T-47d	Invasive ductal carcinoma	Invasive ductal carcinoma	T.47d
+109	Primary Tissue	T-cells	Blood cell 	Blood cell 	T.cells
+110	Primary Tissue	testis	Male tissues	Male tissues	testis
+111	Primary Tissue	thalamus	Brain	Brain	thalamus
+112	Peripheral blood	THP-1	Acute monocytic leukemia (AML) cell line	Acute monocytic leukemia (AML) cell line	THP.1
+113	Primary Tissue	thymus	Bone marrow and lympoid tissues	Bone marrow and lympoid tissues	thymus
+114	Primary Tissue	thyroid gland	Endocrine tissues	Endocrine tissues	thyroid.gland
+115	Skin	TIME	Microvascular endothelial cells (pooled)	Telomerase-immortalized human microvascular endothelial cells (pooled)	TIME
+116	Primary Tissue	tongue	Tongue	Tongue	tongue
+117	Primary Tissue	tonsil	Bone marrow and lympoid tissues	Bone marrow and lympoid tissues	tonsil
+118	Primary Tissue	total PBMC	Peripheral blood mononuclear cell 	Peripheral blood mononuclear cell 	total.PBMC
+119	Brain	U-138 MG	Glioblastoma cell line	Glioblastoma cell line	U.138.MG
+120	Bone	U-2 OS	Osteosarcoma cell line	Osteosarcoma cell line	U.2.OS
+121	Subcutis	U-2197	Malignant fibrous histiocytoma cell line	Malignant fibrous histiocytoma cell line	U.2197
+122	Brain	U-251 MG	Glioblastoma cell line	Glioblastoma cell line	U.251.MG
+123	Peripheral blood	U-266/70	Multiple myeloma cell line 	Multiple myeloma cell line (1970, IL-6-dependent)	U.266.70
+124	Peripheral blood	U-266/84	Multiple myeloma cell line	Multiple myeloma cell line (1984, in vitro differentiated)	U.266.84
+125	Tonsil	U-698	B-cell lymphoma cell line (lymphoblastic lymphosarcoma)	B-cell lymphoma cell line (lymphoblastic lymphosarcoma)	U.698
+126	Brain	U-87 MG	Likely glioblastoma, epithelial 	Likely glioblastoma, epithelial 	U.87.MG
+127	Pleural effusion	U-937	Myelomonocytic histiocytic lymphoma cell line	Myelomonocytic histiocytic lymphoma cell line	U.937
+128	Primary Tissue	urinary bladder	Kidney and urinary bladder	Kidney and urinary bladder	urinary.bladder
+129	Primary Tissue	vagina	Female tissues	Female tissues	vagina
+130	Skin	WM-115	Malignant melanoma cell line	Malignant melanoma cell line	WM.115
