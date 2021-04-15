@@ -1,20 +1,20 @@
 Category	Name	Type	tissue_label
-1	Blood cell	basophil	Myeloid cell (progenitor: Myoblast)	basophil
-2	Blood cell	classical_monocyte	Myeloid cell (progenitor: Myoblast)	classical_monocyte
-3	Blood cell	eosinophil	Myeloid cell (progenitor: Myoblast)	eosinophil
-4	Blood cell	gdT_cell	gdT_cell	gdT_cell
-5	Blood cell	intermediate_monocyte	Myeloid cell (progenitor: Myoblast)	intermediate_monocyte
-6	Blood cell	MAIT_T_cell	Lymphoid cell 	MAIT_T_cell
-7	Blood cell	memory_B_cell	Lymphoid cell 	memory_B_cell
-8	Blood cell	memory_CD4_T_cell	Lymphoid cell 	memory_CD4_T_cell
-9	Blood cell	memory_CD8_T_cell	Lymphoid cell 	memory_CD8_T_cell
-10	Blood cell	myeloid_DC	Lymphoid cell 	myeloid_DC
-11	Blood cell	naive_B_cell	Lymphoid cell 	naive_B_cell
-12	Blood cell	naive_CD4_T_cell	Lymphoid cell 	naive_CD4_T_cell
-13	Blood cell	naive_CD8_T_cell	Lymphoid cell 	naive_CD8_T_cell
-14	Blood cell	neutrophil	Myeloid cell (progenitor: Myoblast)	neutrophil
-15	Blood cell	NK_cell	NK_cell	NK_cell
-16	Blood cell	non_classical_monocyte	Myeloid cell (progenitor: Myoblast)	non_classical_monocyte
-17	Blood cell	plasmacytoid_DC	Dendritic cell 	plasmacytoid_DC
-18	Blood cell	T_reg	Lymphoid cell 	T_reg
-19	Blood cell	total_PBMC	Peripheral blood mononuclear cells	total_PBMC
+Blood cell	basophil	Myeloid cell (progenitor: Myoblast)	basophil
+Blood cell	classical_monocyte	Myeloid cell (progenitor: Myoblast)	classical_monocyte
+Blood cell	eosinophil	Myeloid cell (progenitor: Myoblast)	eosinophil
+Blood cell	gdT_cell	gdT_cell	gdT_cell
+Blood cell	intermediate_monocyte	Myeloid cell (progenitor: Myoblast)	intermediate_monocyte
+Blood cell	MAIT_T_cell	Lymphoid cell 	MAIT_T_cell
+Blood cell	memory_B_cell	Lymphoid cell 	memory_B_cell
+Blood cell	memory_CD4_T_cell	Lymphoid cell 	memory_CD4_T_cell
+Blood cell	memory_CD8_T_cell	Lymphoid cell 	memory_CD8_T_cell
+Blood cell	myeloid_DC	Lymphoid cell 	myeloid_DC
+Blood cell	naive_B_cell	Lymphoid cell 	naive_B_cell
+Blood cell	naive_CD4_T_cell	Lymphoid cell 	naive_CD4_T_cell
+Blood cell	naive_CD8_T_cell	Lymphoid cell 	naive_CD8_T_cell
+Blood cell	neutrophil	Myeloid cell (progenitor: Myoblast)	neutrophil
+Blood cell	NK_cell	NK_cell	NK_cell
+Blood cell	non_classical_monocyte	Myeloid cell (progenitor: Myoblast)	non_classical_monocyte
+Blood cell	plasmacytoid_DC	Dendritic cell 	plasmacytoid_DC
+Blood cell	T_reg	Lymphoid cell 	T_reg
+Blood cell	total_PBMC	Peripheral blood mononuclear cells	total_PBMC

@@ -1,33 +1,33 @@
 Category	Name	Type	tissue_label
-1	Primary Tissue	amygdala	Brain	amygdala
-2	Primary Tissue	appendix	Bone marrow and lymphoid tissues	appendix
-3	Primary Tissue	breast	Female tissues	breast
-4	Primary Tissue	cerebellum	Brain	cerebellum
-5	Primary Tissue	colon	Gastointestinal tract	colon
-6	Primary Tissue	duodenum	Gastointestinal tract	duodenum
-7	Primary Tissue	endometrium	Female tissues	endometrium
-8	Primary Tissue	epididymis	Male tissues	epididymis
-9	Primary Tissue	esophagus	Proximal digestive tract	esophagus
-10	Primary Tissue	gallbladder	Liver and gallblader	gallbladder
-11	Primary Tissue	granulocytes	Blood cell 	granulocytes
-12	Primary Tissue	hypothalamus	Brain	hypothalamus
-13	Primary Tissue	kidney	Kidney and urinary bladder	kidney
-14	Primary Tissue	liver	Liver and gallblader	liver
-15	Primary Tissue	lung	Respiratory system	lung
-16	Primary Tissue	midbrain	Brain	midbrain
-17	Primary Tissue	monocytes	Blood cell 	monocytes
-18	Primary Tissue	ovary	Female tissues	ovary
-19	Primary Tissue	pancreas	Pancreas	pancreas
-20	Primary Tissue	placenta	Female tissues	placenta
-21	Primary Tissue	prostate	Male tissues	prostate
-22	Primary Tissue	rectum	Gastointestinal tract	rectum
-23	Primary Tissue	retina	Eye	retina
-24	Primary Tissue	skin	Skin	skin
-25	Primary Tissue	spleen	Bone marrow and lymphoid tissues	spleen
-26	Primary Tissue	stomach	Gastointestinal tract	stomach
-27	Primary Tissue	testis	Male tissues	testis
-28	Primary Tissue	thalamus	Brain	thalamus
-29	Primary Tissue	thymus	Bone marrow and lympoid tissues	thymus
-30	Primary Tissue	tongue	Tongue	tongue
-31	Primary Tissue	tonsil	Bone marrow and lympoid tissues	tonsil
-32	Primary Tissue	vagina	Female tissues	vagina
+Primary Tissue	amygdala	Brain	amygdala
+Primary Tissue	appendix	Bone marrow and lymphoid tissues	appendix
+Primary Tissue	breast	Female tissues	breast
+Primary Tissue	cerebellum	Brain	cerebellum
+Primary Tissue	colon	Gastointestinal tract	colon
+Primary Tissue	duodenum	Gastointestinal tract	duodenum
+Primary Tissue	endometrium	Female tissues	endometrium
+Primary Tissue	epididymis	Male tissues	epididymis
+Primary Tissue	esophagus	Proximal digestive tract	esophagus
+Primary Tissue	gallbladder	Liver and gallblader	gallbladder
+Primary Tissue	granulocytes	Blood cell 	granulocytes
+Primary Tissue	hypothalamus	Brain	hypothalamus
+Primary Tissue	kidney	Kidney and urinary bladder	kidney
+Primary Tissue	liver	Liver and gallblader	liver
+Primary Tissue	lung	Respiratory system	lung
+Primary Tissue	midbrain	Brain	midbrain
+Primary Tissue	monocytes	Blood cell 	monocytes
+Primary Tissue	ovary	Female tissues	ovary
+Primary Tissue	pancreas	Pancreas	pancreas
+Primary Tissue	placenta	Female tissues	placenta
+Primary Tissue	prostate	Male tissues	prostate
+Primary Tissue	rectum	Gastointestinal tract	rectum
+Primary Tissue	retina	Eye	retina
+Primary Tissue	skin	Skin	skin
+Primary Tissue	spleen	Bone marrow and lymphoid tissues	spleen
+Primary Tissue	stomach	Gastointestinal tract	stomach
+Primary Tissue	testis	Male tissues	testis
+Primary Tissue	thalamus	Brain	thalamus
+Primary Tissue	thymus	Bone marrow and lympoid tissues	thymus
+Primary Tissue	tongue	Tongue	tongue
+Primary Tissue	tonsil	Bone marrow and lympoid tissues	tonsil
+Primary Tissue	vagina	Female tissues	vagina
