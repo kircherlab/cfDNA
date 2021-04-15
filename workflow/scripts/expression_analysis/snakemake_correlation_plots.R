@@ -19,8 +19,8 @@ dim(logndata)
 
 tLabels <- read.table(snakemake@input[["labels"]],header=T,as.is=T,sep="\t",quote="\"")
 
-fftColumns <- 29:52 # 160-222
-selFreq <- c("193","196","199")
+#fftColumns <- 29:52 # 160-222
+#selFreq <- c("193","196","199")
 
 library(gplots)
 
@@ -33,6 +33,9 @@ library(gplots)
     rownames(fdata) <- fdata[,1]
     fdata <- fdata[,c(1,rev(c(2:dim(fdata)[2])))]
     logndata2 <- logndata[fdata[,1],]
+
+    selFreq <- c(colnames(fdata) > 189 & colnames(fdata) < 200)
+    fftColumns <- c(colnames(fdata) > 159 & colnames(fdata) < 223)
 
     res <- cor(fdata[,fftColumns],logndata2,use="pairwise.complete.obs")
 
