@@ -164,6 +164,7 @@ if os.path.exists(options.input):
     cov_list = []
     starts_list = []
 
+
     for pos in range(regionStart,regionEnd+1):
       rstart,rend = pos-protection,pos+protection
       gcount,bcount = 0,0
@@ -180,6 +181,10 @@ if os.path.exists(options.input):
     if strand == "-": wps_list = wps_list[::-1]
     if strand == "-": cov_list = cov_list[::-1]
     if strand == "-": starts_list = starts_list[::-1]
+    wps_list.insert(0,cid)                                                                                                                                                         
+    cov_list.insert(0,cid)                                                                                                                                                         
+    starts_list.insert(0,cid)
+
     WPS_scores.append(wps_list)
     COV_scores.append(cov_list)
     STARTS_scores.append(starts_list)
