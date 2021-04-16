@@ -2,6 +2,8 @@
 
 ## develop
 
+- updated documentation
+
 ## v0.2.1
 
 - bugfix paths
