@@ -1,7 +1,7 @@
 samples: "config/samples.tsv" # .tsv file containing sample names and locations
 regions: "config/regions.tsv" # .tsv file containing bed files with regions of interest
 
-proteinAtlas: "Blood" #RNAtable name 
+proteinAtlas: "Blood" #RNAtable name ["Blood", "Tissue", "Extended"]
 tissue: ["NK_cell", "memory_B_cell", "classical_monocyte", "basophil", "memory_CD4_T_cell", "memory_CD8_T_cell"] # tissues for generating plots
 refSample: "BH01" # reference sample for rank correlation comparison
 minRL: 120 # minimum read length for calculating WPS
