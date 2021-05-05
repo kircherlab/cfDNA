@@ -29,7 +29,7 @@ def normalize_sample(path_a: str, path_b: str):
         sample_a.index.name="ID"
     sample_b = pd.read_csv(path_b, header=None).mean(axis=1)
     sample = sample_a / stats.trim_mean(sample_b, 0.1)
-    return sample
+    return sample.round(4)
 
 normalized_WPS = normalize_sample(path_a=target_WPS, path_b=background_WPS)
 
