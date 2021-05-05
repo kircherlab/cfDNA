@@ -2,7 +2,8 @@ from snakemake.utils import validate
 import pandas as pd
 
 
-configfile: "config/config.yml"
+configfile: "config/config_GE_overhaul_Graz_subsampled.yml" # "config/config_testing.yml" # "config/config_components_bugfix3.yml"
+
 
 validate(config, schema="workflow/schemas/config.schema.yaml")
 
@@ -23,29 +24,33 @@ rule all:
         "resources/annotations/transcriptAnno-GRCh37.75.body.tsv",
         expand(
             "results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_WPS_normalized.tsv",
+            zip,
             SAMPLE=samples["sample"],
             ID=samples["ID"],
         ),
         expand(
             "results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_COV_normalized.tsv",
+            zip,
             SAMPLE=samples["sample"],
             ID=samples["ID"],
         ),
         expand(
             "results/intermediate/{ID}/FFT_table/transcriptanno_{SAMPLE}_FFT_table.tsv",
+            zip,
             SAMPLE=samples["sample"],
             ID=samples["ID"],
         ),
-        expand("results/intermediate/{ID}/corr_plots/{tissue}_allFreq_correlation_plot.pdf",
-                tissue=config["tissue"],
-                ID=samples["ID"].unique()),
-        expand(
-            "results/intermediate/{ID}/corr_tables/Ave193-199bp_correlation.pdf",
-            ID=samples["ID"].unique(),
-        ), 
-        expand("results/intermediate/{ID}/corr_tables/{refSample}_Ave193-199bp_correlation_rank.pdf",
-                refSample = config["refSample"],
-                ID=samples["ID"].unique())
+        #! PATHS HAVE TO BE FIXED/SIMPLIFIYED!!!!! #
+        #expand("results/intermediate/{ID}/corr_plots/{tissue}_allFreq_correlation_plot.pdf",
+        #        tissue=config["tissue"],
+        #        ID=samples["ID"].unique()),
+        #expand(
+        #    "results/intermediate/{ID}/corr_tables/Ave193-199bp_correlation.pdf",
+        #    ID=samples["ID"].unique(),
+        #), 
+        #expand("results/intermediate/{ID}/corr_tables/{refSample}_Ave193-199bp_correlation_rank.pdf",
+        #        refSample = config["refSample"],
+        #        ID=samples["ID"].unique())
 
 
 rule prep:
@@ -166,47 +171,6 @@ rule FFT_table:
         """workflow/scripts/expression_analysis/fft_table.py"""
 
 
-# rule extract_counts:
-#    input:
-#        body="resources/annotations/transcriptAnno-GRCh37.75.body.tsv",
-#        BAMFILE= lambda wildcards: samples["path"][wildcards.SAMPLE]
-#    output:
-#        "results/intermediate/body/fft_summaries/fft_{SAMPLE}_WPS.tsv.gz"
-#    params:
-#        minRL=config["minRL"],
-#        maxRL=config["maxRL"],
-#        out_pre="results/tmp/body/{SAMPLE}/block_%s.tsv.gz"
-#    conda: "workflow/envs/cfDNA.yml"
-#    shell:
-#        """
-#        mkdir -p results/tmp/body/{wildcards.SAMPLE}
-#
-#        workflow/scripts/expression_analysis/extractReadStartsFromBAM_Region_WPS.py \
-#        --minInsert={params.minRL} \
-#        --maxInsert={params.maxRL} \
-#        -i {input.body} \
-#        -o {params.out_pre} {input.BAMFILE}
-#
-#        mkdir -p results/tmp/body/{wildcards.SAMPLE}/fft
-#
-#        ( cd results/tmp/body/{wildcards.SAMPLE}; ls block_*.tsv.gz ) | \
-#        xargs -n 500 Rscript workflow/scripts/expression_analysis/fft_path.R \
-#        results/tmp/body/{wildcards.SAMPLE}/ \
-#        results/tmp/body/{wildcards.SAMPLE}/fft
-#
-#        mkdir -p results/tmp/body/fft_summaries/
-#
-#        workflow/scripts/expression_analysis/convert_files.py \
-#        -a {input.body} \
-#        -t results/tmp/ \
-#        -r results/intermediate/ \
-#        -p body \
-#        -i {wildcards.SAMPLE}
-#
-#        rm -fR results/tmp/body/{wildcards.SAMPLE}/fft
-#        """
-
-
 rule correlation_plots:
     input:
         samples=lambda wildcards: expand(
@@ -272,5 +236,6 @@ rule rank_correlation_table:
         ),
         WPSprefix="results/intermediate/%s/FFT_table/transcriptanno_%s_FFT_table.tsv",
         refSample=config["refSample"],
+        #refSample="results/intermediate/{ID}/FFT_table/transcriptanno_{SAMPLE}_FFT_table.tsv".format(SAMPLE=config["refSample"], ID=samples["ID"].loc[samples["sample"] == config["refSample"]][0])
     script:
         "workflow/scripts/expression_analysis/snakemake_correlation_rank_table.R"
