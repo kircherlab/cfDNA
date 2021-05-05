@@ -32,6 +32,7 @@ library(gplots)
   rownames(fdata) <- fdata[,1]
   fdata <- fdata[,c(1,rev(c(2:dim(fdata)[2])))]
   logndata2 <- logndata[fdata[,1],]
+  selFreq <- c(colnames(fdata) > 189 & colnames(fdata) < 200)
   refCorrelation <- cor(rowMeans(fdata[,selFreq]),logndata2[,order(names(logndata2))],use="pairwise.complete.obs")
 
   pdf(sprintf(snakemake@output[["aveCorRank"]]),width=10,height=15)
@@ -55,4 +56,3 @@ library(gplots)
     title(sprintf("By correlation: %s",sample))
   }
   dev.off()
-
