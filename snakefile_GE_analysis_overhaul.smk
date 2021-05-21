@@ -44,13 +44,13 @@ rule all:
         #expand("results/intermediate/{ID}/corr_plots/{tissue}_allFreq_correlation_plot.pdf",
         #        tissue=config["tissue"],
         #        ID=samples["ID"].unique()),
-        #expand(
-        #    "results/intermediate/{ID}/corr_tables/Ave193-199bp_correlation.pdf",
-        #    ID=samples["ID"].unique(),
-        #), 
-        #expand("results/intermediate/{ID}/corr_tables/{refSample}_Ave193-199bp_correlation_rank.pdf",
-        #        refSample = config["refSample"],
-        #        ID=samples["ID"].unique())
+        expand(
+            "results/intermediate/{ID}/corr_tables/Ave193-199bp_correlation.pdf",
+            ID=samples["ID"].unique(),
+        ), 
+        expand("results/intermediate/{ID}/corr_tables/{refSample}_Ave193-199bp_correlation_rank.pdf",
+                refSample = config["refSample"],
+                ID=samples["ID"].unique())
 
 
 rule prep:
