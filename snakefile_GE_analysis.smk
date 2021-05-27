@@ -20,10 +20,11 @@ rule all:
                 GENOME=samples["genome_build"].unique()),
         expand("results/intermediate/transcriptAnno/transcriptAnno_background-{GENOME}.103.body.bed.gz",
                 GENOME=samples["genome_build"].unique()),
-        expand("results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_WPS.csv",
+        expand("results/intermediate/{ID}/table/transcriptanno-{GENOME}_{SAMPLE}_WPS.csv",
             zip,
             SAMPLE=samples["sample"],
-            ID=samples["ID"],)
+            ID=samples["ID"],
+            GENOME=samples["genome_build"],)
         #expand(
         #    "results/intermediate/{ID}/table/transcriptanno_{SAMPLE}-{GENOME}_WPS_normalized.tsv",
         #    zip,
