@@ -18,18 +18,20 @@ rule all:
         ),
         expand("results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.body.tsv.gz",
                 GENOME=samples["genome_build"].unique()),
-        expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz",
-                zip,
-                GENOME=samples["genome_build"],
-                SAMPLE=samples["sample"]),
-        expand("results/plots/{ID}/{tissue}_allFreq_correlation_plot.pdf",
-                tissue=config["tissue"],
-                ID=samples["ID"]),
-        expand("results/tables/{ID}/Ave193-199bp_correlation.pdf",
-                ID=samples["ID"]),
-        expand("results/tables/{ID}/{refSample}_Ave193-199bp_correlation_rank.pdf",
-                refSample = config["refSample"],
-                ID=samples["ID"])
+        expand("results/intermediate/transcriptAnno/transcriptAnno_background-{GENOME}.103.body.bed.gz",
+                GENOME=samples["genome_build"].unique()),
+        #expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz",
+        #        zip,
+        #        GENOME=samples["genome_build"],
+        #        SAMPLE=samples["sample"]),
+        #expand("results/plots/{ID}/{tissue}_allFreq_correlation_plot.pdf",
+        #        tissue=config["tissue"],
+        #        ID=samples["ID"]),
+        #expand("results/tables/{ID}/Ave193-199bp_correlation.pdf",
+        #        ID=samples["ID"]),
+        #expand("results/tables/{ID}/{refSample}_Ave193-199bp_correlation_rank.pdf",
+        #        refSample = config["refSample"],
+        #        ID=samples["ID"])
 
 
 
@@ -62,6 +64,26 @@ rule prep:
         zcat {input.transcriptAnno} | tail -n +2 | \
         awk 'BEGIN{{ FS="\\t"; OFS="\\t" }}{{ if ($5 == "+") {{ print $2,$3-1,$3-1+10000,$1,0,$5 }} else {{ print $2,$4-1-10000,$4-1,$1,0,$5 }} }}'| \
         gzip -c > {output.body}
+        """
+
+rule generate_random_background:
+    input:
+        region=(
+            "results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.body.bed.gz"
+        ),
+        genome=config["GRCh37_genome"],
+        gap=config["UCSC_gap_GRCH37"],
+    output:
+        "results/intermediate/transcriptAnno/transcriptAnno_background-{GENOME}.103.body.bed.gz"
+    params:
+        length=10000, #lambda wildcards, input: get_length(input.region)
+    conda:
+        "workflow/envs/background.yml"
+    shell:
+        """
+        bedtools random -n 1000 -l {params.length} -g {input.genome} | \
+        bedtools shuffle -i stdin -g {input.genome} -excl {input.gap} -noOverlapping | \
+        gzip -c > {output}
         """
 
 rule extract_counts:
