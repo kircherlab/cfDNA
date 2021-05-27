@@ -55,12 +55,12 @@ rule prep:
     input:
         transcriptAnno="results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.filtered.tsv.gz"
     output:
-        body="results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.body.tsv.gz"
+        body="results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.body.bed.gz"
     conda: "workflow/envs/cfDNA.yml"
     shell:
         """
         zcat {input.transcriptAnno} | tail -n +2 | \
-        awk 'BEGIN{{ FS="\\t"; OFS="\\t" }}{{ if ($5 == "+") {{ print $1,$2,$3-1,$3-1+10000,$5 }} else {{ print $1,$2,$4-1-10000,$4-1,$5 }} }}'| \
+        awk 'BEGIN{{ FS="\\t"; OFS="\\t" }}{{ if ($5 == "+") {{ print $2,$3-1,$3-1+10000,$1,0,$5 }} else {{ print $2,$4-1-10000,$4-1,$1,0,$5 }} }}'| \
         gzip -c > {output.body}
         """
 
