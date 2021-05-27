@@ -104,13 +104,13 @@ rule extract_counts:
         ),
         BAMFILE=lambda wildcards: samples["path"][wildcards.SAMPLE],
     output:
-        WPS="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_WPS.csv",
-        COV="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_COV.csv",
-        STARTS="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_STARTS.csv",
+        WPS="results/intermediate/{ID}/table/transcriptanno-{GENOME}_{SAMPLE}_WPS.csv",
+        COV="results/intermediate/{ID}/table/transcriptanno-{GENOME}_{SAMPLE}_COV.csv",
+        STARTS="results/intermediate/{ID}/table/transcriptanno-{GENOME}_{SAMPLE}_STARTS.csv",
     params:
         minRL=config["minRL"],
         maxRL=config["maxRL"],
-        out_pre="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_%s.csv",
+        out_pre="results/intermediate/{ID}/table/transcriptanno-{GENOME}_{SAMPLE}_%s.csv",
     conda:
         "workflow/envs/cfDNA.yml"
     shell:
