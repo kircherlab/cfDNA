@@ -16,7 +16,7 @@ rule all:
         expand("results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.filtered.tsv.gz",
              GENOME=samples["genome_build"].unique()
         ),
-        expand("results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.body.tsv.gz",
+        expand("results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.body.bed.gz",
                 GENOME=samples["genome_build"].unique()),
         expand("results/intermediate/transcriptAnno/transcriptAnno_background-{GENOME}.103.body.bed.gz",
                 GENOME=samples["genome_build"].unique()),
