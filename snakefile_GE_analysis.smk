@@ -20,6 +20,17 @@ rule all:
                 GENOME=samples["genome_build"].unique()),
         expand("results/intermediate/transcriptAnno/transcriptAnno_background-{GENOME}.103.body.bed.gz",
                 GENOME=samples["genome_build"].unique()),
+        expand("results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_WPS.csv",
+            zip,
+            SAMPLE=samples["sample"],
+            ID=samples["ID"],)
+        #expand(
+        #    "results/intermediate/{ID}/table/transcriptanno_{SAMPLE}-{GENOME}_WPS_normalized.tsv",
+        #    zip,
+        #    SAMPLE=samples["sample"],
+        #    ID=samples["ID"],
+        #    GENOME=samples["genome_build"],
+        #),
         #expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz",
         #        zip,
         #        GENOME=samples["genome_build"],
@@ -88,42 +99,27 @@ rule generate_random_background:
 
 rule extract_counts:
     input:
-        body="results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.body.tsv.gz",
-        BAMFILE= lambda wildcards: samples["path"][wildcards.SAMPLE]
+        target=(
+            "results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.body.bed.gz"
+        ),
+        BAMFILE=lambda wildcards: samples["path"][wildcards.SAMPLE],
     output:
-        "results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz"
+        WPS="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_WPS.csv",
+        COV="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_COV.csv",
+        STARTS="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_STARTS.csv",
     params:
         minRL=config["minRL"],
         maxRL=config["maxRL"],
-        out_pre="results/tmp/body/{SAMPLE}-{GENOME}/block_%s.tsv.gz"
-    conda: "workflow/envs/cfDNA.yml"
+        out_pre="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_%s.csv",
+    conda:
+        "workflow/envs/cfDNA.yml"
     shell:
         """
-        mkdir -p results/tmp/body/{wildcards.SAMPLE}-{wildcards.GENOME}
-
-        workflow/scripts/expression_analysis/extractReadStartsFromBAM_Region_WPS.py \
+        workflow/scripts/WPS/extractFromBAM_RegionBed_WPS_Cov.py \
         --minInsert={params.minRL} \
         --maxInsert={params.maxRL} \
-        -i {input.body} \
+        -i {input.target} \
         -o {params.out_pre} {input.BAMFILE}
-
-        mkdir -p results/tmp/body/{wildcards.SAMPLE}-{wildcards.GENOME}/fft
-
-        ( cd results/tmp/body/{wildcards.SAMPLE}-{wildcards.GENOME}; ls block_*.tsv.gz ) | \
-        xargs -n 500 Rscript workflow/scripts/expression_analysis/fft_path.R \
-        results/tmp/body/{wildcards.SAMPLE}-{wildcards.GENOME}/ \
-        results/tmp/body/{wildcards.SAMPLE}-{wildcards.GENOME}/fft
-
-        mkdir -p results/tmp/body/fft_summaries/
-
-        workflow/scripts/expression_analysis/convert_files.py \
-        -a {input.body} \
-        -t results/tmp/ \
-        -r results/intermediate/ \
-        -p body \
-        -i {wildcards.SAMPLE}-{wildcards.GENOME}
-        
-        #rm -fR results/tmp/body/{wildcards.SAMPLE}-{wildcards.GENOME}/fft
         """
 
 
