@@ -71,8 +71,8 @@ rule generate_random_background:
         region=(
             "results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.body.bed.gz"
         ),
-        genome=config["GRCh37_genome"],
-        gap=config["UCSC_gap_GRCH37"],
+        genome=lambda wildcards: config[wildcards.GENOME]["genome_autosomes"], 
+        gap=lambda wildcards: config[wildcards.GENOME]["UCSC_gap"],
     output:
         "results/intermediate/transcriptAnno/transcriptAnno_background-{GENOME}.103.body.bed.gz"
     params:
