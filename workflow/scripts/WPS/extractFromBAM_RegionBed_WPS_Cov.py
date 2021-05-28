@@ -71,8 +71,13 @@ WPS_scores = list()
 COV_scores = list()
 STARTS_scores = list()
 
+
+
 if os.path.exists(options.input):
-  infile = open(options.input)
+  if ".gz" in options.input:
+    infile = gzip.open(options.input,"r")
+  else:
+    infile = open(options.input)
   for line in infile:
     ########
     # implement proper bedfile reading
