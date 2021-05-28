@@ -33,7 +33,7 @@ library(gplots)
     rownames(fdata) <- fdata[,1]
     fdata <- fdata[,c(1,rev(c(2:dim(fdata)[2])))]
     logndata2 <- logndata[fdata[,1],]
-    sample_name <- strsplit(tail(strsplit(sample, "/")[[1]],1),"_")[[1]][2]
+    sample_name <- strsplit(tail(strsplit(sample, "/")[[1]],1),"-")[[1]][2]
 
     res <- cor(fdata[,fftColumns],logndata2,use="pairwise.complete.obs")
 
