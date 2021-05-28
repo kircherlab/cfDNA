@@ -87,7 +87,7 @@ if os.path.exists(options.input):
       chrom = chrom.replace("chr","")
     if chrom not in validChroms: continue
     
-    regionStart,regionEnd = int(start)-1300,int(end)+1300
+    regionStart,regionEnd = int(start)-300,int(end)+300
     
     if regionStart < 1: continue
     
@@ -185,6 +185,10 @@ if os.path.exists(options.input):
     if strand == "-": wps_list = wps_list[::-1]
     if strand == "-": cov_list = cov_list[::-1]
     if strand == "-": starts_list = starts_list[::-1]
+    #remove flanking regions again
+    wps_list = wps_list[300:-300]                                                                                                                                                        
+    cov_list = cov_list[300:-300]                                                                                                                                                  
+    starts_list = starts_list[300:-300]
 
     wps_list.insert(0,cid)                                                                                                                                                         
     cov_list.insert(0,cid)                                                                                                                                                         
