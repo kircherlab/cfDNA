@@ -20,11 +20,16 @@ rule all:
                 GENOME=samples["genome_build"].unique()),
         expand("results/intermediate/transcriptAnno/transcriptAnno_background-{GENOME}.103.body.bed.gz",
                 GENOME=samples["genome_build"].unique()),
-        expand("results/intermediate/{ID}/table/transcriptanno-{GENOME}_{SAMPLE}_WPS.csv",
+        expand("results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_WPS.{GENOME}.csv",
             zip,
             SAMPLE=samples["sample"],
             ID=samples["ID"],
-            GENOME=samples["genome_build"],)
+            GENOME=samples["genome_build"],),
+        expand("results/intermediate/{ID}/background_region/table/transcriptanno_{SAMPLE}_WPS_background.{GENOME}.csv",
+            zip,
+            SAMPLE=samples["sample"],
+            ID=samples["ID"],
+            GENOME=samples["genome_build"],),
         #expand(
         #    "results/intermediate/{ID}/table/transcriptanno_{SAMPLE}-{GENOME}_WPS_normalized.tsv",
         #    zip,
@@ -105,13 +110,13 @@ rule extract_counts:
         ),
         BAMFILE=lambda wildcards: samples["path"][wildcards.SAMPLE],
     output:
-        WPS="results/intermediate/{ID}/table/transcriptanno-{GENOME}_{SAMPLE}_WPS.csv",
-        COV="results/intermediate/{ID}/table/transcriptanno-{GENOME}_{SAMPLE}_COV.csv",
-        STARTS="results/intermediate/{ID}/table/transcriptanno-{GENOME}_{SAMPLE}_STARTS.csv",
+        WPS="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_WPS.{GENOME}.csv",
+        COV="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_COV.{GENOME}.csv",
+        STARTS="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_STARTS.{GENOME}.csv",
     params:
         minRL=config["minRL"],
         maxRL=config["maxRL"],
-        out_pre="results/intermediate/{ID}/table/transcriptanno-{GENOME}_{SAMPLE}_%s.csv",
+        out_pre="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_%s.{GENOME}.csv",
     conda:
         "workflow/envs/cfDNA.yml"
     shell:
@@ -123,6 +128,28 @@ rule extract_counts:
         -o {params.out_pre} {input.BAMFILE}
         """
 
+rule extract_counts_background:
+    input:
+        background="results/intermediate/transcriptAnno/transcriptAnno_background-{GENOME}.103.body.bed.gz",
+        BAMFILE=lambda wildcards: samples["path"][wildcards.SAMPLE],
+    output:
+        WPS="results/intermediate/{ID}/background_region/table/transcriptanno_{SAMPLE}_WPS_background.{GENOME}.csv",
+        COV="results/intermediate/{ID}/background_region/table/transcriptanno_{SAMPLE}_COV_background.{GENOME}.csv",
+        STARTS="results/intermediate/{ID}/background_region/table/transcriptanno_{SAMPLE}_STARTS_background.{GENOME}.csv",
+    params:
+        minRL=config["minRL"],
+        maxRL=config["maxRL"],
+        out_pre="results/intermediate/{ID}/background_region/table/transcriptanno_{SAMPLE}_%s_background.{GENOME}.csv",
+    conda:
+        "workflow/envs/cfDNA.yml"
+    shell:
+        """
+        workflow/scripts/WPS/extractFromBAM_RegionBed_WPS_Cov.py \
+        --minInsert={params.minRL} \
+        --maxInsert={params.maxRL} \
+        -i {input.background} \
+        -o {params.out_pre} {input.BAMFILE}
+        """
 
 rule correlation_plots:
     input:
