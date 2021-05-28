@@ -43,18 +43,14 @@ rule all:
             ID=samples["ID"],
             GENOME=samples["genome_build"],
         ),
-        #expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz",
-        #        zip,
-        #        GENOME=samples["genome_build"],
-        #        SAMPLE=samples["sample"]),
-        #expand("results/plots/{ID}/{tissue}_allFreq_correlation_plot.pdf",
-        #        tissue=config["tissue"],
-        #        ID=samples["ID"]),
-        #expand("results/tables/{ID}/Ave193-199bp_correlation.pdf",
-        #        ID=samples["ID"]),
-        #expand("results/tables/{ID}/{refSample}_Ave193-199bp_correlation_rank.pdf",
-        #        refSample = config["refSample"],
-        #        ID=samples["ID"])
+        expand("results/plots/{ID}/{tissue}_allFreq_correlation_plot.pdf",
+                tissue=config["tissue"],
+                ID=samples["ID"]),
+        expand("results/tables/{ID}/Ave193-199bp_correlation.pdf",
+                ID=samples["ID"]),
+        expand("results/tables/{ID}/{refSample}_Ave193-199bp_correlation_rank.pdf",
+                refSample = config["refSample"],
+                ID=samples["ID"])
 
 
 
@@ -185,10 +181,11 @@ rule FFT_table:
 
 rule correlation_plots:
     input:
-        samples = expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz",
-                        zip,
-                        GENOME=samples["genome_build"],
-                        SAMPLE=samples["sample"]),        
+        samples = expand("results/intermediate/{ID}/FFT_table/transcriptanno-{SAMPLE}-FFT_table.{GENOME}.tsv",
+            zip,
+            SAMPLE=samples["sample"],
+            ID=samples["ID"],
+            GENOME=samples["genome_build"],),
         proteinAtlas= expand("resources/protein_atlas/RNAtable{SOURCE}.tsv.gz",
                             SOURCE=config["proteinAtlas"]),
         labels = expand("resources/protein_atlas/labels_{SOURCE}.tsv",
@@ -204,10 +201,11 @@ rule correlation_plots:
 
 rule correlation_table:
     input:
-        samples = expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz",
-                        zip,
-                        GENOME=samples["genome_build"],
-                        SAMPLE=samples["sample"]),
+        samples = expand("results/intermediate/{ID}/FFT_table/transcriptanno-{SAMPLE}-FFT_table.{GENOME}.tsv",
+            zip,
+            SAMPLE=samples["sample"],
+            ID=samples["ID"],
+            GENOME=samples["genome_build"],),
         proteinAtlas= expand("resources/protein_atlas/RNAtable{SOURCE}.tsv.gz",
                             SOURCE=config["proteinAtlas"]),
         labels = expand("resources/protein_atlas/labels_{SOURCE}.tsv",
@@ -221,10 +219,11 @@ rule correlation_table:
 
 rule rank_correlation_table:
     input:
-        samples = expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz",
-                        zip,
-                        GENOME=samples["genome_build"],
-                        SAMPLE=samples["sample"]),
+        samples = expand("results/intermediate/{ID}/FFT_table/transcriptanno-{SAMPLE}-FFT_table.{GENOME}.tsv",
+            zip,
+            SAMPLE=samples["sample"],
+            ID=samples["ID"],
+            GENOME=samples["genome_build"],),
         proteinAtlas= expand("resources/protein_atlas/RNAtable{SOURCE}.tsv.gz",
                             SOURCE=config["proteinAtlas"]),
         labels = expand("resources/protein_atlas/labels_{SOURCE}.tsv",
