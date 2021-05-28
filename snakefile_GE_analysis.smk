@@ -30,13 +30,19 @@ rule all:
             SAMPLE=samples["sample"],
             ID=samples["ID"],
             GENOME=samples["genome_build"],),
-        #expand(
-        #    "results/intermediate/{ID}/table/transcriptanno_{SAMPLE}-{GENOME}_WPS_normalized.tsv",
-        #    zip,
-        #    SAMPLE=samples["sample"],
-        #    ID=samples["ID"],
-        #    GENOME=samples["genome_build"],
-        #),
+        expand(
+            "results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_WPS_normalized.{GENOME}.csv",
+            zip,
+            SAMPLE=samples["sample"],
+            ID=samples["ID"],
+            GENOME=samples["genome_build"],
+        ),
+        expand("results/intermediate/{ID}/FFT_table/transcriptanno-{SAMPLE}-FFT_table.{GENOME}.tsv",
+            zip,
+            SAMPLE=samples["sample"],
+            ID=samples["ID"],
+            GENOME=samples["genome_build"],
+        ),
         #expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz",
         #        zip,
         #        GENOME=samples["genome_build"],
@@ -150,6 +156,32 @@ rule extract_counts_background:
         -i {input.background} \
         -o {params.out_pre} {input.BAMFILE}
         """
+
+
+rule normalize_WPS:
+    input:
+        target_WPS="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_WPS.{GENOME}.csv",
+        background_WPS="results/intermediate/{ID}/background_region/table/transcriptanno_{SAMPLE}_WPS_background.{GENOME}.csv",
+        target_COV="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_COV.{GENOME}.csv",
+        background_COV="results/intermediate/{ID}/background_region/table/transcriptanno_{SAMPLE}_COV_background.{GENOME}.csv",
+    output:
+        output_WPS="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_WPS_normalized.{GENOME}.tsv",
+        output_COV="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_COV_normalized.{GENOME}.tsv",
+    conda:
+        "workflow/envs/cfDNA.yml"
+    script:
+        """workflow/scripts/expression_analysis/normalize.py"""
+
+
+rule FFT_table:
+    input:
+        normalized_WPS="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_WPS_normalized.{GENOME}.tsv",
+    output:
+        FFT_table="results/intermediate/{ID}/FFT_table/transcriptanno-{SAMPLE}-FFT_table.{GENOME}.tsv",
+    conda:
+        "workflow/envs/overlays.yml"
+    script:
+        """workflow/scripts/expression_analysis/fft_table.py"""
 
 rule correlation_plots:
     input:
