@@ -31,7 +31,7 @@ rule all:
             ID=samples["ID"],
             GENOME=samples["genome_build"],),
         expand(
-            "results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_WPS_normalized.{GENOME}.csv",
+            "results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_WPS_normalized.{GENOME}.tsv",
             zip,
             SAMPLE=samples["sample"],
             ID=samples["ID"],
