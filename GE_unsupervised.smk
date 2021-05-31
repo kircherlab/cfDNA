@@ -5,13 +5,15 @@ import pandas as pd
 configfile: "config/config.yml" # "config/config_testing.yml" # "config/config_components_bugfix3.yml"
 
 
+include: "snakefile_GE_analysis.smk"
+
 validate(config, schema="workflow/schemas/config.schema.yaml")
 
 samples = pd.read_csv(config["samples"], sep="\t").set_index("sample", drop=False)
 samples.index.names = ["sample_id"]
 validate(samples, schema="workflow/schemas/samples.schema.yaml")
 
-rule all:
+rule target:
     input:
         expand(expand("results/plots/unsupervised/{ID}/heatmaps/FFT_{{min}}-{{max}}_heatmap.png",
             ID=samples["ID"].unique() ),
