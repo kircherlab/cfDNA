@@ -1,0 +1,15 @@
+name: FFT_unsupervised
+channels:
+  - conda-forge
+  - bioconda                                                      
+dependencies:
+  - pandas
+  - numpy
+  - matplotlib
+  - seaborn
+  - plotly
+  - scikit-learn
+  - scipy
+  - umap-learn
+  - python-kaleido
+  - hdbscan
