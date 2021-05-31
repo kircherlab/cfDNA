@@ -4,6 +4,16 @@
 
 - updated documentation
 
+- snakefile_GE_analysis:
+    - added background normalization
+    - ported FFT calculation to python
+    - separated multiple steps for increased maintainability
+
+- snakefile_WPS:
+    - restructured file paths
+    - moved window extension to separate
+    - moved WPS padding correction to extractFromBAM_RegionBed_WPS_Cov.py
+
 ## v0.2.1
 
 - bugfix paths
