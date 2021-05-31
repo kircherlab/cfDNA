@@ -2,6 +2,8 @@
 
 ## develop
 
+## v0.3.0
+
 - updated documentation
 
 - comfort:
