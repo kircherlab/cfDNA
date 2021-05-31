@@ -35,6 +35,10 @@ More details on analyses in this [repository](https://github.com/shendurelab/cfD
             - [Description](#description-1)
             - [Input](#input-1)
             - [Output](#output-1)
+        - [Unsupervised analysis](#unsupervised-analysis)
+            - [Description](#description-2)
+            - [Input](#input-2)
+            - [Output](#output-2)
 
 ## Authors
 
@@ -192,3 +196,22 @@ WPS was used to calculate periodograms of genomic regions using Fast Fourier Tra
 - plots showing intensities across tissues (results/plots)
 - table showing correlation with tissues/cell lines
 - table showing correlation rank difference to reference sample
+
+### Unsupervised analysis
+
+#### Description
+
+Workflow containing utility functions to calculate and visualize similarities between samples. 
+
+#### Input
+
+- FFT tables by gene expression analysis
+
+**Note:** FFT tables will be generated automatically if gene expression workflow was not exicuted before.
+
+#### Output
+
+- heatmaps showing spearman correlation between samples from the same experiment (ID) based on configured FFT thresholds
+- clustermaps showing spearman correlation between samples from the same experiment (ID) based on configured FFT thresholds with added hierarchical clustering
+- Plots showing 2D UMAP projection labeled by kmeans clustering with specified number of clusters
+- Plots showing 2D UMAP projection labeled by HDBSCAN clustering
