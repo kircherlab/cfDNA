@@ -1,33 +1,33 @@
-Category	Name	Type	tissue_label
-Primary Tissue	amygdala	Brain	amygdala
-Primary Tissue	appendix	Bone marrow and lymphoid tissues	appendix
-Primary Tissue	breast	Female tissues	breast
-Primary Tissue	cerebellum	Brain	cerebellum
-Primary Tissue	colon	Gastointestinal tract	colon
-Primary Tissue	duodenum	Gastointestinal tract	duodenum
-Primary Tissue	endometrium	Female tissues	endometrium
-Primary Tissue	epididymis	Male tissues	epididymis
-Primary Tissue	esophagus	Proximal digestive tract	esophagus
-Primary Tissue	gallbladder	Liver and gallblader	gallbladder
-Primary Tissue	granulocytes	Blood cell 	granulocytes
-Primary Tissue	hypothalamus	Brain	hypothalamus
-Primary Tissue	kidney	Kidney and urinary bladder	kidney
-Primary Tissue	liver	Liver and gallblader	liver
-Primary Tissue	lung	Respiratory system	lung
-Primary Tissue	midbrain	Brain	midbrain
-Primary Tissue	monocytes	Blood cell 	monocytes
-Primary Tissue	ovary	Female tissues	ovary
-Primary Tissue	pancreas	Pancreas	pancreas
-Primary Tissue	placenta	Female tissues	placenta
-Primary Tissue	prostate	Male tissues	prostate
-Primary Tissue	rectum	Gastointestinal tract	rectum
-Primary Tissue	retina	Eye	retina
-Primary Tissue	skin	Skin	skin
-Primary Tissue	spleen	Bone marrow and lymphoid tissues	spleen
-Primary Tissue	stomach	Gastointestinal tract	stomach
-Primary Tissue	testis	Male tissues	testis
-Primary Tissue	thalamus	Brain	thalamus
-Primary Tissue	thymus	Bone marrow and lympoid tissues	thymus
-Primary Tissue	tongue	Tongue	tongue
-Primary Tissue	tonsil	Bone marrow and lympoid tissues	tonsil
-Primary Tissue	vagina	Female tissues	vagina
+Category	Name	Type
+Brain	amygdala 	Brain
+Bone marrow and lymphoid tissues	appendix 	Bone marrow and lymphoid tissues
+Female tissues	breast 	Female tissues
+Brain	cerebellum 	Brain
+Gastointestinal tract	colon 	Gastointestinal tract
+Gastointestinal tract	duodenum 	Gastointestinal tract
+Female tissues	endometrium 	Female tissues
+Male tissues	epididymis 	Male tissues
+Proximal digestive tract	esophagus 	Proximal digestive tract
+Liver and gallblader	gallbladder 	Liver and gallblader
+Blood cell	granulocytes 	Blood cell
+Brain	hypothalamus 	Brain
+Kidney and urinary bladder	kidney 	Kidney and urinary bladder
+Liver and gallblader	liver 	Liver and gallblader
+Respiratory system	lung 	Respiratory system
+Brain	midbrain 	Brain
+Blood cell	monocytes 	Blood cell
+Female tissues	ovary 	Female tissues
+Pancreas	pancreas 	Pancreas
+Female tissues	placenta 	Female tissues
+Male tissues	prostate 	Male tissues
+Gastointestinal tract	rectum 	Gastointestinal tract
+Eye	retina 	Eye
+Skin	skin 	Skin
+Bone marrow and lymphoid tissues	spleen 	Bone marrow and lymphoid tissues
+Gastointestinal tract	stomach 	Gastointestinal tract
+Male tissues	testis 	Male tissues
+Brain	thalamus 	Brain
+Bone marrow and lympoid tissues	thymus 	Bone marrow and lympoid tissues
+Tongue	tongue 	Tongue
+Bone marrow and lympoid tissues	tonsil 	Bone marrow and lympoid tissues
+Female tissues	vagina 	Female tissues
