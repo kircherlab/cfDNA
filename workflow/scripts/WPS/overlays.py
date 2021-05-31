@@ -97,12 +97,12 @@ av_COV = av_COV.set_index("position")
 # create line plots and save to a single pdf
 
 with PdfPages(outfile) as pdf:
-    Fig_WPS = av_WPS.iloc[300:-300].plot(
+    Fig_WPS = av_WPS.plot(
         title=f"adjusted WPS: {target} target regions",
         xlabel="Position relative to target site",
         ylabel="normalized WPS",
     )
-    Fig_Cov = av_COV.iloc[300:-300].plot(
+    Fig_Cov = av_COV.plot(
         title=f"adjusted read coverage: {target} target regions",
         xlabel="Position relative to target site",
         ylabel="normalized read coverage",

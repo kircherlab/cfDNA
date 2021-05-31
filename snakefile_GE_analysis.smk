@@ -16,12 +16,33 @@ rule all:
         expand("results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.filtered.tsv.gz",
              GENOME=samples["genome_build"].unique()
         ),
-        expand("results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.body.tsv.gz",
+        expand("results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.body.bed.gz",
                 GENOME=samples["genome_build"].unique()),
-        expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz",
-                zip,
-                GENOME=samples["genome_build"],
-                SAMPLE=samples["sample"]),
+        expand("results/intermediate/transcriptAnno/transcriptAnno_background-{GENOME}.103.body.bed.gz",
+                GENOME=samples["genome_build"].unique()),
+        expand("results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_WPS.{GENOME}.csv",
+            zip,
+            SAMPLE=samples["sample"],
+            ID=samples["ID"],
+            GENOME=samples["genome_build"],),
+        expand("results/intermediate/{ID}/background_region/table/transcriptanno_{SAMPLE}_WPS_background.{GENOME}.csv",
+            zip,
+            SAMPLE=samples["sample"],
+            ID=samples["ID"],
+            GENOME=samples["genome_build"],),
+        expand(
+            "results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_WPS_normalized.{GENOME}.tsv",
+            zip,
+            SAMPLE=samples["sample"],
+            ID=samples["ID"],
+            GENOME=samples["genome_build"],
+        ),
+        expand("results/intermediate/{ID}/FFT_table/transcriptanno-{SAMPLE}-FFT_table.{GENOME}.tsv",
+            zip,
+            SAMPLE=samples["sample"],
+            ID=samples["ID"],
+            GENOME=samples["genome_build"],
+        ),
         expand("results/plots/{ID}/{tissue}_allFreq_correlation_plot.pdf",
                 tissue=config["tissue"],
                 ID=samples["ID"]),
@@ -55,62 +76,116 @@ rule prep:
     input:
         transcriptAnno="results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.filtered.tsv.gz"
     output:
-        body="results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.body.tsv.gz"
+        body="results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.body.bed.gz"
     conda: "workflow/envs/cfDNA.yml"
     shell:
         """
         zcat {input.transcriptAnno} | tail -n +2 | \
-        awk 'BEGIN{{ FS="\\t"; OFS="\\t" }}{{ if ($5 == "+") {{ print $1,$2,$3-1,$3-1+10000,$5 }} else {{ print $1,$2,$4-1-10000,$4-1,$5 }} }}'| \
+        awk 'BEGIN{{ FS="\\t"; OFS="\\t" }}{{ if ($5 == "+") {{ print $2,$3-1,$3-1+10000,$1,0,$5 }} else {{ print $2,$4-1-10000,$4-1,$1,0,$5 }} }}'| \
         gzip -c > {output.body}
+        """
+
+rule generate_random_background:
+    input:
+        region=(
+            "results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.body.bed.gz"
+        ),
+        genome=lambda wildcards: config[wildcards.GENOME]["genome_autosomes"], 
+        gap=lambda wildcards: config[wildcards.GENOME]["UCSC_gap"],
+    output:
+        "results/intermediate/transcriptAnno/transcriptAnno_background-{GENOME}.103.body.bed.gz"
+    params:
+        length=10000, #lambda wildcards, input: get_length(input.region)
+    conda:
+        "workflow/envs/background.yml"
+    shell:
+        """
+        bedtools random -n 1000 -l {params.length} -g {input.genome} | \
+        bedtools shuffle -i stdin -g {input.genome} -excl {input.gap} -noOverlapping | \
+        gzip -c > {output}
         """
 
 rule extract_counts:
     input:
-        body="results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.body.tsv.gz",
-        BAMFILE= lambda wildcards: samples["path"][wildcards.SAMPLE]
+        target=(
+            "results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.body.bed.gz"
+        ),
+        BAMFILE=lambda wildcards: samples["path"][wildcards.SAMPLE],
     output:
-        "results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz"
+        WPS="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_WPS.{GENOME}.csv",
+        COV="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_COV.{GENOME}.csv",
+        STARTS="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_STARTS.{GENOME}.csv",
     params:
         minRL=config["minRL"],
         maxRL=config["maxRL"],
-        out_pre="results/tmp/body/{SAMPLE}-{GENOME}/block_%s.tsv.gz"
-    conda: "workflow/envs/cfDNA.yml"
+        out_pre="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_%s.{GENOME}.csv",
+    conda:
+        "workflow/envs/cfDNA.yml"
     shell:
         """
-        mkdir -p results/tmp/body/{wildcards.SAMPLE}-{wildcards.GENOME}
-
-        workflow/scripts/expression_analysis/extractReadStartsFromBAM_Region_WPS.py \
+        workflow/scripts/WPS/extractFromBAM_RegionBed_WPS_Cov.py \
         --minInsert={params.minRL} \
         --maxInsert={params.maxRL} \
-        -i {input.body} \
+        -i {input.target} \
         -o {params.out_pre} {input.BAMFILE}
-
-        mkdir -p results/tmp/body/{wildcards.SAMPLE}-{wildcards.GENOME}/fft
-
-        ( cd results/tmp/body/{wildcards.SAMPLE}-{wildcards.GENOME}; ls block_*.tsv.gz ) | \
-        xargs -n 500 Rscript workflow/scripts/expression_analysis/fft_path.R \
-        results/tmp/body/{wildcards.SAMPLE}-{wildcards.GENOME}/ \
-        results/tmp/body/{wildcards.SAMPLE}-{wildcards.GENOME}/fft
-
-        mkdir -p results/tmp/body/fft_summaries/
-
-        workflow/scripts/expression_analysis/convert_files.py \
-        -a {input.body} \
-        -t results/tmp/ \
-        -r results/intermediate/ \
-        -p body \
-        -i {wildcards.SAMPLE}-{wildcards.GENOME}
-        
-        #rm -fR results/tmp/body/{wildcards.SAMPLE}-{wildcards.GENOME}/fft
         """
 
+rule extract_counts_background:
+    input:
+        background="results/intermediate/transcriptAnno/transcriptAnno_background-{GENOME}.103.body.bed.gz",
+        BAMFILE=lambda wildcards: samples["path"][wildcards.SAMPLE],
+    output:
+        WPS="results/intermediate/{ID}/background_region/table/transcriptanno_{SAMPLE}_WPS_background.{GENOME}.csv",
+        COV="results/intermediate/{ID}/background_region/table/transcriptanno_{SAMPLE}_COV_background.{GENOME}.csv",
+        STARTS="results/intermediate/{ID}/background_region/table/transcriptanno_{SAMPLE}_STARTS_background.{GENOME}.csv",
+    params:
+        minRL=config["minRL"],
+        maxRL=config["maxRL"],
+        out_pre="results/intermediate/{ID}/background_region/table/transcriptanno_{SAMPLE}_%s_background.{GENOME}.csv",
+    conda:
+        "workflow/envs/cfDNA.yml"
+    shell:
+        """
+        workflow/scripts/WPS/extractFromBAM_RegionBed_WPS_Cov.py \
+        --minInsert={params.minRL} \
+        --maxInsert={params.maxRL} \
+        -i {input.background} \
+        -o {params.out_pre} {input.BAMFILE}
+        """
+
+
+rule normalize_WPS:
+    input:
+        target_WPS="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_WPS.{GENOME}.csv",
+        background_WPS="results/intermediate/{ID}/background_region/table/transcriptanno_{SAMPLE}_WPS_background.{GENOME}.csv",
+        target_COV="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_COV.{GENOME}.csv",
+        background_COV="results/intermediate/{ID}/background_region/table/transcriptanno_{SAMPLE}_COV_background.{GENOME}.csv",
+    output:
+        output_WPS="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_WPS_normalized.{GENOME}.tsv",
+        output_COV="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_COV_normalized.{GENOME}.tsv",
+    conda:
+        "workflow/envs/cfDNA.yml"
+    script:
+        """workflow/scripts/expression_analysis/normalize.py"""
+
+
+rule FFT_table:
+    input:
+        normalized_WPS="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_WPS_normalized.{GENOME}.tsv",
+    output:
+        FFT_table="results/intermediate/{ID}/FFT_table/transcriptanno-{SAMPLE}-FFT_table.{GENOME}.tsv",
+    conda:
+        "workflow/envs/overlays.yml"
+    script:
+        """workflow/scripts/expression_analysis/fft_table.py"""
 
 rule correlation_plots:
     input:
-        samples = expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz",
-                        zip,
-                        GENOME=samples["genome_build"],
-                        SAMPLE=samples["sample"]),        
+        samples = expand("results/intermediate/{ID}/FFT_table/transcriptanno-{SAMPLE}-FFT_table.{GENOME}.tsv",
+            zip,
+            SAMPLE=samples["sample"],
+            ID=samples["ID"],
+            GENOME=samples["genome_build"],),
         proteinAtlas= expand("resources/protein_atlas/RNAtable{SOURCE}.tsv.gz",
                             SOURCE=config["proteinAtlas"]),
         labels = expand("resources/protein_atlas/labels_{SOURCE}.tsv",
@@ -126,10 +201,11 @@ rule correlation_plots:
 
 rule correlation_table:
     input:
-        samples = expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz",
-                        zip,
-                        GENOME=samples["genome_build"],
-                        SAMPLE=samples["sample"]),
+        samples = expand("results/intermediate/{ID}/FFT_table/transcriptanno-{SAMPLE}-FFT_table.{GENOME}.tsv",
+            zip,
+            SAMPLE=samples["sample"],
+            ID=samples["ID"],
+            GENOME=samples["genome_build"],),
         proteinAtlas= expand("resources/protein_atlas/RNAtable{SOURCE}.tsv.gz",
                             SOURCE=config["proteinAtlas"]),
         labels = expand("resources/protein_atlas/labels_{SOURCE}.tsv",
@@ -143,10 +219,11 @@ rule correlation_table:
 
 rule rank_correlation_table:
     input:
-        samples = expand("results/intermediate/body/fft_summaries/fft_{SAMPLE}-{GENOME}_WPS.tsv.gz",
-                        zip,
-                        GENOME=samples["genome_build"],
-                        SAMPLE=samples["sample"]),
+        samples = expand("results/intermediate/{ID}/FFT_table/transcriptanno-{SAMPLE}-FFT_table.{GENOME}.tsv",
+            zip,
+            SAMPLE=samples["sample"],
+            ID=samples["ID"],
+            GENOME=samples["genome_build"],),
         proteinAtlas= expand("resources/protein_atlas/RNAtable{SOURCE}.tsv.gz",
                             SOURCE=config["proteinAtlas"]),
         labels = expand("resources/protein_atlas/labels_{SOURCE}.tsv",

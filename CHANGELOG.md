@@ -2,6 +2,28 @@
 
 ## develop
 
+- updated documentation
+
+- comfort:
+    - added geneIDs to WPS/COV/STARTs and FFT tables
+
+- snakefile_GE_analysis:
+    - added background normalization
+    - ported FFT calculation to python
+    - separated multiple steps for increased maintainability
+
+- snakefile_WPS:
+    - restructured file paths
+    - moved window extension to separate
+    - moved WPS padding correction to extractFromBAM_RegionBed_WPS_Cov.py
+
+- GE_unsupervised:
+    - added rules for generating clusterings and heatmaps between all samples of an experiment using FFT intensities
+        - kmeans clustering
+        - HDBSCAN clustering
+        - heatmaps
+        - clustermaps (heatmap with hierarchical clustering)
+
 ## v0.2.1
 
 - bugfix paths
