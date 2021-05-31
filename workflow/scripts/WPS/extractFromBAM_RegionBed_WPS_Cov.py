@@ -71,8 +71,13 @@ WPS_scores = list()
 COV_scores = list()
 STARTS_scores = list()
 
+
+
 if os.path.exists(options.input):
-  infile = open(options.input)
+  if ".gz" in options.input:
+    infile = gzip.open(options.input,"r")
+  else:
+    infile = open(options.input)
   for line in infile:
     ########
     # implement proper bedfile reading
@@ -82,7 +87,7 @@ if os.path.exists(options.input):
       chrom = chrom.replace("chr","")
     if chrom not in validChroms: continue
     
-    regionStart,regionEnd = int(start)-1300,int(end)+1300
+    regionStart,regionEnd = int(start)-300,int(end)+300
     
     if regionStart < 1: continue
     
@@ -180,6 +185,15 @@ if os.path.exists(options.input):
     if strand == "-": wps_list = wps_list[::-1]
     if strand == "-": cov_list = cov_list[::-1]
     if strand == "-": starts_list = starts_list[::-1]
+    #remove flanking regions again
+    wps_list = wps_list[300:-300]                                                                                                                                                        
+    cov_list = cov_list[300:-300]                                                                                                                                                  
+    starts_list = starts_list[300:-300]
+
+    wps_list.insert(0,cid)                                                                                                                                                         
+    cov_list.insert(0,cid)                                                                                                                                                         
+    starts_list.insert(0,cid)
+
     WPS_scores.append(wps_list)
     COV_scores.append(cov_list)
     STARTS_scores.append(starts_list)
