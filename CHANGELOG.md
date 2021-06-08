@@ -2,6 +2,16 @@
 
 ## develop
 
+## v0.3.2
+
+- Hotfix: fixed bug in get_refsample
+
+- update .gitignore
+
+## v0.3.1
+
+- Hotfix: unexpected behavior in conda environments
+
 ## v0.3.0
 
 - updated documentation
