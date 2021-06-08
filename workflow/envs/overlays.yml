@@ -10,3 +10,4 @@ dependencies:
   - matplotlib
   - seaborn
   - scipy
+  - statsmodels

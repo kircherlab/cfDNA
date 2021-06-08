@@ -164,7 +164,7 @@ rule normalize_WPS:
         output_WPS="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_WPS_normalized.{GENOME}.tsv",
         output_COV="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_COV_normalized.{GENOME}.tsv",
     conda:
-        "workflow/envs/cfDNA.yml"
+        "workflow/envs/overlays.yml"
     script:
         """workflow/scripts/expression_analysis/normalize.py"""
 
