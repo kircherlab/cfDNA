@@ -9,7 +9,7 @@ samples.index.names = ["sample_id"]
 validate(samples, schema="workflow/schemas/samples.schema.yaml")
 
 def get_refsample(refsample):
-    return "results/intermediate/body/fft_summaries/fft_{}-{}_WPS.tsv.gz".format(refsample,samples["genome_build"].loc[samples["sample"] == refsample].values[0])
+    return "results/intermediate/{ID}/FFT_table/transcriptanno-{SAMPLE}-FFT_table.{GENOME}.tsv".format(ID = samples["ID"].loc[samples["sample"] == refsample].values[0], SAMPLE = refsample, GENOME = samples["genome_build"].loc[samples["sample"] == refsample].values[0])
 
 rule all:
     input:
