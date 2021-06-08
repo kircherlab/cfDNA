@@ -38,3 +38,4 @@
 !CHANGELOG.md
 !*.smk
 *.code-workspace
+__pycache__
