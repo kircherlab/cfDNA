@@ -2,6 +2,10 @@
 
 ## develop
 
+- snakefile_WPS:
+    - added dynamic .gz support
+    - most intermediate files are .gz compressed
+
 ## v0.3.2
 
 - Hotfix: fixed bug in get_refsample
