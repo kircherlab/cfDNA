@@ -1,5 +1,6 @@
 from snakemake.utils import validate
 import pandas as pd
+from os.path import exists
 
 
 configfile: "config/config.yml"
@@ -82,10 +83,14 @@ def get_STARTS_background_ref(sample):
 
 
 def get_length(input):
-    print(input)
-    df = pd.read_csv(input, sep="\t", header=None)
-    length = df[2] - df[1]
-    return length[0]
+    if exists(input):
+        df = pd.read_csv(input, sep="\t", header=None)
+        length = df[2] - df[1]
+        return length[0]
+    else:
+        length=2000
+        #print(f"{input} does not exist: using length of {length}")
+        return length
 
 
 rule all:
