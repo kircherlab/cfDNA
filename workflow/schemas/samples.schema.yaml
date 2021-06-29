@@ -19,6 +19,9 @@ properties:
   genome_build:
     type: string
     enum: ["GRCh37", "GRCh38"]
+  info:
+    type: string
+    description: contains additional, human readable info
 # columns that the config/samples.tsv file must have to pass schema validation
 required:
   - ID
