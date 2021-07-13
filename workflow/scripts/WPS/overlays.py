@@ -29,6 +29,7 @@ sample_ID = snakemake.params["sample"]
 ref_IDs = snakemake.params["ref_IDs"]
 target = snakemake.params["target"]
 outfile = snakemake.output[0]
+overlay_mode = snakemake.params["overlay_mode"]
 
 # def functions
 
@@ -59,16 +60,24 @@ def calculate_flanking_regions(val: int):
     return region
 
 
-def add_sample(path_a: str, path_b: str):
+def add_sample(path_a: str, path_b: str, overlay_mode:str,):
     """Reads .csv file, calculates mean over all rows and divides by trimmed mean.
 
     Args:
-        path (str): Path to a .csv file
+        path_a (str): [path to targets]
+        path_b (str): [path to background]
+        overlay_mode (str): [Mode of operation, e.g. mean, median]
 
     Returns:
-        [type]: [description]
+        [Pandas Object]: [Pandas object containing normalized/processed data]
     """
-    sample_a = pd.read_csv(path_a, header=None).mean()
+
+    if overlay_mode == "mean":
+        sample_a = pd.read_csv(path_a, header=None).mean()
+    elif overlay_mode == "median":
+        sample_a = pd.read_csv(path_a, header=None).median()
+    else:
+        raise ValueError(f"{overlay_mode} is not a valid keyword.")
     sample_b = pd.read_csv(path_b, header=None).mean(axis=1)
     sample = sample_a / stats.trim_mean(sample_b, 0.1)
     return sample
