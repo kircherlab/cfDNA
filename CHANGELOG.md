@@ -2,9 +2,17 @@
 
 ## develop
 
+- general changes:
+    - samples.schema.yaml
+        - added optional info field for misc. info
+        - added optional status field for sample status (e.g. disease status)
+
+
 - snakefile_WPS:
     - added dynamic .gz support
     - most intermediate files are .gz compressed
+
+
 
 ## v0.3.2
 

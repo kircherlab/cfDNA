@@ -19,6 +19,12 @@ properties:
   genome_build:
     type: string
     enum: ["GRCh37", "GRCh38"]
+  status:
+    type: string
+    description: optional filed for storing sample status (e.g. healthy,disease). can be used to label/group certain samples.
+  info:
+    type: string
+    description: contains additional, human readable info
 # columns that the config/samples.tsv file must have to pass schema validation
 required:
   - ID
