@@ -72,9 +72,9 @@ def add_sample(path_a: str, path_b: str, overlay_mode:str = "mean",):
         [Pandas Object]: [Pandas object containing normalized/processed data]
     """
 
-    if overlay_mode == "mean":
+    if overlay_mode.lower() == "mean":
         sample_a = pd.read_csv(path_a, header=None).mean()
-    elif overlay_mode == "median":
+    elif overlay_mode.lower() == "median":
         sample_a = pd.read_csv(path_a, header=None).median()
     else:
         raise ValueError(f"{overlay_mode} is not a valid keyword.")
