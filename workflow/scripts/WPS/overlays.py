@@ -60,7 +60,7 @@ def calculate_flanking_regions(val: int):
     return region
 
 
-def add_sample(path_a: str, path_b: str, overlay_mode:str,):
+def add_sample(path_a: str, path_b: str, overlay_mode:str = "mean",):
     """Reads .csv file, calculates mean over all rows and divides by trimmed mean.
 
     Args:
