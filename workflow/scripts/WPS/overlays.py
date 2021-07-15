@@ -74,12 +74,26 @@ def add_sample(path_a: str, path_b: str, overlay_mode:str = "mean",):
 
     if overlay_mode.lower() == "mean":
         sample_a = pd.read_csv(path_a, header=None).mean()
+        sample_b = pd.read_csv(path_b, header=None).mean(axis=1)
+        sample = pd.DataFrame(sample_a / stats.trim_mean(sample_b, 0.1), columns=["value"])
+        sample["position"] = calculate_flanking_regions(len(sample))
+        sample=sample.set_index("position")
     elif overlay_mode.lower() == "median":
         sample_a = pd.read_csv(path_a, header=None).median()
+        sample_b = pd.read_csv(path_b, header=None).mean(axis=1)
+        sample = pd.DataFrame(sample_a / stats.trim_mean(sample_b, 0.1), columns=["value"])
+        sample["position"] = calculate_flanking_regions(len(sample))
+        sample=sample.set_index("position")
+    elif overlay_mode.lower() == "confidence":
+        sample_a = pd.read_csv(path_a, header=None).T
+        sample_b = pd.read_csv(path_b, header=None).mean(axis=1)
+        sample = sample_a / stats.trim_mean(sample_b, 0.1)
+        sample["position"] = calculate_flanking_regions(len(sample))
+        sample = sample.set_index("position")
+        sample = sample.melt(ignore_index=False, var_name="sample_nr")
     else:
         raise ValueError(f"{overlay_mode} is not a valid keyword.")
-    sample_b = pd.read_csv(path_b, header=None).mean(axis=1)
-    sample = sample_a / stats.trim_mean(sample_b, 0.1)
+
     return sample
 
 
