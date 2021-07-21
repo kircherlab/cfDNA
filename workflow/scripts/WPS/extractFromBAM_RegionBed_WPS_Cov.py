@@ -186,7 +186,9 @@ if os.path.exists(options.input):
     if strand == "-": cov_list = cov_list[::-1]
     if strand == "-": starts_list = starts_list[::-1]
     #remove flanking regions again
+    #wps_list = wps_list[500:-500]                                                                                                                                                        
     #cov_list = cov_list[500:-500]                                                                                                                                                  
+    #starts_list = starts_list[500:-500]
 
     wps_list.insert(0,cid)                                                                                                                                                         
     cov_list.insert(0,cid)                                                                                                                                                         
