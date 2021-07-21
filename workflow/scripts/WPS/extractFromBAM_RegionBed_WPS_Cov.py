@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 """
-
 :Author: Martin Kircher
 :Contact: mkircher@uw.edu
 :Date: *03.06.2014
@@ -50,6 +49,7 @@ parser.add_option("--minInsert", dest="minInsSize", help="Minimum read length th
 parser.add_option("--maxInsert", dest="maxInsSize", help="Minimum read length threshold to consider (def None)",default=-1,type="int")
 parser.add_option("--max_length", dest="max_length", help="Assumed maximum insert size (default 1000)",default=1000,type="int")
 parser.add_option("--downsample", dest="downsample", help="Ratio to down sample reads (default OFF)",default=None,type="float")
+parser.add_option("--flank", dest="flank", help="Added flanking region to minimize edge effects(default 500)",default=500,type="int")
 parser.add_option("-v","--verbose", dest="verbose", help="Turn debug output on",default=False,action="store_true")
 (options, args) = parser.parse_args()
 
@@ -63,6 +63,7 @@ options.outfile = options.outfile.strip("""\'""")
 
 protection = options.protection//2
 
+flank = options.flank
 #validChroms = set(map(str,range(1,23)+["X","Y"]))
 #validChroms = set(map(str,range(1,23)+["X","Y"]))
 validChroms = [str(i) for i in range(1, 23)] + ["X","Y"]
@@ -87,7 +88,7 @@ if os.path.exists(options.input):
       chrom = chrom.replace("chr","")
     if chrom not in validChroms: continue
     
-    regionStart,regionEnd = int(start)-300,int(end)+300
+    regionStart,regionEnd = int(start)-flank,int(end)+flank
     
     if regionStart < 1: continue
     
