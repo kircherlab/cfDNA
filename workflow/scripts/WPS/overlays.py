@@ -7,9 +7,12 @@
 """
 
 import matplotlib
+import seaborn as sns
+from matplotlib import pyplot as plt
 import pandas as pd
 from matplotlib.backends.backend_pdf import PdfPages
 from scipy import stats
+from scipy.signal import savgol_filter
 
 matplotlib.use("pdf")
 
@@ -30,6 +33,10 @@ ref_IDs = snakemake.params["ref_IDs"]
 target = snakemake.params["target"]
 outfile = snakemake.output[0]
 overlay_mode = snakemake.params["overlay_mode"]
+smoothing = snakemake.params["smoothing"]
+rolling = snakemake.params["rolling"]
+flank_edge = 500
+
 
 # def functions
 
@@ -60,7 +67,7 @@ def calculate_flanking_regions(val: int):
     return region
 
 
-def add_sample(path_a: str, path_b: str, overlay_mode:str = "mean",):
+def add_sample(path_a: str, path_b: str, overlay_mode:str = "mean",smoothing:bool = False, rolling:bool = False, window:int = 1000, flank=flank_edge):
     """Reads .csv file, calculates mean over all rows and divides by trimmed mean.
 
     Args:
@@ -72,6 +79,13 @@ def add_sample(path_a: str, path_b: str, overlay_mode:str = "mean",):
         [Pandas Object]: [Pandas object containing normalized/processed data]
     """
 
+    if window % 2 == 0:
+        fstart=int(window/2+1)
+        fstop=int(-window/2)
+    elif window % 2 == 1:
+        fstart=int(window/2-0.5+1)
+        fstop=int(-window/2+0.5)
+    
     if overlay_mode.lower() == "mean":
         sample_a = pd.read_csv(path_a, header=None).mean()
         sample_b = pd.read_csv(path_b, header=None).mean(axis=1)
@@ -80,7 +94,7 @@ def add_sample(path_a: str, path_b: str, overlay_mode:str = "mean",):
         sample=sample.set_index("position")
     elif overlay_mode.lower() == "median":
         sample_a = pd.read_csv(path_a, header=None).median()
-        sample_b = pd.read_csv(path_b, header=None).mean(axis=1)
+        sample_b = pd.read_csv(path_b, header=None).median(axis=1)
         sample = pd.DataFrame(sample_a / stats.trim_mean(sample_b, 0.1), columns=["value"])
         sample["position"] = calculate_flanking_regions(len(sample))
         sample=sample.set_index("position")
@@ -90,10 +104,24 @@ def add_sample(path_a: str, path_b: str, overlay_mode:str = "mean",):
         sample = sample_a / stats.trim_mean(sample_b, 0.1)
         sample["position"] = calculate_flanking_regions(len(sample))
         sample = sample.set_index("position")
-        sample = sample.melt(ignore_index=False, var_name="sample_nr")
+        
     else:
         raise ValueError(f"{overlay_mode} is not a valid keyword.")
 
+    if smoothing:
+        if rolling:
+            sample = sample.apply(lambda x:savgol_filter(x,window_length=21, polyorder=2)) - sample.apply(lambda x:savgol_filter(x,window_length=21, polyorder=2)).rolling(1000, center=True).median() 
+        else:
+            sample = sample.apply(lambda x:savgol_filter(x,window_length=21, polyorder=2))
+    else:
+        if rolling:
+            sample = sample - sample.rolling(1000, center=True).median()
+    
+    sample = sample.iloc[fstart:fstop,:]
+        
+    if overlay_mode.lower() == "confidence":
+        sample = sample.melt(ignore_index=False, var_name="sample_nr")
+        
     return sample
 
 
@@ -101,30 +129,45 @@ def add_sample(path_a: str, path_b: str, overlay_mode:str = "mean",):
 # average over all regions per sample and substract the trimmed mean to normalise
 
 
-av_WPS = pd.DataFrame(add_sample(WPS, WPS_back,"mean"))
+av_WPS = pd.DataFrame(add_sample(WPS, WPS_back,overlay_mode,smoothing,rolling))
 av_WPS.columns = av_WPS.columns.astype(str)
 av_WPS.columns.values[-1] = sample_ID
 for (ref_ID, WPS_ref, WPS_back_ref) in zip(ref_IDs, WPS_refs, WPS_back_refs):
-    av_WPS[ref_ID] = add_sample(WPS_ref, WPS_back_ref,"mean")["value"]
+    av_WPS[ref_ID] = add_sample(WPS_ref, WPS_back_ref,overlay_mode,smoothing,rolling)["value"]
 
-av_COV = pd.DataFrame(add_sample(COV, COV_back,"mean"))
+av_COV = pd.DataFrame(add_sample(COV, COV_back,overlay_mode,smoothing,rolling))
 av_COV.columns = av_COV.columns.astype(str)
 av_COV.columns.values[-1] = sample_ID
 for (ref_ID, COV_ref, COV_back_ref) in zip(ref_IDs, COV_refs, COV_back_refs):
-    av_COV[ref_ID] = add_sample(COV_ref, COV_back_ref,"mean")["value"]
+    av_COV[ref_ID] = add_sample(COV_ref, COV_back_ref,overlay_mode,smoothing,rolling)["value"]
 
 # create line plots and save to a single pdf
 
+if overlay_mode.lower() == "confidence":
+    av_WPS_long=av_WPS.reset_index().melt(id_vars=["position", "sample_nr"],  value_name="score", var_name="phenotype").sort_values(by="position")
+    av_COV_long=av_COV.reset_index().melt(id_vars=["position", "sample_nr"],  value_name="score", var_name="phenotype").sort_values(by="position")
+    Fig_WPS = sns.lineplot(data=av_WPS_long, x="position", y="score", hue="phenotype",)
+    plt.suptitle("adjusted WPS: {target} target regions")
+    plt.xlabel("Position relative to target site")
+    plt.ylabel("normalized WPS")
+    plt.close()
+    Fig_Cov = sns.lineplot(data=av_COV_long, x="position", y="score", hue="phenotype",)
+    plt.suptitle(f"adjusted read coverage: {target} target regions")
+    plt.xlabel("Position relative to target site")
+    plt.ylabel("normalized read coverage")
+    plt.close()
+else:
+    Fig_WPS = sns.lineplot(data=av_WPS)
+    plt.suptitle(f"adjusted WPS: {target} target regions")
+    plt.xlabel("Position relative to target site")
+    plt.ylabel("normalized WPS")
+    plt.close()
+    Fig_Cov = sns.lineplot(data=av_COV)
+    plt.suptitle(f"adjusted read coverage: {target} target regions")
+    plt.xlabel("Position relative to target site")
+    plt.ylabel("normalized read coverage")
+    plt.close()
+
 with PdfPages(outfile) as pdf:
-    Fig_WPS = av_WPS.plot(
-        title=f"adjusted WPS: {target} target regions",
-        xlabel="Position relative to target site",
-        ylabel="normalized WPS",
-    )
-    Fig_Cov = av_COV.plot(
-        title=f"adjusted read coverage: {target} target regions",
-        xlabel="Position relative to target site",
-        ylabel="normalized read coverage",
-    )
     pdf.savefig(Fig_WPS.get_figure())
     pdf.savefig(Fig_Cov.get_figure())
