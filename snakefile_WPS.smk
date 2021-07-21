@@ -286,7 +286,9 @@ rule plot_overlays:
         target="{target_region}",
         sample="{SAMPLE}",
         ref_IDs=lambda wildcards: samples["ref_samples"][wildcards.SAMPLE].split(","),
-        overlay_mode = config["plotting"]["overlay_mode"]
+        overlay_mode = config["plotting"]["overlay_mode"],
+        smoothing = config["plotting"]["smoothing"],
+        rolling = config["plotting"]["rolling"],
     conda:
         "workflow/envs/overlays.yml"
     script:
