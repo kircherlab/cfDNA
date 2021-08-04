@@ -35,6 +35,7 @@ outfile = snakemake.output[0]
 overlay_mode = snakemake.params["overlay_mode"]
 smoothing = snakemake.params["smoothing"]
 rolling = snakemake.params["rolling"]
+background_norm = snakemake.params["background_norm"]
 flank_edge = 500
 
 
@@ -67,7 +68,7 @@ def calculate_flanking_regions(val: int):
     return region
 
 
-def add_sample(path_a: str, path_b: str, overlay_mode:str = "mean",smoothing:bool = False, rolling:bool = False, window:int = 1000, flank=flank_edge):
+def add_sample(path_a: str, path_b: str, overlay_mode:str = "mean",smoothing:bool = False, rolling:bool = False, background_norm:bool = False, window:int = 1000, flank=500):
     """Reads .csv file, calculates mean over all rows and divides by trimmed mean.
 
     Args:
@@ -88,20 +89,29 @@ def add_sample(path_a: str, path_b: str, overlay_mode:str = "mean",smoothing:boo
     
     if overlay_mode.lower() == "mean":
         sample_a = pd.read_csv(path_a, header=None).mean()
-        sample_b = pd.read_csv(path_b, header=None).mean(axis=1)
-        sample = pd.DataFrame(sample_a / stats.trim_mean(sample_b, 0.1), columns=["value"])
+        if background_norm:
+            sample_b = pd.read_csv(path_b, header=None).mean(axis=1)
+            sample = pd.DataFrame(sample_a / stats.trim_mean(sample_b, 0.1), columns=["value"])
+        else:
+            sample = pd.DataFrame(sample_a, columns=["value"])
         sample["position"] = calculate_flanking_regions(len(sample))
         sample=sample.set_index("position")
     elif overlay_mode.lower() == "median":
         sample_a = pd.read_csv(path_a, header=None).median()
-        sample_b = pd.read_csv(path_b, header=None).median(axis=1)
-        sample = pd.DataFrame(sample_a / stats.trim_mean(sample_b, 0.1), columns=["value"])
+        if background_norm:
+            sample_b = pd.read_csv(path_b, header=None).median(axis=1)
+            sample = pd.DataFrame(sample_a / stats.trim_mean(sample_b, 0.1), columns=["value"])
+        else:
+            sample = pd.DataFrame(sample_a, columns=["value"])
         sample["position"] = calculate_flanking_regions(len(sample))
         sample=sample.set_index("position")
     elif overlay_mode.lower() == "confidence":
         sample_a = pd.read_csv(path_a, header=None).T
-        sample_b = pd.read_csv(path_b, header=None).mean(axis=1)
-        sample = sample_a / stats.trim_mean(sample_b, 0.1)
+        if background_norm:
+            sample_b = pd.read_csv(path_b, header=None).mean(axis=1)
+            sample = sample_a / stats.trim_mean(sample_b, 0.1)
+        else:
+            sample = sample_a
         sample["position"] = calculate_flanking_regions(len(sample))
         sample = sample.set_index("position")
         
@@ -129,17 +139,17 @@ def add_sample(path_a: str, path_b: str, overlay_mode:str = "mean",smoothing:boo
 # average over all regions per sample and substract the trimmed mean to normalise
 
 
-av_WPS = pd.DataFrame(add_sample(WPS, WPS_back,overlay_mode,smoothing,rolling))
+av_WPS = pd.DataFrame(add_sample(WPS, WPS_back,overlay_mode,smoothing,rolling,background_norm))
 av_WPS.columns = av_WPS.columns.astype(str)
 av_WPS.columns.values[-1] = sample_ID
 for (ref_ID, WPS_ref, WPS_back_ref) in zip(ref_IDs, WPS_refs, WPS_back_refs):
-    av_WPS[ref_ID] = add_sample(WPS_ref, WPS_back_ref,overlay_mode,smoothing,rolling)["value"]
+    av_WPS[ref_ID] = add_sample(WPS_ref, WPS_back_ref,overlay_mode,smoothing,rolling,background_norm)["value"]
 
-av_COV = pd.DataFrame(add_sample(COV, COV_back,overlay_mode,smoothing,rolling))
+av_COV = pd.DataFrame(add_sample(COV, COV_back,overlay_mode,smoothing,rolling, background_norm))
 av_COV.columns = av_COV.columns.astype(str)
 av_COV.columns.values[-1] = sample_ID
 for (ref_ID, COV_ref, COV_back_ref) in zip(ref_IDs, COV_refs, COV_back_refs):
-    av_COV[ref_ID] = add_sample(COV_ref, COV_back_ref,overlay_mode,smoothing,rolling)["value"]
+    av_COV[ref_ID] = add_sample(COV_ref, COV_back_ref,overlay_mode,smoothing,rolling,background_norm)["value"]
 
 # create line plots and save to a single pdf
 

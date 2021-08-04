@@ -33,6 +33,7 @@ plotting:
   overlay_mode: "mean" # can be either mean, median, or confidence
   smoothing: True # bool; apply Savitzky-Golay filter or not
   rolling: True # bool; smooth by substracting the rolling median
+  background_norm: True # bool, normalize with random background or not
 
 
 ## unsupervised 

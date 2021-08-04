@@ -289,6 +289,7 @@ rule plot_overlays:
         overlay_mode = config["plotting"]["overlay_mode"],
         smoothing = config["plotting"]["smoothing"],
         rolling = config["plotting"]["rolling"],
+        background_norm = config["plotting"]["background_norm"]
     conda:
         "workflow/envs/overlays.yml"
     script:
