@@ -110,7 +110,8 @@ rule extract_counts:
         target=(
             "results/intermediate/transcriptAnno/transcriptAnno-{GENOME}.103.body.bed.gz"
         ),
-        BAMFILE=lambda wildcards: samples["path"][wildcards.SAMPLE],
+        BAMFILE="results/intermediate/{ID}/GCcorrect/{GENOME}/{SAMPLE}_gc_weighted.bam",
+        #BAMFILE=lambda wildcards: samples["path"][wildcards.SAMPLE],
     output:
         WPS="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_WPS.{GENOME}.csv",
         COV="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_COV.{GENOME}.csv",
@@ -133,7 +134,8 @@ rule extract_counts:
 rule extract_counts_background:
     input:
         background="results/intermediate/transcriptAnno/transcriptAnno_background-{GENOME}.103.body.bed.gz",
-        BAMFILE=lambda wildcards: samples["path"][wildcards.SAMPLE],
+        BAMFILE="results/intermediate/{ID}/GCcorrect/{GENOME}/{SAMPLE}_gc_weighted.bam",
+        #BAMFILE=lambda wildcards: samples["path"][wildcards.SAMPLE],
     output:
         WPS="results/intermediate/{ID}/background_region/table/transcriptanno_{SAMPLE}_WPS_background.{GENOME}.csv",
         COV="results/intermediate/{ID}/background_region/table/transcriptanno_{SAMPLE}_COV_background.{GENOME}.csv",
