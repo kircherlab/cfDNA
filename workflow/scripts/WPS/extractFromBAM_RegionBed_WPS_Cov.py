@@ -51,6 +51,7 @@ parser.add_option("--max_length", dest="max_length", help="Assumed maximum inser
 parser.add_option("--downsample", dest="downsample", help="Ratio to down sample reads (default OFF)",default=None,type="float")
 parser.add_option("--flank", dest="flank", help="Added flanking region to minimize edge effects(default 500)",default=500,type="int")
 parser.add_option("-v","--verbose", dest="verbose", help="Turn debug output on",default=False,action="store_true")
+parser.add_option("-g","--GC_weighted", dest="GC_weighted", help="Calculate scores based on GC weights",default=False,action="store_true")
 (options, args) = parser.parse_args()
 
 minInsSize,maxInsSize = None,None
@@ -62,7 +63,7 @@ if options.minInsSize > 0 and options.maxInsSize > 0 and options.minInsSize < op
 options.outfile = options.outfile.strip("""\'""")
 
 protection = options.protection//2
-
+gc_correct =  options.GC_weighted
 flank = options.flank
 #validChroms = set(map(str,range(1,23)+["X","Y"]))
 #validChroms = set(map(str,range(1,23)+["X","Y"]))
@@ -127,15 +128,27 @@ if os.path.exists(options.input):
               rend = rstart+lseq-1 # end included
               if minInsSize != None and ((lseq < minInsSize) or (lseq > maxInsSize)): continue
               
-              filteredReads.add_interval(Interval(rstart,rend))
+              #filteredReads.add_interval(Interval(rstart,rend))
               #print read.qname,rstart,rend,rend-rstart,abs(read.isize)
-              for i in range(rstart,rend+1):
-                if i >= regionStart and i <= regionEnd:
-                  posRange[i][0]+=1
-              if rstart >= regionStart and rstart <= regionEnd:
-                posRange[rstart][1]+=1
-              if rend >= regionStart and rend <= regionEnd:
-                posRange[rend][1]+=1
+              if gc_correct:
+                tag=round(dict(read.tags)["YC"],2)
+                filteredReads.add_interval(Interval(rstart,rend, value={'YC':tag}))
+                for i in range(rstart,rend+1):
+                  if i >= regionStart and i <= regionEnd:
+                    posRange[i][0]+=tag #round(dict(read.tags)["YC"],2)
+                if rstart >= regionStart and rstart <= regionEnd:
+                  posRange[rstart][1]+=tag #round(dict(read.tags)["YC"],2)
+                if rend >= regionStart and rend <= regionEnd:
+                  posRange[rend][1]+=tag #round(dict(read.tags)["YC"],2)
+              else:
+                filteredReads.add_interval(Interval(rstart,rend))
+                for i in range(rstart,rend+1):
+                  if i >= regionStart and i <= regionEnd:
+                    posRange[i][0]+=1
+                if rstart >= regionStart and rstart <= regionEnd:
+                  posRange[rstart][1]+=1
+                if rend >= regionStart and rend <= regionEnd:
+                  posRange[rend][1]+=1
           else:
             if options.downsample != None and random.random() >= options.downsample: continue
             rstart = read.pos+1 # 1-based
@@ -143,22 +156,41 @@ if os.path.exists(options.input):
             rend = rstart+lseq-1 # end included
             if minInsSize != None and ((lseq < minInsSize) or (lseq > maxInsSize)): continue
             
-            filteredReads.add_interval(Interval(rstart,rend))
+            #filteredReads.add_interval(Interval(rstart,rend))
             #print read.qname,rstart,rend,rend-rstart,aln_length(read.cigar)
-            for i in range(rstart,rend+1):
-              if i >= regionStart and i <= regionEnd:
-                posRange[i][0]+=1
-            if ((options.merged or read.qname.startswith('M_')) or ((options.trimmed or read.qname.startswith('T_')) and read.qlen <= options.lengthSR-10)):
-              if (rstart >= regionStart and rstart <= regionEnd):
-                posRange[rstart][1]+=1
-              if rend >= regionStart and rend <= regionEnd:
-                posRange[rend][1]+=1
-            elif read.is_reverse:
-              if rend >= regionStart and rend <= regionEnd:
-                posRange[rend][1]+=1
+            if gc_correct:
+              tag=round(dict(read.tags)["YC"],2)
+              filteredReads.add_interval(Interval(rstart,rend, value={'YC':tag}))
+              for i in range(rstart,rend+1):
+                if i >= regionStart and i <= regionEnd:
+                  posRange[i][0]+=tag #round(dict(read.tags)["YC"],2)
+              if ((options.merged or read.qname.startswith('M_')) or ((options.trimmed or read.qname.startswith('T_')) and read.qlen <= options.lengthSR-10)):
+                if (rstart >= regionStart and rstart <= regionEnd):
+                  posRange[rstart][1]+=tag #round(dict(read.tags)["YC"],2)
+                if rend >= regionStart and rend <= regionEnd:
+                  posRange[rend][1]+=tag #round(dict(read.tags)["YC"],2)
+              elif read.is_reverse:
+                if rend >= regionStart and rend <= regionEnd:
+                  posRange[rend][1]+=tag #round(dict(read.tags)["YC"],2)
+              else:
+                if (rstart >= regionStart and rstart <= regionEnd):
+                  posRange[rstart][1]+=tag #round(dict(read.tags)["YC"],2)
             else:
-              if (rstart >= regionStart and rstart <= regionEnd):
-                posRange[rstart][1]+=1
+              filteredReads.add_interval(Interval(rstart,rend))
+              for i in range(rstart,rend+1):
+                if i >= regionStart and i <= regionEnd:
+                  posRange[i][0]+=1
+              if ((options.merged or read.qname.startswith('M_')) or ((options.trimmed or read.qname.startswith('T_')) and read.qlen <= options.lengthSR-10)):
+                if (rstart >= regionStart and rstart <= regionEnd):
+                  posRange[rstart][1]+=1
+                if rend >= regionStart and rend <= regionEnd:
+                  posRange[rend][1]+=1
+              elif read.is_reverse:
+                if rend >= regionStart and rend <= regionEnd:
+                  posRange[rend][1]+=1
+              else:
+                if (rstart >= regionStart and rstart <= regionEnd):
+                  posRange[rstart][1]+=1
       else:
         sys.stderr.write("Using min/max length cutoffs: %d/%d\n"%(minInsSize,maxInsSize))
 
@@ -174,8 +206,15 @@ if os.path.exists(options.input):
       rstart,rend = pos-protection,pos+protection
       gcount,bcount = 0,0
       for read in filteredReads.find(rstart,rend):
-        if (read.start > rstart) or (read.end < rend): bcount +=1
-        else: gcount +=1
+        if gc_correct:
+          # add weights attached to read tag 
+          if (read.start > rstart) or (read.end < rend): bcount +=read.value["YC"]
+          else: gcount +=read.value["YC"]
+        else:
+          # add read counts based on present reads
+          if (read.start > rstart) or (read.end < rend): bcount +=1
+          else: gcount +=1
+      # need rework for posRange -> work with reads instead of rstart/rend
       covCount,startCount = posRange[pos]
       cov_sites += covCount
       outLines.append("%s\t%d\t%d\t%d\t%d\n"%(chrom,pos,covCount,startCount,gcount-bcount))
