@@ -68,9 +68,9 @@ def add_sample(path_a: str, path_b: str):
     Returns:
         [type]: [description]
     """
-    sample_a = pd.read_csv(path_a, header=None).mean()
-    sample_b = pd.read_csv(path_b, header=None).mean(axis=1)
-    sample = sample_a / stats.trim_mean(sample_b, 0.1)
+    sample_a = pd.read_csv(path_a, header=None).iloc[:,1:].mean() # average across regions
+    sample_b = pd.read_csv(path_b, header=None).iloc[:,1:].mean(axis=1) # average coverage regions
+    sample = sample_a / stats.trim_mean(sample_b, 0.1) # remove extreme regions
     return sample
 
 
@@ -79,17 +79,21 @@ def add_sample(path_a: str, path_b: str):
 
 
 av_WPS = pd.DataFrame()
+sys.stderr.write("WPS [%s]: %s %s\n"%(sample_ID,COV, COV_back))
 av_WPS[sample_ID] = add_sample(WPS, WPS_back)
 for (ref_ID, WPS_ref, WPS_back_ref) in zip(ref_IDs, WPS_refs, WPS_back_refs):
+    sys.stderr.write("WPS [%s]: %s %s\n"%(ref_ID, WPS_ref, WPS_back_ref))
     av_WPS[ref_ID] = add_sample(WPS_ref, WPS_back_ref)
 
 av_WPS["position"] = calculate_flanking_regions(len(av_WPS))
 av_WPS = av_WPS.set_index("position")
 
 av_COV = pd.DataFrame()
+sys.stderr.write("COV [%s]: %s %s\n"%(sample_ID, COV, COV_back))
 av_COV[sample_ID] = add_sample(COV, COV_back)
 for (ref_ID, COV_ref, COV_back_ref) in zip(ref_IDs, COV_refs, COV_back_refs):
-    av_COV[ref_ID] = add_sample(COV_ref, COV_ref)
+    sys.stderr.write("COV [%s]: %s %s\n"%(ref_ID, COV_ref, COV_back_ref))
+    av_COV[ref_ID] = add_sample(COV_ref, COV_back_ref)
 
 av_COV["position"] = calculate_flanking_regions(len(av_COV))
 av_COV = av_COV.set_index("position")
