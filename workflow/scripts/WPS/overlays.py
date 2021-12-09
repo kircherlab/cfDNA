@@ -88,27 +88,27 @@ def add_sample(path_a: str, path_b: str, overlay_mode:str = "mean",smoothing:boo
         fstop=int(-window/2+0.5)
     
     if overlay_mode.lower() == "mean":
-        sample_a = pd.read_csv(path_a, header=None).mean()
+        sample_a = pd.read_csv(path_a, header=None).iloc[:,1:].mean()
         if background_norm:
-            sample_b = pd.read_csv(path_b, header=None).mean(axis=1)
+            sample_b = pd.read_csv(path_b, header=None).iloc[:,1:].mean(axis=1)
             sample = pd.DataFrame(sample_a / stats.trim_mean(sample_b, 0.1), columns=["value"])
         else:
             sample = pd.DataFrame(sample_a, columns=["value"])
         sample["position"] = calculate_flanking_regions(len(sample))
         sample=sample.set_index("position")
     elif overlay_mode.lower() == "median":
-        sample_a = pd.read_csv(path_a, header=None).median()
+        sample_a = pd.read_csv(path_a, header=None).iloc[:,1:].median()
         if background_norm:
-            sample_b = pd.read_csv(path_b, header=None).median(axis=1)
+            sample_b = pd.read_csv(path_b, header=None).iloc[:,1:].median(axis=1)
             sample = pd.DataFrame(sample_a / stats.trim_mean(sample_b, 0.1), columns=["value"])
         else:
             sample = pd.DataFrame(sample_a, columns=["value"])
         sample["position"] = calculate_flanking_regions(len(sample))
         sample=sample.set_index("position")
     elif overlay_mode.lower() == "confidence":
-        sample_a = pd.read_csv(path_a, header=None).T
+        sample_a = pd.read_csv(path_a, header=None).iloc[:,1:].T
         if background_norm:
-            sample_b = pd.read_csv(path_b, header=None).mean(axis=1)
+            sample_b = pd.read_csv(path_b, header=None).iloc[:,1:].mean(axis=1)
             sample = sample_a / stats.trim_mean(sample_b, 0.1)
         else:
             sample = sample_a
