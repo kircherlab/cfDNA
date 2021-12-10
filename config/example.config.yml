@@ -27,6 +27,15 @@ GRCh38:
   universal_blacklist: "resources/blacklists/universal_blacklist.hg38.bed" # UCSC_gap + ENCODE blacklist combined file in .bed format
   transcriptAnno: "resources/annotations/transcriptAnno-GRCh38.103.tsv.gz" # file containing TSSs
 
+### WPS
+
+plotting:
+  overlay_mode: "mean" # can be either mean, median, or confidence
+  smoothing: True # bool; apply Savitzky-Golay filter or not
+  rolling: True # bool; smooth by substracting the rolling median
+  background_norm: True # bool, normalize with random background or not
+
+
 ## unsupervised 
 
 unsupervised:

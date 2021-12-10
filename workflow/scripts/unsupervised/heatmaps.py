@@ -22,7 +22,7 @@ for ID,path in zip(input_IDs,input_files):
     indf = indf.loc[:,(indf.columns.astype(int) >= int(min_freq)) & (indf.columns.astype(int) <= int(max_freq))]
     FFT_df[ID]=indf.values.flatten()
 
-sns.set_theme(context='notebook', style='darkgrid', palette='deep', font='sans-serif', font_scale=1.5, color_codes=True, rc={'figure.figsize':(14.7,12.27)})
+sns.set_theme(context='notebook', style='darkgrid', palette='deep', font='sans-serif', font_scale=1.5, color_codes=True, rc={'figure.figsize':(20,15)})
 
 FFT_spearman = FFT_df.sort_index(axis=1).corr(method="spearman")
 
