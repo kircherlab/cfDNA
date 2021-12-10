@@ -140,15 +140,19 @@ def add_sample(path_a: str, path_b: str, overlay_mode:str = "mean",smoothing:boo
 
 
 av_WPS = pd.DataFrame(add_sample(WPS, WPS_back,overlay_mode,smoothing,rolling,background_norm))
+sys.stderr.write("WPS [%s]: %s %s\n"%(sample_ID,COV, COV_back))
 av_WPS.columns = av_WPS.columns.astype(str)
 av_WPS.columns.values[-1] = sample_ID
 for (ref_ID, WPS_ref, WPS_back_ref) in zip(ref_IDs, WPS_refs, WPS_back_refs):
+    sys.stderr.write("WPS [%s]: %s %s\n"%(ref_ID, WPS_ref, WPS_back_ref))
     av_WPS[ref_ID] = add_sample(WPS_ref, WPS_back_ref,overlay_mode,smoothing,rolling,background_norm)["value"]
 
 av_COV = pd.DataFrame(add_sample(COV, COV_back,overlay_mode,smoothing,rolling, background_norm))
+sys.stderr.write("COV [%s]: %s %s\n"%(sample_ID, COV, COV_back))
 av_COV.columns = av_COV.columns.astype(str)
 av_COV.columns.values[-1] = sample_ID
 for (ref_ID, COV_ref, COV_back_ref) in zip(ref_IDs, COV_refs, COV_back_refs):
+    sys.stderr.write("COV [%s]: %s %s\n"%(ref_ID, COV_ref, COV_back_ref))
     av_COV[ref_ID] = add_sample(COV_ref, COV_back_ref,overlay_mode,smoothing,rolling,background_norm)["value"]
 
 # create line plots and save to a single pdf
