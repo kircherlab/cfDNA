@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 """
+
 :Author: Martin Kircher
 :Contact: mkircher@uw.edu
 :Date: *03.06.2014
@@ -93,7 +94,6 @@ if not options.onefile:
 
 protection = options.protection//2
 
-flank = options.flank
 #validChroms = set(map(str,range(1,23)+["X","Y"]))
 #validChroms = set(map(str,range(1,23)+["X","Y"]))
 #validChroms = [str(i) for i in range(1, 23)] + ["X","Y"]
