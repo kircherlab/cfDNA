@@ -116,6 +116,7 @@ rule extract_counts:
         COV="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_COV.{GENOME}.csv",
         STARTS="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_STARTS.{GENOME}.csv",
     params:
+        #weights="-g",
         minRL=config["minRL"],
         maxRL=config["maxRL"],
         out_pre="results/intermediate/{ID}/table/transcriptanno_{SAMPLE}_%s.{GENOME}.csv",
@@ -139,6 +140,7 @@ rule extract_counts_background:
         COV="results/intermediate/{ID}/background_region/table/transcriptanno_{SAMPLE}_COV_background.{GENOME}.csv",
         STARTS="results/intermediate/{ID}/background_region/table/transcriptanno_{SAMPLE}_STARTS_background.{GENOME}.csv",
     params:
+        #weights="-g",
         minRL=config["minRL"],
         maxRL=config["maxRL"],
         out_pre="results/intermediate/{ID}/background_region/table/transcriptanno_{SAMPLE}_%s_background.{GENOME}.csv",

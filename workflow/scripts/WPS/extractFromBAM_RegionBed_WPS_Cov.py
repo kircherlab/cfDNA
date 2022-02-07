@@ -93,7 +93,8 @@ if not options.onefile:
   outfiles = { 'WPS':gzip.open(options.outfile%"WPS",'wt'), 'COV':gzip.open(options.outfile%"COV",'wt'), 'STARTS':gzip.open(options.outfile%"STARTS",'wt') }
 
 protection = options.protection//2
-
+gc_correct =  options.GC_weighted
+flank = options.flank
 #validChroms = set(map(str,range(1,23)+["X","Y"]))
 #validChroms = set(map(str,range(1,23)+["X","Y"]))
 #validChroms = [str(i) for i in range(1, 23)] + ["X","Y"]
@@ -149,17 +150,31 @@ for chrom,start,end,cid,score,strand in regionIterator:
               lseq = abs(read.isize)
               rend = rstart+lseq-1 # end included
               if minInsSize != None and ((lseq < minInsSize) or (lseq > maxInsSize)): continue
-
-              #if options.verbose: sys.stderr.write("Adding interval for read...\n")
-              filteredReads.add_interval(Interval(rstart,rend))
+              
+              #filteredReads.add_interval(Interval(rstart,rend))
               #print read.qname,rstart,rend,rend-rstart,abs(read.isize)
-              for i in range(rstart,rend+1):
-                if i >= regionStart and i <= regionEnd:
-                  posRange[i][0]+=1
-              if rstart >= regionStart and rstart <= regionEnd:
-                posRange[rstart][1]+=1
-              if rend >= regionStart and rend <= regionEnd:
-                posRange[rend][1]+=1
+              if gc_correct:
+                try:
+                  tag=round(dict(read.tags)["YC"],2)
+                except KeyError as e:
+                  tag=1
+                filteredReads.add_interval(Interval(rstart,rend, value={'YC':tag}))
+                for i in range(rstart,rend+1):
+                  if i >= regionStart and i <= regionEnd:
+                    posRange[i][0]+=tag #round(dict(read.tags)["YC"],2)
+                if rstart >= regionStart and rstart <= regionEnd:
+                  posRange[rstart][1]+=tag #round(dict(read.tags)["YC"],2)
+                if rend >= regionStart and rend <= regionEnd:
+                  posRange[rend][1]+=tag #round(dict(read.tags)["YC"],2)
+              else:
+                filteredReads.add_interval(Interval(rstart,rend))
+                for i in range(rstart,rend+1):
+                  if i >= regionStart and i <= regionEnd:
+                    posRange[i][0]+=1
+                if rstart >= regionStart and rstart <= regionEnd:
+                  posRange[rstart][1]+=1
+                if rend >= regionStart and rend <= regionEnd:
+                  posRange[rend][1]+=1
           else:
             if options.downsample != None and random.random() >= options.downsample: continue
             rstart = read.pos+1 # 1-based
@@ -167,22 +182,44 @@ for chrom,start,end,cid,score,strand in regionIterator:
             rend = rstart+lseq-1 # end included
             if minInsSize != None and ((lseq < minInsSize) or (lseq > maxInsSize)): continue
             
-            filteredReads.add_interval(Interval(rstart,rend))
+            #filteredReads.add_interval(Interval(rstart,rend))
             #print read.qname,rstart,rend,rend-rstart,aln_length(read.cigar)
-            for i in range(rstart,rend+1):
-              if i >= regionStart and i <= regionEnd:
-                posRange[i][0]+=1
-            if ((options.merged or read.qname.startswith('M_')) or ((options.trimmed or read.qname.startswith('T_')) and read.qlen <= options.lengthSR-10)):
-              if (rstart >= regionStart and rstart <= regionEnd):
-                posRange[rstart][1]+=1
-              if rend >= regionStart and rend <= regionEnd:
-                posRange[rend][1]+=1
-            elif read.is_reverse:
-              if rend >= regionStart and rend <= regionEnd:
-                posRange[rend][1]+=1
+            if gc_correct:
+              try:
+                tag=round(dict(read.tags)["YC"],2)
+              except KeyError as e:
+                tag=1
+              filteredReads.add_interval(Interval(rstart,rend, value={'YC':tag}))
+              for i in range(rstart,rend+1):
+                if i >= regionStart and i <= regionEnd:
+                  posRange[i][0]+=tag #round(dict(read.tags)["YC"],2)
+              if ((options.merged or read.qname.startswith('M_')) or ((options.trimmed or read.qname.startswith('T_')) and read.qlen <= options.lengthSR-10)):
+                if (rstart >= regionStart and rstart <= regionEnd):
+                  posRange[rstart][1]+=tag #round(dict(read.tags)["YC"],2)
+                if rend >= regionStart and rend <= regionEnd:
+                  posRange[rend][1]+=tag #round(dict(read.tags)["YC"],2)
+              elif read.is_reverse:
+                if rend >= regionStart and rend <= regionEnd:
+                  posRange[rend][1]+=tag #round(dict(read.tags)["YC"],2)
+              else:
+                if (rstart >= regionStart and rstart <= regionEnd):
+                  posRange[rstart][1]+=tag #round(dict(read.tags)["YC"],2)
             else:
-              if (rstart >= regionStart and rstart <= regionEnd):
-                posRange[rstart][1]+=1
+              filteredReads.add_interval(Interval(rstart,rend))
+              for i in range(rstart,rend+1):
+                if i >= regionStart and i <= regionEnd:
+                  posRange[i][0]+=1
+              if ((options.merged or read.qname.startswith('M_')) or ((options.trimmed or read.qname.startswith('T_')) and read.qlen <= options.lengthSR-10)):
+                if (rstart >= regionStart and rstart <= regionEnd):
+                  posRange[rstart][1]+=1
+                if rend >= regionStart and rend <= regionEnd:
+                  posRange[rend][1]+=1
+              elif read.is_reverse:
+                if rend >= regionStart and rend <= regionEnd:
+                  posRange[rend][1]+=1
+              else:
+                if (rstart >= regionStart and rstart <= regionEnd):
+                  posRange[rstart][1]+=1
       else:
         sys.stderr.write("File without BAM index skipping: %s\n"%(bamfile))
         if options.verbose: sys.stderr.write("Warning: without input reads, output files will be populated with zero/empty values.\n")
@@ -200,12 +237,15 @@ for chrom,start,end,cid,score,strand in regionIterator:
       rstart,rend = pos-protection,pos+protection
       gcount,bcount,ecount = 0.0,0.0,0.0
       for read in filteredReads.find(rstart,rend):
-        if (read.start > rstart):
-          bcount += 1.0
-        elif (read.end < rend): 
-          ecount += 1.0
-        else: 
-          gcount += 1.0
+        if gc_correct:
+          # add weights attached to read tag 
+          if (read.start > rstart) or (read.end < rend): bcount +=read.value["YC"]
+          else: gcount +=read.value["YC"]
+        else:
+          # add read counts based on present reads
+          if (read.start > rstart) or (read.end < rend): bcount +=1
+          else: gcount +=1
+      # need rework for posRange -> work with reads instead of rstart/rend
       covCount,startCount = posRange[pos]
       cov_sites += covCount
       wpsValue = gcount-(bcount+ecount)

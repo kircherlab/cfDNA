@@ -153,7 +153,6 @@ rule all:
             target_region=regions["target"],
         ),
 
-
 rule add_flanks:
     input:
         Region_file=lambda wildcards: regions["path"][wildcards.target_region],
@@ -207,7 +206,6 @@ rule generate_random_background:
         gzip -c > {output}
         """
 
-
 rule extract_counts:
     input:
         target="results/intermediate/{ID}/regions/{GENOME}/target_region/{target_region}_blacklist-excluded.bed.gz",
@@ -217,6 +215,7 @@ rule extract_counts:
         COV="results/intermediate/{ID}/table/{GENOME}/target/{target_region}--{SAMPLE}_COV.csv.gz",
         STARTS="results/intermediate/{ID}/table/{GENOME}/target/{target_region}--{SAMPLE}_STARTS.csv.gz",
     params:
+        #weights="-g",
         minRL=config["minRL"],
         maxRL=config["maxRL"],
         out_pre="results/intermediate/{ID}/table/{GENOME}/target/{target_region}--{SAMPLE}_%s.csv.gz",
@@ -241,6 +240,7 @@ rule extract_counts_background:
         COV="results/intermediate/{ID}/table/{GENOME}/background/{target_region}--{SAMPLE}_COV.background.csv.gz",
         STARTS="results/intermediate/{ID}/table/{GENOME}/background/{target_region}--{SAMPLE}_STARTS.background.csv.gz",
     params:
+        #weights="-g",
         minRL=config["minRL"],
         maxRL=config["maxRL"],
         out_pre="results/intermediate/{ID}/table/{GENOME}/background/{target_region}--{SAMPLE}_%s.background.csv.gz",

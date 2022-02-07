@@ -88,18 +88,18 @@ def add_sample(path_a: str, path_b: str, overlay_mode:str = "mean",smoothing:boo
         fstop=int(-window/2+0.5)
     
     if overlay_mode.lower() == "mean":
-        sample_a = pd.read_csv(path_a, header=None).iloc[:,1:].mean()
+        sample_a = pd.read_csv(path_a, header=None).iloc[:,1:].mean(numeric_only=True)
         if background_norm:
-            sample_b = pd.read_csv(path_b, header=None).iloc[:,1:].mean(axis=1)
+            sample_b = pd.read_csv(path_b, header=None).iloc[:,1:].mean(numeric_only=True, axis=1)
             sample = pd.DataFrame(sample_a / stats.trim_mean(sample_b, 0.1), columns=["value"])
         else:
             sample = pd.DataFrame(sample_a, columns=["value"])
         sample["position"] = calculate_flanking_regions(len(sample))
         sample=sample.set_index("position")
     elif overlay_mode.lower() == "median":
-        sample_a = pd.read_csv(path_a, header=None).iloc[:,1:].median()
+        sample_a = pd.read_csv(path_a, header=None).iloc[:,1:].median(numeric_only=True)
         if background_norm:
-            sample_b = pd.read_csv(path_b, header=None).iloc[:,1:].median(axis=1)
+            sample_b = pd.read_csv(path_b, header=None).iloc[:,1:].median(numeric_only=True, axis=1)
             sample = pd.DataFrame(sample_a / stats.trim_mean(sample_b, 0.1), columns=["value"])
         else:
             sample = pd.DataFrame(sample_a, columns=["value"])
@@ -108,7 +108,7 @@ def add_sample(path_a: str, path_b: str, overlay_mode:str = "mean",smoothing:boo
     elif overlay_mode.lower() == "confidence":
         sample_a = pd.read_csv(path_a, header=None).iloc[:,1:].T
         if background_norm:
-            sample_b = pd.read_csv(path_b, header=None).iloc[:,1:].mean(axis=1)
+            sample_b = pd.read_csv(path_b, header=None).iloc[:,1:].mean(numeric_only=True, axis=1)
             sample = sample_a / stats.trim_mean(sample_b, 0.1)
         else:
             sample = sample_a
@@ -125,7 +125,7 @@ def add_sample(path_a: str, path_b: str, overlay_mode:str = "mean",smoothing:boo
             sample = sample.apply(lambda x:savgol_filter(x,window_length=21, polyorder=2))
     else:
         if rolling:
-            sample = sample - sample.rolling(1000, center=True).median()
+            sample = sample - sample.rolling(1000, center=True).median(numeric_only=True)
     
     sample = sample.iloc[fstart:fstop,:]
         
