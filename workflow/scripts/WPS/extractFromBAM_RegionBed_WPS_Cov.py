@@ -131,7 +131,10 @@ if os.path.exists(options.input):
               #filteredReads.add_interval(Interval(rstart,rend))
               #print read.qname,rstart,rend,rend-rstart,abs(read.isize)
               if gc_correct:
-                tag=round(dict(read.tags)["YC"],2)
+                try:
+                  tag=round(dict(read.tags)["YC"],2)
+                except KeyError as e:
+                  tag=1
                 filteredReads.add_interval(Interval(rstart,rend, value={'YC':tag}))
                 for i in range(rstart,rend+1):
                   if i >= regionStart and i <= regionEnd:
@@ -159,7 +162,10 @@ if os.path.exists(options.input):
             #filteredReads.add_interval(Interval(rstart,rend))
             #print read.qname,rstart,rend,rend-rstart,aln_length(read.cigar)
             if gc_correct:
-              tag=round(dict(read.tags)["YC"],2)
+              try:
+                tag=round(dict(read.tags)["YC"],2)
+              except KeyError as e:
+                tag=1
               filteredReads.add_interval(Interval(rstart,rend, value={'YC':tag}))
               for i in range(rstart,rend+1):
                 if i >= regionStart and i <= regionEnd:
