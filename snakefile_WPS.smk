@@ -158,11 +158,6 @@ rule all:
             ),
             target_region=regions["target"],
         ),
-        expand("results/intermediate/{ID}/GCcorrect/{GENOME}/{SAMPLE}_GCbias.txt",
-                SAMPLE=samples["sample"],
-                ID=samples["ID"],
-                GENOME=samples["genome_build"],)
-
 
 rule add_flanks:
     input:
@@ -217,64 +212,16 @@ rule generate_random_background:
         gzip -c > {output}
         """
 
-rule computeGCbias:
-    input: 
-        BAMFILE = lambda wildcards: samples["path"][wildcards.SAMPLE],
-        twobit_genome = lambda wildcards: config[wildcards.GENOME]["2bit_ref"],
-    output:
-        GCfreqfile="results/intermediate/{ID}/GCcorrect/{GENOME}/{SAMPLE}_GCbias.txt"
-    params:
-        effectiveGenomeSize=2864785220,
-        read_length = 150
-    conda:
-        "workflow/envs/GC_correction.yml"
-    shell:
-        """
-        computeGCBias -b {input.BAMFILE} \
-        --effectiveGenomeSize {params.effectiveGenomeSize} \
-        -g {input.twobit_genome} \
-        -l {params.read_length} \
-        --GCbiasFrequenciesFile {output.GCfreqfile}
-        """
-
-rule correctGCbias:
-    input: 
-        BAMFILE = lambda wildcards: samples["path"][wildcards.SAMPLE],
-        twobit_genome = lambda wildcards: config[wildcards.GENOME]["2bit_ref"],
-        GCfreqfile="results/intermediate/{ID}/GCcorrect/{GENOME}/{SAMPLE}_GCbias.txt",
-    output:
-        gc_weighted_bam="results/intermediate/{ID}/GCcorrect/{GENOME}/{SAMPLE}_gc_weighted.bam"
-    params:
-        GC_weights="-w",
-        effectiveGenomeSize=2864785220,
-        read_length = 150
-    conda:
-        "workflow/envs/GC_correction.yml"
-    threads: 8
-    shell:
-        """
-        correctGCBias -b {input.BAMFILE} \
-        --effectiveGenomeSize {params.effectiveGenomeSize} \
-        -g {input.twobit_genome} \
-        --GCbiasFrequenciesFile {input.GCfreqfile} \
-        -p {threads} \
-        {params.GC_weights} \
-        -o {output.gc_weighted_bam}
-        """
-
-
-
 rule extract_counts:
     input:
         target="results/intermediate/{ID}/regions/{GENOME}/target_region/{target_region}_blacklist-excluded.bed.gz",
-        BAMFILE="results/intermediate/{ID}/GCcorrect/{GENOME}/{SAMPLE}_gc_weighted.bam",
-        #BAMFILE=lambda wildcards: samples["path"][wildcards.SAMPLE],
+        BAMFILE=lambda wildcards: samples["path"][wildcards.SAMPLE],
     output:
         WPS="results/intermediate/{ID}/table/{GENOME}/target/{target_region}--{SAMPLE}_WPS.csv",
         COV="results/intermediate/{ID}/table/{GENOME}/target/{target_region}--{SAMPLE}_COV.csv",
         STARTS="results/intermediate/{ID}/table/{GENOME}/target/{target_region}--{SAMPLE}_STARTS.csv",
     params:
-        weights="-g",
+        #weights="-g",
         minRL=config["minRL"],
         maxRL=config["maxRL"],
         out_pre="results/intermediate/{ID}/table/{GENOME}/target/{target_region}--{SAMPLE}_%s.csv",
@@ -286,7 +233,6 @@ rule extract_counts:
         --minInsert={params.minRL} \
         --maxInsert={params.maxRL} \
         -i {input.target} \
-        {params.weights} \
         -o {params.out_pre} {input.BAMFILE}
         """
 
@@ -294,14 +240,13 @@ rule extract_counts:
 rule extract_counts_background:
     input:
         background="results/intermediate/{ID}/regions/{GENOME}/background/{target_region}_background_regions.bed.gz",
-        BAMFILE="results/intermediate/{ID}/GCcorrect/{GENOME}/{SAMPLE}_gc_weighted.bam",
-        #BAMFILE=lambda wildcards: samples["path"][wildcards.SAMPLE],
+        BAMFILE=lambda wildcards: samples["path"][wildcards.SAMPLE],
     output:
         WPS="results/intermediate/{ID}/table/{GENOME}/background/{target_region}--{SAMPLE}_WPS.background.csv",
         COV="results/intermediate/{ID}/table/{GENOME}/background/{target_region}--{SAMPLE}_COV.background.csv",
         STARTS="results/intermediate/{ID}/table/{GENOME}/background/{target_region}--{SAMPLE}_STARTS.background.csv",
     params:
-        weights="-g",
+        #weights="-g",
         minRL=config["minRL"],
         maxRL=config["maxRL"],
         out_pre="results/intermediate/{ID}/table/{GENOME}/background/{target_region}--{SAMPLE}_%s.background.csv",
@@ -313,7 +258,6 @@ rule extract_counts_background:
         --minInsert={params.minRL} \
         --maxInsert={params.maxRL} \
         -i {input.background} \
-        {params.weights} \
         -o {params.out_pre} {input.BAMFILE}
         """
 
