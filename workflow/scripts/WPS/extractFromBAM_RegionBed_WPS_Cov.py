@@ -79,7 +79,7 @@ parser.add_argument("--max_length", dest="max_length", help="Assumed maximum ins
 parser.add_argument("--downsample", dest="downsample", help="Ratio to down sample reads (default OFF)",default=None,type=float)
 parser.add_argument("--onefile", dest="onefile", help="Print as single output to stdout (default OFF)",default=False,action="store_true")
 parser.add_argument("-v","--verbose", dest="verbose", help="Turn debug output on",default=False,action="store_true")
-parser.add_option("-g","--GC_weighted", dest="GC_weighted", help="Calculate scores based on GC weights",default=False,action="store_true")
+parser.add_argument("-g","--GC_weighted", dest="GC_weighted", help="Calculate scores based on GC weights",default=False,action="store_true")
 options = parser.parse_args()
 
 minInsSize,maxInsSize = None,None
@@ -95,7 +95,7 @@ if not options.onefile:
 
 protection = options.protection//2
 gc_correct =  options.GC_weighted
-flank = options.flank
+#flank = options.flank
 #validChroms = set(map(str,range(1,23)+["X","Y"]))
 #validChroms = set(map(str,range(1,23)+["X","Y"]))
 #validChroms = [str(i) for i in range(1, 23)] + ["X","Y"]
