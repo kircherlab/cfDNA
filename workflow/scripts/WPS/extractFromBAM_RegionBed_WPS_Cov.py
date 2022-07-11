@@ -92,6 +92,11 @@ outfiles = {}
 if not options.onefile:
   outfiles = { 'WPS':gzip.open(options.outfile%"WPS",'wt'), 'COV':gzip.open(options.outfile%"COV",'wt'), 'STARTS':gzip.open(options.outfile%"STARTS",'wt') }
 
+if maxInsSize:
+    edge_extension = maxInsSize
+else:
+    edge_extension = options.protection
+
 protection = options.protection//2
 
 #validChroms = set(map(str,range(1,23)+["X","Y"]))
@@ -135,7 +140,7 @@ for chrom,start,end,cid,score,strand in regionIterator:
             prefix = "chr"
             break
         if options.verbose: sys.stderr.write("Retrieving reads...\n")
-        for read in input_file.fetch(prefix+chrom,max(regionStart-protection-1,0),regionEnd+protection+1):
+        for read in input_file.fetch(prefix+chrom,max(regionStart-edge_extension-1,0),regionEnd+edge_extension+1):
           if read.is_duplicate or read.is_qcfail or read.is_unmapped: continue
           if isSoftClipped(read.cigar): continue
           
