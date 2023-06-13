@@ -79,7 +79,11 @@ parser.add_argument("--max_length", dest="max_length", help="Assumed maximum ins
 parser.add_argument("--downsample", dest="downsample", help="Ratio to down sample reads (default OFF)",default=None,type=float)
 parser.add_argument("--onefile", dest="onefile", help="Print as single output to stdout (default OFF)",default=False,action="store_true")
 parser.add_argument("-v","--verbose", dest="verbose", help="Turn debug output on",default=False,action="store_true")
+parser.add_argument("-a","--compute_midpoint_coverage", dest="compute_midpoint_coverage", help="compute midpoint coverage score additionally to WPS", default="False")
 options = parser.parse_args()
+size_range_min = 100
+size_range_max = 200
+map_q = 20
 
 minInsSize,maxInsSize = None,None
 if options.minInsSize > 0 and options.maxInsSize > 0 and options.minInsSize < options.maxInsSize:
@@ -90,7 +94,10 @@ if options.minInsSize > 0 and options.maxInsSize > 0 and options.minInsSize < op
 options.outfile = options.outfile.strip("""\'""")
 outfiles = {}
 if not options.onefile:
-  outfiles = { 'WPS':gzip.open(options.outfile%"WPS",'wt'), 'COV':gzip.open(options.outfile%"COV",'wt'), 'STARTS':gzip.open(options.outfile%"STARTS",'wt') }
+  if options.compute_midpoint_coverage == "True":
+    outfiles = { 'WPS':gzip.open(options.outfile%"WPS",'wt'), 'COV':gzip.open(options.outfile%"COV",'wt'), 'STARTS':gzip.open(options.outfile%"STARTS",'wt'), 'MIDPOINT':gzip.open(options.outfile%"MIDPOINT",'wt') }
+  else:
+    outfiles = { 'WPS':gzip.open(options.outfile%"WPS",'wt'), 'COV':gzip.open(options.outfile%"COV",'wt'), 'STARTS':gzip.open(options.outfile%"STARTS",'wt') }
 
 if maxInsSize:
     edge_extension = maxInsSize
@@ -126,7 +133,7 @@ for chrom,start,end,cid,score,strand in regionIterator:
     if options.verbose:
        sys.stderr.write("Processing region: %s:%s-%s %s %s %s\n"%(chrom,start,end,cid,score,strand))
     
-    posRange = defaultdict(lambda:[0,0])
+    posRange = defaultdict(lambda:[0,0,0])
     filteredReads = Intersecter()
 
     for bamfile in options.files:
@@ -141,6 +148,22 @@ for chrom,start,end,cid,score,strand in regionIterator:
             break
         if options.verbose: sys.stderr.write("Retrieving reads...\n")
         for read in input_file.fetch(prefix+chrom,max(regionStart-edge_extension-1,0),regionEnd+edge_extension+1):
+          #Midpoint coverage implementation
+          if read.is_paired==True and read.is_duplicate==False and read.is_qcfail==False and read.mapq>=map_q:
+            rstart = min(read.pos,read.pnext)+1 # 1-based
+            lseq = abs(read.isize)
+            rend = rstart+lseq-1 # end included
+            if abs(read.isize)>=size_range_min and abs(read.isize)<=size_range_max: 
+              tag = 1
+              # if gc_correct:
+              #   try:
+              #     tag=round(dict(read.tags)["YC"],2)
+              #   except KeyError as e:
+              #     tag=1
+              midpoint = int(math.floor((rstart+rend)/2))
+              if midpoint in range(rstart,rend+1):
+                posRange[midpoint][2] += tag 
+
           if read.is_duplicate or read.is_qcfail or read.is_unmapped: continue
           if isSoftClipped(read.cigar): continue
           
@@ -200,6 +223,7 @@ for chrom,start,end,cid,score,strand in regionIterator:
     wps_list = []
     cov_list = []
     starts_list = []
+    mp_list = []
 
     for pos in range(regionStart,regionEnd+1):
       rstart,rend = pos-protection,pos+protection
@@ -211,7 +235,7 @@ for chrom,start,end,cid,score,strand in regionIterator:
           ecount += 1.0
         else: 
           gcount += 1.0
-      covCount,startCount = posRange[pos]
+      covCount,startCount,mpValue = posRange[pos]
       cov_sites += covCount
       wpsValue = gcount-(bcount+ecount)
       #if (options.method != "WPSv1") and (2*gcount+bcount+ecount > 1):
@@ -228,11 +252,16 @@ for chrom,start,end,cid,score,strand in regionIterator:
       #elif (options.method != "WPSv1"): 
       #  wpsValue = 0.0
       if options.onefile:
-         outLines.append("%s\t%d\t%.4f\t%.4f\t%.4f\n"%(chrom,pos,covCount,startCount,wpsValue))
+         if options.compute_midpoint_coverage == "True":
+           outLines.append("%s\t%d\t%.4f\t%.4f\t%.4f\n"%(chrom,pos,covCount,startCount,wpsValue,mpValue))
+         else:
+           outLines.append("%s\t%d\t%.4f\t%.4f\t%.4f\n"%(chrom,pos,covCount,startCount,wpsValue))
       else: 
          wps_list.append(wpsValue)
          cov_list.append(covCount)
          starts_list.append(startCount)
+         if options.compute_midpoint_coverage == "True":
+           mp_list.append(mpValue)
 
     if options.onefile:
        if strand == "-": outLines = outLines[::-1]
@@ -245,6 +274,10 @@ for chrom,start,end,cid,score,strand in regionIterator:
       outfiles['WPS'].write(cid+","+",".join(map(lambda x:str(round(x,5)).replace(".0",""),wps_list))+"\n")
       outfiles['COV'].write(cid+","+",".join(map(lambda x:str(round(x,5)).replace(".0",""),cov_list))+"\n")
       outfiles['STARTS'].write(cid+","+",".join(map(lambda x:str(round(x,5)).replace(".0",""),starts_list))+"\n")
+
+      if options.compute_midpoint_coverage == "True":
+        if strand == "-": mp_list = mp_list[::-1]
+        outfiles['MIDPOINT'].write(cid+","+",".join(map(lambda x:str(round(x,5)),mp_list))+"\n")
 
 if not options.onefile:
   for name,filestream in outfiles.items():

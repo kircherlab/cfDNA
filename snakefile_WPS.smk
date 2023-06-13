@@ -48,6 +48,15 @@ def get_STARTS_ref(sample):
         GENOME=genomes,
     )
 
+def get_MP_ref(sample):
+    ref_samples = samples["ref_samples"][sample].split(",")
+    genomes = samples["genome_build"][ref_samples].values.tolist()
+    return expand(
+        "results/intermediate/{{ID}}/table/{GENOME}/target/{{target_region}}--{ref_SAMPLE}_MIDPOINT.csv.gz",
+        zip,
+        ref_SAMPLE=ref_samples,
+        GENOME=genomes,
+    )
 
 def get_WPS_background_ref(sample):
     ref_samples = samples["ref_samples"][sample].split(",")
@@ -81,6 +90,15 @@ def get_STARTS_background_ref(sample):
         GENOME=genomes,
     )
 
+def get_MP_background_ref(sample):
+    ref_samples = samples["ref_samples"][sample].split(",")
+    genomes = samples["genome_build"][ref_samples].values.tolist()
+    return expand(
+        "results/intermediate/{{ID}}/table/{GENOME}/background/{{target_region}}--{ref_SAMPLE}_MIDPOINT.background.csv.gz",
+        zip,
+        ref_SAMPLE=ref_samples,
+        GENOME=genomes,
+    )
 
 def get_length(input):
     if exists(input):
@@ -91,6 +109,18 @@ def get_length(input):
         length=2000
         #print(f"{input} does not exist: using length of {length}")
         return length
+
+midpoint_file=list()
+if config["midpoint_coverage"] == True:
+    midpoint_file.append(expand(expand(
+                "results/intermediate/{ID}/table/{GENOME}/target/{target_region}--{SAMPLE}_MIDPOINT.csv.gz",
+                zip,
+                SAMPLE=samples["sample"],
+                ID=samples["ID"],
+                GENOME=samples["genome_build"],
+                allow_missing=True,
+            ),target_region=regions["target"],
+            ))
 
 
 rule all:
@@ -152,6 +182,7 @@ rule all:
             ),
             target_region=regions["target"],
         ),
+        midpoint_file
 
 
 rule add_flanks:
@@ -207,76 +238,166 @@ rule generate_random_background:
         gzip -c > {output}
         """
 
-
-rule extract_counts:
-    input:
-        target="results/intermediate/{ID}/regions/{GENOME}/target_region/{target_region}_blacklist-excluded.bed.gz",
-        BAMFILE=lambda wildcards: samples["path"][wildcards.SAMPLE],
-    output:
-        WPS="results/intermediate/{ID}/table/{GENOME}/target/{target_region}--{SAMPLE}_WPS.csv.gz",
-        COV="results/intermediate/{ID}/table/{GENOME}/target/{target_region}--{SAMPLE}_COV.csv.gz",
-        STARTS="results/intermediate/{ID}/table/{GENOME}/target/{target_region}--{SAMPLE}_STARTS.csv.gz",
-    params:
-        minRL=config["minRL"],
-        maxRL=config["maxRL"],
-        out_pre="results/intermediate/{ID}/table/{GENOME}/target/{target_region}--{SAMPLE}_%s.csv.gz",
-    conda:
-        "workflow/envs/cfDNA.yml"
-    shell:
-        """
-        workflow/scripts/WPS/extractFromBAM_RegionBed_WPS_Cov.py \
-        --minInsert={params.minRL} \
-        --maxInsert={params.maxRL} \
-        -i {input.target} \
-        -o {params.out_pre} {input.BAMFILE}
-        """
-
-
-rule extract_counts_background:
-    input:
-        background="results/intermediate/{ID}/regions/{GENOME}/background/{target_region}_background_regions.bed.gz",
-        BAMFILE=lambda wildcards: samples["path"][wildcards.SAMPLE],
-    output:
-        WPS="results/intermediate/{ID}/table/{GENOME}/background/{target_region}--{SAMPLE}_WPS.background.csv.gz",
-        COV="results/intermediate/{ID}/table/{GENOME}/background/{target_region}--{SAMPLE}_COV.background.csv.gz",
-        STARTS="results/intermediate/{ID}/table/{GENOME}/background/{target_region}--{SAMPLE}_STARTS.background.csv.gz",
-    params:
-        minRL=config["minRL"],
-        maxRL=config["maxRL"],
-        out_pre="results/intermediate/{ID}/table/{GENOME}/background/{target_region}--{SAMPLE}_%s.background.csv.gz",
-    conda:
-        "workflow/envs/cfDNA.yml"
-    shell:
-        """
-        workflow/scripts/WPS/extractFromBAM_RegionBed_WPS_Cov.py \
-        --minInsert={params.minRL} \
-        --maxInsert={params.maxRL} \
-        -i {input.background} \
-        -o {params.out_pre} {input.BAMFILE}
-        """
+if config["midpoint_coverage"] == True:
+    rule extract_counts:
+        input:
+            target="results/intermediate/{ID}/regions/{GENOME}/target_region/{target_region}_blacklist-excluded.bed.gz",
+            BAMFILE=lambda wildcards: samples["path"][wildcards.SAMPLE],
+        output:
+            WPS="results/intermediate/{ID}/table/{GENOME}/target/{target_region}--{SAMPLE}_WPS.csv.gz",
+            COV="results/intermediate/{ID}/table/{GENOME}/target/{target_region}--{SAMPLE}_COV.csv.gz",
+            STARTS="results/intermediate/{ID}/table/{GENOME}/target/{target_region}--{SAMPLE}_STARTS.csv.gz",
+            MIDPOINT="results/intermediate/{ID}/table/{GENOME}/target/{target_region}--{SAMPLE}_MIDPOINT.csv.gz",
+        params:
+            minRL=config["minRL"],
+            maxRL=config["maxRL"],
+            out_pre="results/intermediate/{ID}/table/{GENOME}/target/{target_region}--{SAMPLE}_%s.csv.gz",
+        conda:
+            "workflow/envs/cfDNA.yml"
+        shell:
+            """
+            workflow/scripts/WPS/extractFromBAM_RegionBed_WPS_Cov.py \
+            --minInsert={params.minRL} \
+            --maxInsert={params.maxRL} \
+            -i {input.target} \
+            --compute_midpoint_coverage=True \
+            -o {params.out_pre} {input.BAMFILE} \
+            """
 
 
-rule plot_overlays:
-    input:
-        WPS=lambda wc: "results/intermediate/{{ID}}/table/{GENOME}/target/{{target_region}}--{{SAMPLE}}_WPS.csv.gz".format(GENOME=samples["genome_build"].loc[samples["sample"] == wc.SAMPLE].values[0]),
-        WPS_ref=lambda wildcards: get_WPS_ref(wildcards.SAMPLE),
-        COV=lambda wc: "results/intermediate/{{ID}}/table/{GENOME}/target/{{target_region}}--{{SAMPLE}}_COV.csv.gz".format(GENOME=samples["genome_build"].loc[samples["sample"] == wc.SAMPLE].values[0]),
-        COV_ref=lambda wildcards: get_COV_ref(wildcards.SAMPLE),
-        WPS_back=lambda wc: "results/intermediate/{{ID}}/table/{GENOME}/background/{{target_region}}--{{SAMPLE}}_WPS.background.csv.gz".format(GENOME=samples["genome_build"].loc[samples["sample"] == wc.SAMPLE].values[0]),
-        WPS_back_ref=lambda wildcards: get_WPS_background_ref(wildcards.SAMPLE),
-        COV_back=lambda wc: "results/intermediate/{{ID}}/table/{GENOME}/background/{{target_region}}--{{SAMPLE}}_COV.background.csv.gz".format(GENOME=samples["genome_build"].loc[samples["sample"] == wc.SAMPLE].values[0]),
-        COV_back_ref=lambda wildcards: get_COV_background_ref(wildcards.SAMPLE),
-    output:
-        "results/plots/overlays/{ID}/{target_region}--{SAMPLE}_overlays.pdf",
-    params:
-        target="{target_region}",
-        sample="{SAMPLE}",
-        ref_IDs=lambda wildcards: samples["ref_samples"][wildcards.SAMPLE].split(","),
-        overlay_mode = config["plotting"]["overlay_mode"],
-        smoothing = config["plotting"]["smoothing"],
-        rolling = config["plotting"]["rolling"],
-        background_norm = config["plotting"]["background_norm"]
-    conda:
-        "workflow/envs/overlays.yml"
-    script:
-        "workflow/scripts/WPS/overlays.py"
+    rule extract_counts_background:
+        input:
+            background="results/intermediate/{ID}/regions/{GENOME}/background/{target_region}_background_regions.bed.gz",
+            BAMFILE=lambda wildcards: samples["path"][wildcards.SAMPLE],
+        output:
+            WPS="results/intermediate/{ID}/table/{GENOME}/background/{target_region}--{SAMPLE}_WPS.background.csv.gz",
+            COV="results/intermediate/{ID}/table/{GENOME}/background/{target_region}--{SAMPLE}_COV.background.csv.gz",
+            STARTS="results/intermediate/{ID}/table/{GENOME}/background/{target_region}--{SAMPLE}_STARTS.background.csv.gz",
+            MIDPOINT="results/intermediate/{ID}/table/{GENOME}/background/{target_region}--{SAMPLE}_MIDPOINT.background.csv.gz",
+        params:
+            minRL=config["minRL"],
+            maxRL=config["maxRL"],
+            out_pre="results/intermediate/{ID}/table/{GENOME}/background/{target_region}--{SAMPLE}_%s.background.csv.gz",
+        conda:
+            "workflow/envs/cfDNA.yml"
+        shell:
+            """
+            workflow/scripts/WPS/extractFromBAM_RegionBed_WPS_Cov.py \
+            --minInsert={params.minRL} \
+            --maxInsert={params.maxRL} \
+            -i {input.background} \
+            --compute_midpoint_coverage=True \
+            -o {params.out_pre} {input.BAMFILE}
+            """
+
+
+    rule plot_overlays:
+        input:
+            WPS=lambda wc: "results/intermediate/{{ID}}/table/{GENOME}/target/{{target_region}}--{{SAMPLE}}_WPS.csv.gz".format(GENOME=samples["genome_build"].loc[samples["sample"] == wc.SAMPLE].values[0]),
+            WPS_ref=lambda wildcards: get_WPS_ref(wildcards.SAMPLE),
+            COV=lambda wc: "results/intermediate/{{ID}}/table/{GENOME}/target/{{target_region}}--{{SAMPLE}}_COV.csv.gz".format(GENOME=samples["genome_build"].loc[samples["sample"] == wc.SAMPLE].values[0]),
+            COV_ref=lambda wildcards: get_COV_ref(wildcards.SAMPLE),
+            WPS_back=lambda wc: "results/intermediate/{{ID}}/table/{GENOME}/background/{{target_region}}--{{SAMPLE}}_WPS.background.csv.gz".format(GENOME=samples["genome_build"].loc[samples["sample"] == wc.SAMPLE].values[0]),
+            WPS_back_ref=lambda wildcards: get_WPS_background_ref(wildcards.SAMPLE),
+            COV_back=lambda wc: "results/intermediate/{{ID}}/table/{GENOME}/background/{{target_region}}--{{SAMPLE}}_COV.background.csv.gz".format(GENOME=samples["genome_build"].loc[samples["sample"] == wc.SAMPLE].values[0]),
+            COV_back_ref=lambda wildcards: get_COV_background_ref(wildcards.SAMPLE),
+            MP=lambda wc: "results/intermediate/{{ID}}/table/{GENOME}/target/{{target_region}}--{{SAMPLE}}_MIDPOINT.csv.gz".format(GENOME=samples["genome_build"].loc[samples["sample"] == wc.SAMPLE].values[0]),
+            MP_ref=lambda wildcards: get_MP_ref(wildcards.SAMPLE),
+            MP_back=lambda wc: "results/intermediate/{{ID}}/table/{GENOME}/background/{{target_region}}--{{SAMPLE}}_MIDPOINT.background.csv.gz".format(GENOME=samples["genome_build"].loc[samples["sample"] == wc.SAMPLE].values[0]),
+            MP_back_ref=lambda wildcards: get_MP_background_ref(wildcards.SAMPLE),
+        output:
+            "results/plots/overlays/{ID}/{target_region}--{SAMPLE}_overlays.pdf",
+        params:
+            target="{target_region}",
+            sample="{SAMPLE}",
+            ref_IDs=lambda wildcards: samples["ref_samples"][wildcards.SAMPLE].split(","),
+            overlay_mode = config["plotting"]["overlay_mode"],
+            smoothing = config["plotting"]["smoothing"],
+            rolling = config["plotting"]["rolling"],
+            background_norm = config["plotting"]["background_norm"],
+            win_len=config["plotting"]["win_len"],
+            poly=config["plotting"]["poly"],
+            compute_midpoint_coverage=config["midpoint_coverage"],
+        conda:
+            "workflow/envs/overlays.yml"
+        script:
+            "workflow/scripts/WPS/overlays.py"
+
+else:
+    rule extract_counts:
+        input:
+            target="results/intermediate/{ID}/regions/{GENOME}/target_region/{target_region}_blacklist-excluded.bed.gz",
+            BAMFILE=lambda wildcards: samples["path"][wildcards.SAMPLE],
+        output:
+            WPS="results/intermediate/{ID}/table/{GENOME}/target/{target_region}--{SAMPLE}_WPS.csv.gz",
+            COV="results/intermediate/{ID}/table/{GENOME}/target/{target_region}--{SAMPLE}_COV.csv.gz",
+            STARTS="results/intermediate/{ID}/table/{GENOME}/target/{target_region}--{SAMPLE}_STARTS.csv.gz",
+        params:
+            minRL=config["minRL"],
+            maxRL=config["maxRL"],
+            out_pre="results/intermediate/{ID}/table/{GENOME}/target/{target_region}--{SAMPLE}_%s.csv.gz",
+        conda:
+            "workflow/envs/cfDNA.yml"
+        shell:
+            """
+            workflow/scripts/WPS/extractFromBAM_RegionBed_WPS_Cov.py \
+            --minInsert={params.minRL} \
+            --maxInsert={params.maxRL} \
+            -i {input.target} \
+            --compute_midpoint_coverage=False \
+            -o {params.out_pre} {input.BAMFILE}
+            """
+
+
+    rule extract_counts_background:
+        input:
+            background="results/intermediate/{ID}/regions/{GENOME}/background/{target_region}_background_regions.bed.gz",
+            BAMFILE=lambda wildcards: samples["path"][wildcards.SAMPLE],
+        output:
+            WPS="results/intermediate/{ID}/table/{GENOME}/background/{target_region}--{SAMPLE}_WPS.background.csv.gz",
+            COV="results/intermediate/{ID}/table/{GENOME}/background/{target_region}--{SAMPLE}_COV.background.csv.gz",
+            STARTS="results/intermediate/{ID}/table/{GENOME}/background/{target_region}--{SAMPLE}_STARTS.background.csv.gz",
+        params:
+            minRL=config["minRL"],
+            maxRL=config["maxRL"],
+            out_pre="results/intermediate/{ID}/table/{GENOME}/background/{target_region}--{SAMPLE}_%s.background.csv.gz",
+        conda:
+            "workflow/envs/cfDNA.yml"
+        shell:
+            """
+            workflow/scripts/WPS/extractFromBAM_RegionBed_WPS_Cov.py \
+            --minInsert={params.minRL} \
+            --maxInsert={params.maxRL} \
+            -i {input.background} \
+            --compute_midpoint_coverage=False \
+            -o {params.out_pre} {input.BAMFILE}
+            """
+
+
+    rule plot_overlays:
+        input:
+            WPS=lambda wc: "results/intermediate/{{ID}}/table/{GENOME}/target/{{target_region}}--{{SAMPLE}}_WPS.csv.gz".format(GENOME=samples["genome_build"].loc[samples["sample"] == wc.SAMPLE].values[0]),
+            WPS_ref=lambda wildcards: get_WPS_ref(wildcards.SAMPLE),
+            COV=lambda wc: "results/intermediate/{{ID}}/table/{GENOME}/target/{{target_region}}--{{SAMPLE}}_COV.csv.gz".format(GENOME=samples["genome_build"].loc[samples["sample"] == wc.SAMPLE].values[0]),
+            COV_ref=lambda wildcards: get_COV_ref(wildcards.SAMPLE),
+            WPS_back=lambda wc: "results/intermediate/{{ID}}/table/{GENOME}/background/{{target_region}}--{{SAMPLE}}_WPS.background.csv.gz".format(GENOME=samples["genome_build"].loc[samples["sample"] == wc.SAMPLE].values[0]),
+            WPS_back_ref=lambda wildcards: get_WPS_background_ref(wildcards.SAMPLE),
+            COV_back=lambda wc: "results/intermediate/{{ID}}/table/{GENOME}/background/{{target_region}}--{{SAMPLE}}_COV.background.csv.gz".format(GENOME=samples["genome_build"].loc[samples["sample"] == wc.SAMPLE].values[0]),
+            COV_back_ref=lambda wildcards: get_COV_background_ref(wildcards.SAMPLE),
+        output:
+            "results/plots/overlays/{ID}/{target_region}--{SAMPLE}_overlays.pdf",
+        params:
+            target="{target_region}",
+            sample="{SAMPLE}",
+            ref_IDs=lambda wildcards: samples["ref_samples"][wildcards.SAMPLE].split(","),
+            overlay_mode = config["plotting"]["overlay_mode"],
+            smoothing = config["plotting"]["smoothing"],
+            rolling = config["plotting"]["rolling"],
+            background_norm = config["plotting"]["background_norm"],
+            win_len=config["plotting"]["win_len"],
+            poly=config["plotting"]["poly"],
+            compute_midpoint_coverage=config["midpoint_coverage"],
+        conda:
+            "workflow/envs/overlays.yml"
+        script:
+            "workflow/scripts/WPS/overlays.py"
