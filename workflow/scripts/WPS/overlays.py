@@ -36,7 +36,18 @@ overlay_mode = snakemake.params["overlay_mode"]
 smoothing = snakemake.params["smoothing"]
 rolling = snakemake.params["rolling"]
 background_norm = snakemake.params["background_norm"]
+edge_norm = snakemake.params["edge_norm"]
 flank_edge = 500
+
+win_len = snakemake.params["win_len"]
+poly = snakemake.params["poly"]
+compute_midpoint_coverage = snakemake.params["compute_midpoint_coverage"]
+if compute_midpoint_coverage == True:
+    MP = snakemake.input["MP"]
+    MP_refs = snakemake.input["MP_ref"]
+    MP_back = snakemake.input["MP_back"]
+    MP_back_refs = snakemake.input["MP_back_ref"]
+
 
 
 # def functions
@@ -120,9 +131,9 @@ def add_sample(path_a: str, path_b: str, overlay_mode:str = "mean",smoothing:boo
 
     if smoothing:
         if rolling:
-            sample = sample.apply(lambda x:savgol_filter(x,window_length=21, polyorder=2)) - sample.apply(lambda x:savgol_filter(x,window_length=21, polyorder=2)).rolling(1000, center=True).median() 
+            sample = sample.apply(lambda x:savgol_filter(x,window_length=win_len, polyorder=poly)) - sample.apply(lambda x:savgol_filter(x,window_length=21, polyorder=2)).rolling(1000, center=True).median() 
         else:
-            sample = sample.apply(lambda x:savgol_filter(x,window_length=21, polyorder=2))
+            sample = sample.apply(lambda x:savgol_filter(x,window_length=win_len, polyorder=poly))
     else:
         if rolling:
             sample = sample - sample.rolling(1000, center=True).median()
@@ -139,49 +150,131 @@ def add_sample(path_a: str, path_b: str, overlay_mode:str = "mean",smoothing:boo
 # average over all regions per sample and substract the trimmed mean to normalise
 
 
-av_WPS = pd.DataFrame(add_sample(WPS, WPS_back,overlay_mode,smoothing,rolling,background_norm))
+data_sample = pd.DataFrame(add_sample(WPS, WPS_back,overlay_mode,smoothing,rolling,background_norm))
 sys.stderr.write("WPS [%s]: %s %s\n"%(sample_ID,COV, COV_back))
+if(edge_norm == True):
+    edge_mean = pd.concat([data_sample.head(100), data_sample.tail(100)]).mean()
+    av_WPS = pd.DataFrame(data_sample/edge_mean)
+else:
+    av_WPS = pd.DataFrame(data_sample)
 av_WPS.columns = av_WPS.columns.astype(str)
 av_WPS.columns.values[-1] = sample_ID
 for (ref_ID, WPS_ref, WPS_back_ref) in zip(ref_IDs, WPS_refs, WPS_back_refs):
     sys.stderr.write("WPS [%s]: %s %s\n"%(ref_ID, WPS_ref, WPS_back_ref))
-    av_WPS[ref_ID] = add_sample(WPS_ref, WPS_back_ref,overlay_mode,smoothing,rolling,background_norm)["value"]
+    data_reference = add_sample(WPS_ref, WPS_back_ref,overlay_mode,smoothing,rolling,background_norm)["value"]
+    if(edge_norm == True):
+        edge_mean = pd.concat([data_reference.head(100), data_reference.tail(100)]).mean()
+        av_WPS[ref_ID] = data_reference/edge_mean
+    else:
+        av_WPS[ref_ID] = data_reference
 
-av_COV = pd.DataFrame(add_sample(COV, COV_back,overlay_mode,smoothing,rolling, background_norm))
+data_sample = pd.DataFrame(add_sample(COV, COV_back,overlay_mode,smoothing,rolling,background_norm))
 sys.stderr.write("COV [%s]: %s %s\n"%(sample_ID, COV, COV_back))
+if(edge_norm == True):
+    edge_mean = pd.concat([data_sample.head(100), data_sample.tail(100)]).mean()
+    av_COV = pd.DataFrame(data_sample/edge_mean)
+else:
+    av_COV = pd.DataFrame(data_sample)
 av_COV.columns = av_COV.columns.astype(str)
 av_COV.columns.values[-1] = sample_ID
 for (ref_ID, COV_ref, COV_back_ref) in zip(ref_IDs, COV_refs, COV_back_refs):
     sys.stderr.write("COV [%s]: %s %s\n"%(ref_ID, COV_ref, COV_back_ref))
-    av_COV[ref_ID] = add_sample(COV_ref, COV_back_ref,overlay_mode,smoothing,rolling,background_norm)["value"]
+    data_reference = add_sample(COV_ref, COV_back_ref,overlay_mode,smoothing,rolling,background_norm)["value"]
+    if(edge_norm == True):
+        edge_mean = pd.concat([data_reference.head(100), data_reference.tail(100)]).mean()
+        av_COV[ref_ID] = data_reference/edge_mean
+    else:
+        av_COV[ref_ID] = data_reference
+
+if compute_midpoint_coverage == True:
+    data_sample = pd.DataFrame(add_sample(MP, MP_back,overlay_mode,smoothing,rolling,background_norm))
+    sys.stderr.write("MP [%s]: %s %s\n"%(sample_ID, MP, MP_back))
+    if(edge_norm == True):
+        edge_mean = pd.concat([data_sample.head(100), data_sample.tail(100)]).mean()
+        av_MP = pd.DataFrame(data_sample/edge_mean)
+    else:
+        av_MP = pd.DataFrame(data_sample)
+    av_MP.columns = av_MP.columns.astype(str)
+    av_MP.columns.values[-1] = sample_ID
+    for (ref_ID, MP_ref, MP_back_ref) in zip(ref_IDs, MP_refs, MP_back_refs):
+        sys.stderr.write("MP [%s]: %s %s\n"%(ref_ID, MP_ref, MP_back_ref))
+        data_reference = add_sample(MP_ref, MP_back_ref,overlay_mode,smoothing,rolling,background_norm)["value"]
+        if(edge_norm == True):
+            edge_mean = pd.concat([data_reference.head(100), data_reference.tail(100)]).mean()
+            av_MP[ref_ID] = data_reference/edge_mean
+        else:
+            av_MP[ref_ID] = data_reference
 
 # create line plots and save to a single pdf
 
-if overlay_mode.lower() == "confidence":
-    av_WPS_long=av_WPS.reset_index().melt(id_vars=["position", "sample_nr"],  value_name="score", var_name="phenotype").sort_values(by="position")
-    av_COV_long=av_COV.reset_index().melt(id_vars=["position", "sample_nr"],  value_name="score", var_name="phenotype").sort_values(by="position")
-    Fig_WPS = sns.lineplot(data=av_WPS_long, x="position", y="score", hue="phenotype",)
-    plt.suptitle("adjusted WPS: {target} target regions")
-    plt.xlabel("Position relative to target site")
-    plt.ylabel("normalized WPS")
-    plt.close()
-    Fig_Cov = sns.lineplot(data=av_COV_long, x="position", y="score", hue="phenotype",)
-    plt.suptitle(f"adjusted read coverage: {target} target regions")
-    plt.xlabel("Position relative to target site")
-    plt.ylabel("normalized read coverage")
-    plt.close()
-else:
-    Fig_WPS = sns.lineplot(data=av_WPS)
-    plt.suptitle(f"adjusted WPS: {target} target regions")
-    plt.xlabel("Position relative to target site")
-    plt.ylabel("normalized WPS")
-    plt.close()
-    Fig_Cov = sns.lineplot(data=av_COV)
-    plt.suptitle(f"adjusted read coverage: {target} target regions")
-    plt.xlabel("Position relative to target site")
-    plt.ylabel("normalized read coverage")
-    plt.close()
+if compute_midpoint_coverage == True:
+    if overlay_mode.lower() == "confidence":
+        av_WPS_long=av_WPS.reset_index().melt(id_vars=["position", "sample_nr"],  value_name="score", var_name="phenotype").sort_values(by="position")
+        av_COV_long=av_COV.reset_index().melt(id_vars=["position", "sample_nr"],  value_name="score", var_name="phenotype").sort_values(by="position")
+        av_MP_long=av_MP.reset_index().melt(id_vars=["position", "sample_nr"],  value_name="score", var_name="phenotype").sort_values(by="position")
+        Fig_WPS = sns.lineplot(data=av_WPS_long, x="position", y="score", hue="phenotype",)
+        plt.suptitle("adjusted WPS: {target} target regions")
+        plt.xlabel("Position relative to target site")
+        plt.ylabel("normalized WPS")
+        plt.close()
+        Fig_Cov = sns.lineplot(data=av_COV_long, x="position", y="score", hue="phenotype",)
+        plt.suptitle(f"adjusted read coverage: {target} target regions")
+        plt.xlabel("Position relative to target site")
+        plt.ylabel("normalized read coverage")
+        plt.close()
+        Fig_MP = sns.lineplot(data=av_MP_long, x="position", y="score", hue="phenotype",)
+        plt.suptitle(f"adjusted midpoint coverage: {target} target regions")
+        plt.xlabel("Position relative to target site")
+        plt.ylabel("normalized midpoint coverage")
+        plt.close()
+    else:
+        Fig_WPS = sns.lineplot(data=av_WPS)
+        plt.suptitle(f"adjusted WPS: {target} target regions")
+        plt.xlabel("Position relative to target site")
+        plt.ylabel("normalized WPS")
+        plt.close()
+        Fig_Cov = sns.lineplot(data=av_COV)
+        plt.suptitle(f"adjusted read coverage: {target} target regions")
+        plt.xlabel("Position relative to target site")
+        plt.ylabel("normalized read coverage")
+        plt.close()
+        Fig_MP = sns.lineplot(data=av_MP)
+        plt.suptitle(f"adjusted midpoint coverage: {target} target regions")
+        plt.xlabel("Position relative to target site")
+        plt.ylabel("normalized midpoint coverage")
+        plt.close()
 
-with PdfPages(outfile) as pdf:
-    pdf.savefig(Fig_WPS.get_figure())
-    pdf.savefig(Fig_Cov.get_figure())
+    with PdfPages(outfile) as pdf:
+        pdf.savefig(Fig_WPS.get_figure())
+        pdf.savefig(Fig_Cov.get_figure())
+        pdf.savefig(Fig_MP.get_figure())
+
+else:
+    if overlay_mode.lower() == "confidence":
+        av_WPS_long=av_WPS.reset_index().melt(id_vars=["position", "sample_nr"],  value_name="score", var_name="phenotype").sort_values(by="position")
+        av_COV_long=av_COV.reset_index().melt(id_vars=["position", "sample_nr"],  value_name="score", var_name="phenotype").sort_values(by="position")
+        Fig_WPS = sns.lineplot(data=av_WPS_long, x="position", y="score", hue="phenotype",)
+        plt.suptitle("adjusted WPS: {target} target regions")
+        plt.xlabel("Position relative to target site")
+        plt.ylabel("normalized WPS")
+        plt.close()
+        Fig_Cov = sns.lineplot(data=av_COV_long, x="position", y="score", hue="phenotype",)
+        plt.suptitle(f"adjusted read coverage: {target} target regions")
+        plt.xlabel("Position relative to target site")
+        plt.ylabel("normalized read coverage")
+        plt.close()
+    else:
+        Fig_WPS = sns.lineplot(data=av_WPS)
+        plt.suptitle(f"adjusted WPS: {target} target regions")
+        plt.xlabel("Position relative to target site")
+        plt.ylabel("normalized WPS")
+        plt.close()
+        Fig_Cov = sns.lineplot(data=av_COV)
+        plt.suptitle(f"adjusted read coverage: {target} target regions")
+        plt.xlabel("Position relative to target site")
+        plt.ylabel("normalized read coverage")
+        plt.close()
+
+    with PdfPages(outfile) as pdf:
+        pdf.savefig(Fig_WPS.get_figure())
+        pdf.savefig(Fig_Cov.get_figure())

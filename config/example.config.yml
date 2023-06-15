@@ -34,7 +34,13 @@ plotting:
   smoothing: True # bool; apply Savitzky-Golay filter or not
   rolling: True # bool; smooth by substracting the rolling median
   background_norm: True # bool, normalize with random background or not
+  edge_norm: False # bool, normalize with the mean of both outer 100 bp 
+  win_len: 21 #Savitzky-Golay filter window length (length of the filter window i.e. the number of coefficients)
+  poly: 2 #Savitzky-Golay filter polyorder (order of the polynomial used to fit the samples)
 
+### Midpoint coverage
+
+midpoint_coverage: False # bool, compute midpoint coverage score additionally to WPS
 
 ## unsupervised 
 
